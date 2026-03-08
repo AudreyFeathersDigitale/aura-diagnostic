@@ -951,7 +951,7 @@ function renderFinalCTA(baseData){
       <div>
         <label for="toolsInput">Mes outils actuels</label>
         <textarea id="toolsInput" class="leadTextarea" placeholder="Ex : Notion, Calendly, Stripe, Gmail, Make, Airtable..."></textarea>
-      </div>
+      <div class="micro">En général, je réponds avec 2 ou 3 recommandations concrètes adaptées à votre activité.</div></div>
     </div>
 
     <div class="resultActions">
