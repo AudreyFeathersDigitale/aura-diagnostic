@@ -1025,8 +1025,8 @@ async function finish(){
   addBotMsg(`<b>Top 3 automatisations prioritaires :</b><br>1) ${data.top3[0]}<br>2) ${data.top3[1]}<br>3) ${data.top3[2]}`);
   addBotMsg(`Bonne nouvelle : votre business a déjà une base solide.
 
-Mais certaines automatisations clés semblent manquer et pourraient vous faire gagner plusieurs heures chaque semaine. Si tu veux que je te dise <b>quelles 5 automatisations</b> déployer en premier, j’ai préparé ton message.`);
-  addBotMsg(`⏱ Je réponds généralement en moins de 24h.`);
+Mais certaines automatisations clés semblent manquer et pourraient vous faire gagner plusieurs heures chaque semaine. Si tu veux que je te dise <b>quelles 5 automatisations</b> déployer en premier, j’ai préparé ton message.
+⏱ Je réponds généralement en moins de 24h.`);
   renderFinalCTA(data);
 
   locked = false;
