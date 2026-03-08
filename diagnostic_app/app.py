@@ -941,7 +941,8 @@ function renderFinalCTA(baseData){
   card.className = "resultCard";
   card.innerHTML = `
     <div style="font-weight:900;font-size:18px;">👇 Recevoir mon plan d’automatisation</div>
-    <div class="micro">Ajoute ton activité et tes outils, puis ouvre mon profil LinkedIn et colle le message préparé.</div>
+    <div class="micro">Ajoute ton activité et tes outils, puis envoie-moi le message préparé sur LinkedIn.
+    ⏱ Je réponds généralement en moins de 24h.</div>
 
     <div class="leadForm">
       <div>
