@@ -1036,11 +1036,11 @@ function renderFinalCTA(baseData){
 
     <div class="leadForm">
       <div>
-        <label for="activityInput">Mon activité</label>
+        <label for="activityInput">Présente-toi en quelques mots</label>
         <input id="activityInput" class="leadInput" type="text" placeholder="Ex : Coach business, freelance, e-commerce...">
       </div>
       <div>
-        <label for="toolsInput">Mes outils actuels</label>
+        <label for="toolsInput">Dis-moi en plus sur les tâches qui te sont répétitivent aujourd'hui & les outils que tu utilises déjà</label>
         <textarea id="toolsInput" class="leadTextarea" placeholder="Ex : Notion, Calendly, Stripe, Gmail, Make, Airtable..."></textarea>
         <div class="micro">Je réponds en général avec 2 ou 3 recommandations concrètes adaptées à votre activité.</div>
       </div>
