@@ -730,6 +730,21 @@ HTML = r"""
     border:1px solid rgba(47,107,255,.14);
   }
 
+  .messageAppear{
+    animation: messageAppear .35s ease;
+  }
+
+  @keyframes messageAppear{
+    0%{
+      opacity:0;
+      transform:translateY(10px);
+    }
+    100%{
+      opacity:1;
+      transform:translateY(0);
+    }
+  }
+
   @media (max-width: 980px){
     .grid{ grid-template-columns:1fr; }
     .right{ min-height:620px; }
@@ -907,7 +922,7 @@ function playAuraTalk(){
 
 function addBotMsg(html, typing=false, extraClass=""){
   const row = document.createElement("div");
-  row.className = "row";
+  row.className = "row messageAppear";
 
   const mini = document.createElement("div");
   mini.className = "mini";
@@ -935,6 +950,7 @@ function addBotMsg(html, typing=false, extraClass=""){
   row.appendChild(bubble);
   chat.appendChild(row);
   chat.scrollTop = chat.scrollHeight;
+
   return { row, bubble };
 }
 
@@ -1048,7 +1064,7 @@ function updateCopyBox(){
 
 function renderFinalCTA(baseData){
   const card = document.createElement("div");
-  card.className = "resultCard";
+  card.className = "resultCard messageAppear";
   card.innerHTML = `
     <div style="font-weight:900;font-size:18px;">👇 Recevoir mon plan d’automatisation personnalisé</div>
     <div class="micro">Ajoute ton activité et tes outils, puis envoie-moi le message préparé sur LinkedIn.</div>
@@ -1110,6 +1126,7 @@ function renderFinalCTA(baseData){
 }
 
 async function finish(){
+
   locked = true;
   choices.innerHTML = "";
   setProgress();
@@ -1137,70 +1154,75 @@ async function finish(){
   ];
 
   let stepIndex = 0;
-  loaderText.textContent = steps[stepIndex];
 
-  const loaderInterval = setInterval(() => {
+  const loaderInterval = setInterval(()=>{
     stepIndex = Math.min(stepIndex + 1, steps.length - 1);
     loaderText.textContent = steps[stepIndex];
-  }, 700);
+  },700);
 
-  const startTime = Date.now();
-
-  const res = await fetch("/result", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({ answers })
+  const res = await fetch("/result",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({answers})
   });
 
   const data = await res.json();
   finalData = data;
 
-  const minLoaderTime = 2200;
-  const elapsed = Date.now() - startTime;
-
-  if (elapsed < minLoaderTime) {
-    await new Promise(resolve => setTimeout(resolve, minLoaderTime - elapsed));
-  }
+  await new Promise(r=>setTimeout(r,2000));
 
   clearInterval(loaderInterval);
 
   loadingMsg.bubble.innerHTML = `
-    <b>Résultat : ${data.score}/30 — ${data.level} (${data.subtitle})</b><br><br>
-    ${data.summary}<br><br>
-    Bonne nouvelle : ce type de business est souvent le plus facile à transformer avec les bonnes automatisations.
+  <b>Résultat : ${data.score}/30 — ${data.level} (${data.subtitle})</b><br><br>
+  ${data.summary}<br><br>
+  Bonne nouvelle : ce type de business est souvent le plus facile à transformer avec les bonnes automatisations.
   `;
 
-  addBotMsg(
-    `<b>Estimation AURA :</b><br>
-     Vous pourriez probablement économiser entre <b>${data.estimated_min} et ${data.estimated_max} heures par semaine</b> avec les bonnes automatisations.`,
-    false,
-    "estimateBox"
-  );
+  await new Promise(r=>setTimeout(r,900));
 
   addBotMsg(
-    `<b>Voici les 3 zones où l'automatisation aurait le plus d'impact chez vous :</b><br>
-     1) ${data.top3[0]}<br>
-     2) ${data.top3[1]}<br>
-     3) ${data.top3[2]}`
+  `<b>Estimation AURA :</b><br>
+  Vous pourriez probablement économiser entre <b>${data.estimated_min} et ${data.estimated_max} heures par semaine</b> avec les bonnes automatisations.`,
+  false,
+  "estimateBox"
   );
 
-  addBotMsg(
-    `Je peux vous préparer votre <b>plan d’automatisation personnalisé</b> :<br><br>
-     • les 5 automatisations prioritaires<br>
-     • les outils à utiliser<br>
-     • dans quel ordre les mettre en place`
-  );
+  await new Promise(r=>setTimeout(r,900));
 
   addBotMsg(
-    `La plupart des personnes gagnent entre <b>5 et 15 heures par semaine</b> après avoir mis ces systèmes en place.`
+  `<b>Voici les 3 zones où l'automatisation aurait le plus d'impact chez vous :</b><br>
+  1) ${data.top3[0]}<br>
+  2) ${data.top3[1]}<br>
+  3) ${data.top3[2]}`
   );
 
+  await new Promise(r=>setTimeout(r,900));
+
   addBotMsg(
-    `Ajoute ton activité et tes outils, puis envoie-moi le message préparé sur LinkedIn.<br>
-     ⏱ Je réponds généralement en moins de 24h.`
+  `Je peux vous préparer votre <b>plan d’automatisation personnalisé</b> :<br><br>
+  • les 5 automatisations prioritaires<br>
+  • les outils à utiliser<br>
+  • dans quel ordre les mettre en place`
   );
+
+  await new Promise(r=>setTimeout(r,900));
+
+  addBotMsg(
+  `La plupart des personnes gagnent entre <b>5 et 15 heures par semaine</b> après avoir mis ces systèmes en place.`
+  );
+
+  await new Promise(r=>setTimeout(r,900));
+
+  addBotMsg(
+  `Ajoute ton activité et tes outils, puis envoie-moi le message préparé sur LinkedIn.<br>
+  ⏱ Je réponds généralement en moins de 24h.`
+  );
+
+  await new Promise(r=>setTimeout(r,400));
 
   renderFinalCTA(data);
+
   locked = false;
 }
 
