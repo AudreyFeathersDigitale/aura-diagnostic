@@ -87,7 +87,6 @@ def score_answers(answers: dict) -> int:
 
 
 def level_from_score(score: int):
-    # 10 questions x 3 points max = 30
     if score <= 10:
         return ("Niveau 1", "Business très manuel / forte dépendance")
     if score <= 18:
@@ -98,7 +97,6 @@ def level_from_score(score: int):
 
 
 def estimate_time_gain(answers: dict):
-    # Base sur les réponses les plus corrélées à la perte de temps réelle
     repetitif_map = {"A": 1, "B": 3, "C": 6, "D": 10}
     temps_map = {"A": 1, "B": 4, "C": 8, "D": 12}
 
@@ -516,6 +514,27 @@ HTML = r"""
   @keyframes pop{
     0%,100%{ transform: translateY(0); opacity:.45; }
     50%{ transform: translateY(-4px); opacity:.95; }
+  }
+
+  .loaderWrap{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+
+  .loader{
+    width:18px;
+    height:18px;
+    border:2px solid rgba(47,107,255,.18);
+    border-top:2px solid var(--blue);
+    border-radius:999px;
+    animation: spin 0.8s linear infinite;
+    flex:0 0 auto;
+  }
+
+  @keyframes spin{
+    from{ transform: rotate(0deg); }
+    to{ transform: rotate(360deg); }
   }
 
   .choices{
@@ -1040,7 +1059,7 @@ function renderFinalCTA(baseData){
         <input id="activityInput" class="leadInput" type="text" placeholder="Ex : Coach business, freelance, e-commerce...">
       </div>
       <div>
-        <label for="toolsInput">Dis-moi en plus sur les tâches qui te sont répétitivent aujourd'hui & les outils que tu utilises déjà</label>
+        <label for="toolsInput">Dis-moi en plus sur les tâches qui te sont répétitives aujourd'hui & les outils que tu utilises déjà</label>
         <textarea id="toolsInput" class="leadTextarea" placeholder="Ex : Notion, Calendly, Stripe, Gmail, Make, Airtable..."></textarea>
         <div class="micro">Je réponds en général avec 2 ou 3 recommandations concrètes adaptées à votre activité.</div>
       </div>
@@ -1100,10 +1119,12 @@ async function finish(){
     currentQuestionRow = null;
   }
 
-  const msg = addBotMsg("", true);
-  setTimeout(() => {
-    msg.bubble.innerHTML = "Merci ! Je calcule ton résultat…";
-  }, 600);
+  const loadingMsg = addBotMsg(
+    `<div class="loaderWrap">
+       <div class="loader"></div>
+       <div>Merci ! Je calcule ton résultat…</div>
+     </div>`
+  );
 
   const res = await fetch("/result", {
     method:"POST",
@@ -1113,11 +1134,11 @@ async function finish(){
   const data = await res.json();
   finalData = data;
 
-  addBotMsg(
-    `<b>Résultat : ${data.score}/30 — ${data.level} (${data.subtitle})</b><br><br>
-     ${data.summary}<br><br>
-     Bonne nouvelle : ce type de business est souvent le plus facile à transformer avec les bonnes automatisations.`
-  );
+  loadingMsg.bubble.innerHTML = `
+    <b>Résultat : ${data.score}/30 — ${data.level} (${data.subtitle})</b><br><br>
+    ${data.summary}<br><br>
+    Bonne nouvelle : ce type de business est souvent le plus facile à transformer avec les bonnes automatisations.
+  `;
 
   addBotMsg(
     `<b>Estimation AURA :</b><br>
