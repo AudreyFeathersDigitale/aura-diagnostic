@@ -1122,17 +1122,47 @@ async function finish(){
   const loadingMsg = addBotMsg(
     `<div class="loaderWrap">
        <div class="loader"></div>
-       <div>Merci ! Je calcule ton résultat…</div>
+       <div id="loaderText">Analyse de vos réponses…</div>
      </div>`
   );
 
+  await new Promise(resolve => requestAnimationFrame(resolve));
+
+  const loaderText = loadingMsg.bubble.querySelector("#loaderText");
+
+  const steps = [
+    "Analyse de vos réponses…",
+    "Détection des priorités…",
+    "Préparation de votre résultat…"
+  ];
+
+  let stepIndex = 0;
+  loaderText.textContent = steps[stepIndex];
+
+  const loaderInterval = setInterval(() => {
+    stepIndex = Math.min(stepIndex + 1, steps.length - 1);
+    loaderText.textContent = steps[stepIndex];
+  }, 700);
+
+  const startTime = Date.now();
+
   const res = await fetch("/result", {
-    method:"POST",
-    headers: {"Content-Type":"application/json"},
-    body: JSON.stringify({answers})
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ answers })
   });
+
   const data = await res.json();
   finalData = data;
+
+  const minLoaderTime = 2200;
+  const elapsed = Date.now() - startTime;
+
+  if (elapsed < minLoaderTime) {
+    await new Promise(resolve => setTimeout(resolve, minLoaderTime - elapsed));
+  }
+
+  clearInterval(loaderInterval);
 
   loadingMsg.bubble.innerHTML = `
     <b>Résultat : ${data.score}/30 — ${data.level} (${data.subtitle})</b><br><br>
