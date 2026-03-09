@@ -11,7 +11,7 @@ LINKEDIN_URL = "https://www.linkedin.com/in/audrey-mouton-80b902217/?skipRedirec
 WEIGHTS = {"A": 0, "B": 1, "C": 2, "D": 3}
 
 QUESTIONS = [
-    ("dependance", "Si vous arrêtez de travailler 3 jours, que se passe-t-il ?", {
+    ("dependance", "Si vous arrêtez de travailler 1 semaine, que se passe-t-il ?", {
         "A": "Tout continue normalement.",
         "B": "Quelques tâches s'accumulent, mais ça va.",
         "C": "Certaines tâches bloquent / retards clients.",
@@ -53,6 +53,24 @@ QUESTIONS = [
         "C": "Trop d'opérationnel / trop de tâches.",
         "D": "Organisation floue / trop d'outils / pas de système.",
     }),
+    ("temps_perdu", "Combien d'heures par semaine passez-vous sur des tâches que quelqu'un d'autre pourrait faire ou automatiser ?", {
+    "A": "Moins de 2 heures.",
+    "B": "2 à 5 heures.",
+    "C": "5 à 10 heures.",
+    "D": "Plus de 10 heures.",
+}),
+("charge", "Avez-vous parfois l'impression d'avoir trop de choses à gérer en même temps ?", {
+    "A": "Rarement.",
+    "B": "Parfois.",
+    "C": "Souvent.",
+    "D": "Tout le temps.",
+}),
+("charge", "Avez-vous parfois l'impression d'avoir trop de choses à gérer en même temps ?", {
+    "A": "Rarement.",
+    "B": "Parfois.",
+    "C": "Souvent.",
+    "D": "Tout le temps.",
+}),
 ]
 
 
@@ -703,7 +721,7 @@ HTML = r"""
 
           <div class="name">AURA</div>
           <div class="subtitle">Agent IA • Diagnostic automatisation</div>
-          <div class="tag">Je pose 8 questions, une par une.</div>
+          <div class="tag">Je pose 10 questions, une par une.</div>
 
           <div class="progress"><div id="bar" class="bar"></div></div>
 
@@ -725,7 +743,7 @@ HTML = r"""
             </div>
             <div class="chatHeaderText">
               <div class="chatHeaderTitle">Salut 👋 Je suis AURA.</div>
-              <div class="chatHeaderSub">Prête ? On fait ce diagnostic en 8 questions.</div>
+              <div class="chatHeaderSub">Prête ? On fait ce diagnostic en 10 questions.</div>
             </div>
           </div>
           <div class="chatHeaderRight">~2 minutes</div>
