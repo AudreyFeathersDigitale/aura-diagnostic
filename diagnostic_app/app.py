@@ -745,6 +745,21 @@ HTML = r"""
     }
   }
 
+  .typeCaret{
+    display:inline-block;
+    width:2px;
+    height:1em;
+    background: var(--blue);
+    margin-left:2px;
+    vertical-align:-2px;
+    animation: caretBlink .9s infinite;
+  }
+
+  @keyframes caretBlink{
+    0%, 49%{ opacity:1; }
+    50%, 100%{ opacity:0; }
+  }
+
   @media (max-width: 980px){
     .grid{ grid-template-columns:1fr; }
     .right{ min-height:620px; }
@@ -889,6 +904,10 @@ const AURA_HEAD = "/static/aura_head.png";
 
 const auraImg = document.getElementById("auraBig");
 const auraBox = document.getElementById("auraBox");
+
+function sleep(ms){
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 function setProgress(){
   const pct = Math.round((step / QUESTIONS.length) * 100);
@@ -1125,6 +1144,67 @@ function renderFinalCTA(baseData){
   updateCopyBox();
 }
 
+async function typeTextNode(sourceNode, targetParent, speed){
+  const text = sourceNode.textContent || "";
+  const textNode = document.createTextNode("");
+  targetParent.appendChild(textNode);
+
+  for(let i = 0; i < text.length; i++){
+    textNode.textContent += text[i];
+    if(i % 3 === 0){
+      chat.scrollTop = chat.scrollHeight;
+    }
+    await sleep(speed);
+  }
+}
+
+async function typeDomNode(sourceNode, targetParent, speed){
+  if(sourceNode.nodeType === Node.TEXT_NODE){
+    await typeTextNode(sourceNode, targetParent, speed);
+    return;
+  }
+
+  if(sourceNode.nodeType !== Node.ELEMENT_NODE){
+    return;
+  }
+
+  const el = document.createElement(sourceNode.tagName.toLowerCase());
+
+  for(const attr of sourceNode.attributes){
+    el.setAttribute(attr.name, attr.value);
+  }
+
+  targetParent.appendChild(el);
+
+  for(const child of sourceNode.childNodes){
+    await typeDomNode(child, el, speed);
+  }
+}
+
+async function typeHtmlInto(targetElement, html, speed=16){
+  targetElement.innerHTML = "";
+  const caret = document.createElement("span");
+  caret.className = "typeCaret";
+
+  const template = document.createElement("template");
+  template.innerHTML = html.trim();
+
+  for(const node of template.content.childNodes){
+    await typeDomNode(node, targetElement, speed);
+  }
+
+  targetElement.appendChild(caret);
+  chat.scrollTop = chat.scrollHeight;
+  await sleep(250);
+  caret.remove();
+}
+
+async function addBotMsgTyped(html, extraClass="", speed=16){
+  const msg = addBotMsg("", false, extraClass);
+  await typeHtmlInto(msg.bubble, html, speed);
+  return msg;
+}
+
 async function finish(){
 
   locked = true;
@@ -1155,72 +1235,80 @@ async function finish(){
 
   let stepIndex = 0;
 
-  const loaderInterval = setInterval(()=>{
+  const loaderInterval = setInterval(() => {
     stepIndex = Math.min(stepIndex + 1, steps.length - 1);
     loaderText.textContent = steps[stepIndex];
-  },700);
+  }, 700);
 
-  const res = await fetch("/result",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({answers})
+  const res = await fetch("/result", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({answers})
   });
 
   const data = await res.json();
   finalData = data;
 
-  await new Promise(r=>setTimeout(r,2000));
-
+  await sleep(2200);
   clearInterval(loaderInterval);
 
-  loadingMsg.bubble.innerHTML = `
-  <b>Résultat : ${data.score}/30 — ${data.level} (${data.subtitle})</b><br><br>
-  ${data.summary}<br><br>
-  Bonne nouvelle : ce type de business est souvent le plus facile à transformer avec les bonnes automatisations.
-  `;
-
-  await new Promise(r=>setTimeout(r,900));
-
-  addBotMsg(
-  `<b>Estimation AURA :</b><br>
-  Vous pourriez probablement économiser entre <b>${data.estimated_min} et ${data.estimated_max} heures par semaine</b> avec les bonnes automatisations.`,
-  false,
-  "estimateBox"
+  await typeHtmlInto(
+    loadingMsg.bubble,
+    `<b>Résultat : ${data.score}/30 — ${data.level} (${data.subtitle})</b><br><br>
+     ${data.summary}<br><br>
+     Bonne nouvelle : ce type de business est souvent le plus facile à transformer avec les bonnes automatisations.`,
+    14
   );
 
-  await new Promise(r=>setTimeout(r,900));
+  await sleep(800);
 
-  addBotMsg(
-  `<b>Voici les 3 zones où l'automatisation aurait le plus d'impact chez vous :</b><br>
-  1) ${data.top3[0]}<br>
-  2) ${data.top3[1]}<br>
-  3) ${data.top3[2]}`
+  await addBotMsgTyped(
+    `<b>Estimation AURA :</b><br>
+     Vous pourriez probablement économiser entre <b>${data.estimated_min} et ${data.estimated_max} heures par semaine</b> avec les bonnes automatisations.`,
+    "estimateBox",
+    14
   );
 
-  await new Promise(r=>setTimeout(r,900));
+  await sleep(800);
 
-  addBotMsg(
-  `Je peux vous préparer votre <b>plan d’automatisation personnalisé</b> :<br><br>
-  • les 5 automatisations prioritaires<br>
-  • les outils à utiliser<br>
-  • dans quel ordre les mettre en place`
+  await addBotMsgTyped(
+    `<b>Voici les 3 zones où l'automatisation aurait le plus d'impact chez vous :</b><br>
+     1) ${data.top3[0]}<br>
+     2) ${data.top3[1]}<br>
+     3) ${data.top3[2]}`,
+    "",
+    14
   );
 
-  await new Promise(r=>setTimeout(r,900));
+  await sleep(800);
 
-  addBotMsg(
-  `La plupart des personnes gagnent entre <b>5 et 15 heures par semaine</b> après avoir mis ces systèmes en place.`
+  await addBotMsgTyped(
+    `Je peux vous préparer votre <b>plan d’automatisation personnalisé</b> :<br><br>
+     • les 5 automatisations prioritaires<br>
+     • les outils à utiliser<br>
+     • dans quel ordre les mettre en place`,
+    "",
+    14
   );
 
-  await new Promise(r=>setTimeout(r,900));
+  await sleep(800);
 
-  addBotMsg(
-  `Ajoute ton activité et tes outils, puis envoie-moi le message préparé sur LinkedIn.<br>
-  ⏱ Je réponds généralement en moins de 24h.`
+  await addBotMsgTyped(
+    `La plupart des personnes gagnent entre <b>5 et 15 heures par semaine</b> après avoir mis ces systèmes en place.`,
+    "",
+    14
   );
 
-  await new Promise(r=>setTimeout(r,400));
+  await sleep(800);
 
+  await addBotMsgTyped(
+    `Ajoute ton activité et tes outils, puis envoie-moi le message préparé sur LinkedIn.<br>
+     ⏱ Je réponds généralement en moins de 24h.`,
+    "",
+    14
+  );
+
+  await sleep(400);
   renderFinalCTA(data);
 
   locked = false;
