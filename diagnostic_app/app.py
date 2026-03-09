@@ -8,7 +8,10 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 LINKEDIN_URL = "https://www.linkedin.com/in/audrey-mouton-80b902217/?skipRedirect=true"
 
-WEIGHTS = {"A": 0, "B": 1, "C": 2, "D": 3}
+# Nouveau scoring inversé :
+# A = très bien / sain
+# D = critique / douloureux
+WEIGHTS = {"A": 3, "B": 2, "C": 1, "D": 0}
 
 QUESTIONS = [
     ("dependance", "Si vous arrêtez de travailler 1 semaine, que se passe-t-il ?", {
@@ -54,23 +57,23 @@ QUESTIONS = [
         "D": "Organisation floue / trop d'outils / pas de système.",
     }),
     ("temps_perdu", "Combien d'heures par semaine passez-vous sur des tâches que quelqu'un d'autre pourrait faire ou automatiser ?", {
-    "A": "Moins de 2 heures.",
-    "B": "2 à 5 heures.",
-    "C": "5 à 10 heures.",
-    "D": "Plus de 10 heures.",
-}),
-("charge", "Avez-vous parfois l'impression d'avoir trop de choses à gérer en même temps ?", {
-    "A": "Rarement.",
-    "B": "Parfois.",
-    "C": "Souvent.",
-    "D": "Tout le temps.",
-}),
-("charge", "Avez-vous parfois l'impression d'avoir trop de choses à gérer en même temps ?", {
-    "A": "Rarement.",
-    "B": "Parfois.",
-    "C": "Souvent.",
-    "D": "Tout le temps.",
-}),
+        "A": "Moins de 2 heures.",
+        "B": "2 à 5 heures.",
+        "C": "5 à 10 heures.",
+        "D": "Plus de 10 heures.",
+    }),
+    ("charge", "Avez-vous parfois l'impression d'avoir trop de choses à gérer en même temps ?", {
+        "A": "Rarement.",
+        "B": "Parfois.",
+        "C": "Souvent.",
+        "D": "Tout le temps.",
+    }),
+    ("goulot", "Aujourd'hui, qu'est-ce qui vous ralentit le plus dans votre activité ?", {
+        "A": "Rien de particulier, mon organisation est fluide.",
+        "B": "Le manque de temps.",
+        "C": "Trop de tâches manuelles.",
+        "D": "L'organisation, les outils ou les process.",
+    }),
 ]
 
 
@@ -84,15 +87,19 @@ def score_answers(answers: dict) -> int:
 
 
 def level_from_score(score: int):
-    if score <= 7:
-        return ("Niveau 1", "Business très dépendant de vous")
-    if score <= 14:
-        return ("Niveau 2", "Automatisations partielles (base existante)")
-    return ("Niveau 3", "Bonne base (optimisation & scaling)")
+    # 10 questions x 3 points max = 30
+    if score <= 10:
+        return ("Niveau 1", "Business très manuel / forte dépendance")
+    if score <= 18:
+        return ("Niveau 2", "Base existante, mais trop de tâches restent manuelles")
+    if score <= 25:
+        return ("Niveau 3", "Bonne structure avec optimisation possible")
+    return ("Niveau 4", "Système déjà solide, prêt à scaler")
 
 
 def rule_based_priorities(answers: dict):
     recos = []
+
     if answers.get("leads") in ("C", "D"):
         recos.append("Système Leads : capture → tagging → CRM → réponse auto + pipeline clair.")
     else:
@@ -103,10 +110,17 @@ def rule_based_priorities(answers: dict):
     else:
         recos.append("Système Onboarding : consolider (templates, centralisation infos, automatisations).")
 
-    if answers.get("repetitif") in ("C", "D") or answers.get("process") in ("C", "D"):
+    if (
+        answers.get("repetitif") in ("C", "D")
+        or answers.get("process") in ("C", "D")
+        or answers.get("temps_perdu") in ("C", "D")
+        or answers.get("charge") in ("C", "D")
+        or answers.get("goulot") in ("C", "D")
+    ):
         recos.append("Système Suivi/Opérations : rappels, relances, tâches récurrentes + SOP (documentation).")
     else:
         recos.append("Système Suivi/Opérations : améliorer reporting, relances et standardisation SOP.")
+
     return recos[:3]
 
 
@@ -934,7 +948,7 @@ function buildDmText(baseData){
 
 Je viens de faire ton diagnostic AURA.
 
-Mon résultat : ${baseData.score}/21 — ${baseData.level} (${baseData.subtitle})
+Mon résultat : ${baseData.score}/30 — ${baseData.level} (${baseData.subtitle})
 Résumé : ${baseData.summary}
 
 Mes 3 priorités :
@@ -1039,7 +1053,7 @@ async function finish(){
   const data = await res.json();
   finalData = data;
 
-  addBotMsg(`<b>Résultat : ${data.score}/21 — ${data.level} (${data.subtitle})</b><br><br>${data.summary}`);
+  addBotMsg(`<b>Résultat : ${data.score}/30 — ${data.level} (${data.subtitle})</b><br><br>${data.summary}`);
   addBotMsg(`<b>Top 3 automatisations prioritaires :</b><br>1) ${data.top3[0]}<br>2) ${data.top3[1]}<br>3) ${data.top3[2]}`);
   addBotMsg(`Bonne nouvelle : votre business a déjà une base solide.
 Mais certaines automatisations clés semblent manquer et pourraient vous faire gagner plusieurs heures chaque semaine.`);
@@ -1091,19 +1105,22 @@ async def result(request: Request):
     top3 = rule_based_priorities(answers)
 
     if level == "Niveau 1":
-        summary = ("Votre business dépend encore fortement de vous : si vous ralentissez, les opérations ralentissent (ou s’arrêtent). "
-                   "Priorité : structurer le flux leads → onboarding → suivi, puis automatiser les répétitions.")
+        summary = ("Votre business repose encore fortement sur vous. "
+                   "Il y a plusieurs points de friction qui méritent d’être structurés rapidement.")
     elif level == "Niveau 2":
-        summary = ("Vous avez une base, mais certains points restent manuels et créent des goulots d’étranglement. "
-                   "Priorité : automatiser les étapes répétitives et standardiser vos process.")
+        summary = ("Vous avez déjà une base, mais trop d'étapes restent encore manuelles ou dépendantes de vous. "
+                   "Avec quelques bons systèmes, vous pourriez déjà gagner un vrai confort.")
+    elif level == "Niveau 3":
+        summary = ("Votre organisation est plutôt saine. "
+                   "Quelques optimisations ciblées pourraient vous faire gagner du temps et alléger la charge mentale.")
     else:
-        summary = ("Votre base est saine : vous pouvez optimiser pour la fiabilité et la scalabilité. "
-                   "Priorité : renforcer les automatisations critiques et simplifier votre stack outils.")
+        summary = ("Votre système est déjà solide. "
+                   "L’enjeu est maintenant d’optimiser, simplifier et préparer le scaling.")
 
     dm_copy = (
         f"Bonjour Audrey,\n\n"
         f"Je viens de faire ton diagnostic AURA.\n\n"
-        f"Mon résultat : {score}/21 — {level} ({subtitle})\n"
+        f"Mon résultat : {score}/30 — {level} ({subtitle})\n"
         f"Résumé : {summary}\n\n"
         f"Mes 3 priorités :\n"
         f"1) {top3[0]}\n"
