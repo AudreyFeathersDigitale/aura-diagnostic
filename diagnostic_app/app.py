@@ -8,7 +8,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 LINKEDIN_URL = "https://www.linkedin.com/in/audrey-mouton-80b902217/?skipRedirect=true"
 
-# Nouveau scoring inversé :
+# Scoring inversé
 # A = très bien / sain
 # D = critique / douloureux
 WEIGHTS = {"A": 3, "B": 2, "C": 1, "D": 0}
@@ -95,6 +95,56 @@ def level_from_score(score: int):
     if score <= 25:
         return ("Niveau 3", "Bonne structure avec optimisation possible")
     return ("Niveau 4", "Système déjà solide, prêt à scaler")
+
+
+def estimate_time_gain(answers: dict):
+    # Base sur les réponses les plus corrélées à la perte de temps réelle
+    repetitif_map = {"A": 1, "B": 3, "C": 6, "D": 10}
+    temps_map = {"A": 1, "B": 4, "C": 8, "D": 12}
+
+    repetitif = answers.get("repetitif", "B")
+    temps_perdu = answers.get("temps_perdu", "B")
+    charge = answers.get("charge", "B")
+    onboarding = answers.get("onboarding", "B")
+    leads = answers.get("leads", "B")
+    process = answers.get("process", "B")
+    goulot = answers.get("goulot", "B")
+
+    base = max(repetitif_map.get(repetitif, 3), temps_map.get(temps_perdu, 4))
+
+    bonus = 0
+    if charge == "C":
+        bonus += 1
+    elif charge == "D":
+        bonus += 3
+
+    if onboarding == "C":
+        bonus += 1
+    elif onboarding == "D":
+        bonus += 2
+
+    if leads == "C":
+        bonus += 1
+    elif leads == "D":
+        bonus += 2
+
+    if process == "C":
+        bonus += 1
+    elif process == "D":
+        bonus += 2
+
+    if goulot == "C":
+        bonus += 1
+    elif goulot == "D":
+        bonus += 2
+
+    estimate_min = max(2, round(base * 0.7 + bonus * 0.5))
+    estimate_max = min(20, estimate_min + 3 + min(bonus, 4))
+
+    if estimate_max < estimate_min:
+        estimate_max = estimate_min + 2
+
+    return estimate_min, estimate_max
 
 
 def rule_based_priorities(answers: dict):
@@ -656,6 +706,11 @@ HTML = r"""
     margin-top:8px;
   }
 
+  .estimateBox{
+    background: linear-gradient(180deg, #ffffff, #f8fbff);
+    border:1px solid rgba(47,107,255,.14);
+  }
+
   @media (max-width: 980px){
     .grid{ grid-template-columns:1fr; }
     .right{ min-height:620px; }
@@ -744,6 +799,7 @@ HTML = r"""
           <ul class="bullets">
             <li>Ton score & niveau</li>
             <li>3 automatisations prioritaires</li>
+            <li>Ton estimation de temps gagnable</li>
             <li>Un texte copiable pour DM</li>
           </ul>
         </div>
@@ -830,7 +886,7 @@ function playAuraTalk(){
   if (Math.random() < 0.55) blink();
 }
 
-function addBotMsg(html, typing=false){
+function addBotMsg(html, typing=false, extraClass=""){
   const row = document.createElement("div");
   row.className = "row";
 
@@ -844,7 +900,7 @@ function addBotMsg(html, typing=false){
   }
 
   const bubble = document.createElement("div");
-  bubble.className = "bubble";
+  bubble.className = `bubble ${extraClass}`;
 
   if(typing){
     bubble.classList.add("bubbleTyping");
@@ -951,6 +1007,9 @@ Je viens de faire ton diagnostic AURA.
 Mon résultat : ${baseData.score}/30 — ${baseData.level} (${baseData.subtitle})
 Résumé : ${baseData.summary}
 
+Estimation AURA :
+Je pourrais probablement économiser entre ${baseData.estimated_min} et ${baseData.estimated_max} heures par semaine avec les bonnes automatisations.
+
 Mes 3 priorités :
 1) ${baseData.top3[0]}
 2) ${baseData.top3[1]}
@@ -972,7 +1031,7 @@ function renderFinalCTA(baseData){
   const card = document.createElement("div");
   card.className = "resultCard";
   card.innerHTML = `
-    <div style="font-weight:900;font-size:18px;">👇 Recevoir mon plan d’automatisation</div>
+    <div style="font-weight:900;font-size:18px;">👇 Recevoir mon plan d’automatisation personnalisé</div>
     <div class="micro">Ajoute ton activité et tes outils, puis envoie-moi le message préparé sur LinkedIn.</div>
 
     <div class="leadForm">
@@ -983,7 +1042,8 @@ function renderFinalCTA(baseData){
       <div>
         <label for="toolsInput">Mes outils actuels</label>
         <textarea id="toolsInput" class="leadTextarea" placeholder="Ex : Notion, Calendly, Stripe, Gmail, Make, Airtable..."></textarea>
-      <div class="micro">En général, je réponds avec 2 ou 3 recommandations concrètes adaptées à votre activité.</div></div>
+        <div class="micro">Je réponds en général avec 2 ou 3 recommandations concrètes adaptées à votre activité.</div>
+      </div>
     </div>
 
     <div class="resultActions">
@@ -1053,13 +1113,43 @@ async function finish(){
   const data = await res.json();
   finalData = data;
 
-  addBotMsg(`<b>Résultat : ${data.score}/30 — ${data.level} (${data.subtitle})</b><br><br>${data.summary}`);
-  addBotMsg(`<b>Top 3 automatisations prioritaires :</b><br>1) ${data.top3[0]}<br>2) ${data.top3[1]}<br>3) ${data.top3[2]}`);
-  addBotMsg(`Bonne nouvelle : votre business a déjà une base solide.
-Mais certaines automatisations clés semblent manquer et pourraient vous faire gagner plusieurs heures chaque semaine.`);
-  addBotMsg(`Si tu veux que je te dise <b>quelles 5 automatisations</b> déployer en premier, j’ai préparé ton message.<br>⏱ Je réponds généralement en moins de 24h.`);
-  renderFinalCTA(data);
+  addBotMsg(
+    `<b>Résultat : ${data.score}/30 — ${data.level} (${data.subtitle})</b><br><br>
+     ${data.summary}<br><br>
+     Bonne nouvelle : ce type de business est souvent le plus facile à transformer avec les bonnes automatisations.`
+  );
 
+  addBotMsg(
+    `<b>Estimation AURA :</b><br>
+     Vous pourriez probablement économiser entre <b>${data.estimated_min} et ${data.estimated_max} heures par semaine</b> avec les bonnes automatisations.`,
+    false,
+    "estimateBox"
+  );
+
+  addBotMsg(
+    `<b>Voici les 3 zones où l'automatisation aurait le plus d'impact chez vous :</b><br>
+     1) ${data.top3[0]}<br>
+     2) ${data.top3[1]}<br>
+     3) ${data.top3[2]}`
+  );
+
+  addBotMsg(
+    `Je peux vous préparer votre <b>plan d’automatisation personnalisé</b> :<br><br>
+     • les 5 automatisations prioritaires<br>
+     • les outils à utiliser<br>
+     • dans quel ordre les mettre en place`
+  );
+
+  addBotMsg(
+    `La plupart des personnes gagnent entre <b>5 et 15 heures par semaine</b> après avoir mis ces systèmes en place.`
+  );
+
+  addBotMsg(
+    `Ajoute ton activité et tes outils, puis envoie-moi le message préparé sur LinkedIn.<br>
+     ⏱ Je réponds généralement en moins de 24h.`
+  );
+
+  renderFinalCTA(data);
   locked = false;
 }
 
@@ -1103,10 +1193,12 @@ async def result(request: Request):
     score = score_answers(answers)
     level, subtitle = level_from_score(score)
     top3 = rule_based_priorities(answers)
+    estimated_min, estimated_max = estimate_time_gain(answers)
 
     if level == "Niveau 1":
         summary = ("Votre business repose encore fortement sur vous. "
-                   "Il y a plusieurs points de friction qui méritent d’être structurés rapidement.")
+                   "Si vous ralentissez, certaines opérations peuvent ralentir ou s’arrêter. "
+                   "Il y a plusieurs points de friction à structurer rapidement.")
     elif level == "Niveau 2":
         summary = ("Vous avez déjà une base, mais trop d'étapes restent encore manuelles ou dépendantes de vous. "
                    "Avec quelques bons systèmes, vous pourriez déjà gagner un vrai confort.")
@@ -1122,6 +1214,8 @@ async def result(request: Request):
         f"Je viens de faire ton diagnostic AURA.\n\n"
         f"Mon résultat : {score}/30 — {level} ({subtitle})\n"
         f"Résumé : {summary}\n\n"
+        f"Estimation AURA :\n"
+        f"Je pourrais probablement économiser entre {estimated_min} et {estimated_max} heures par semaine avec les bonnes automatisations.\n\n"
         f"Mes 3 priorités :\n"
         f"1) {top3[0]}\n"
         f"2) {top3[1]}\n"
@@ -1137,8 +1231,11 @@ async def result(request: Request):
         "subtitle": subtitle,
         "summary": summary,
         "top3": top3,
+        "estimated_min": estimated_min,
+        "estimated_max": estimated_max,
         "dm_copy": dm_copy
     })
+
 
 if __name__ == "__main__":
     uvicorn.run("app:app", host="127.0.0.1", port=8000, reload=True)
