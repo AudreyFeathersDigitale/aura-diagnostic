@@ -851,8 +851,8 @@ HTML = r"""
 <li>Le temps que tu peux récupérer chaque semaine</li>
 <li>Ton plan d’action prêt à envoyer</li>
           </ul>
-          <br><br>💡 La plupart des entrepreneurs découvrent
-entre 5 et 15 heures récupérables par semaine.
+          <br><br><div class="leftTitle">💡 La plupart des entrepreneurs découvrent
+entre 5 et 15 heures récupérables par semaine.</div>
         </div>
       </div>
 
