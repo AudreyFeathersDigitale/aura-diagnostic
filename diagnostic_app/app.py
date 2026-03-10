@@ -846,10 +846,10 @@ HTML = r"""
           <hr class="hr">
           <div class="leftTitle">À la fin, tu obtiens :</div>
           <ul class="bullets">
-            <li>Ton score & niveau</li>
-            <li>3 automatisations prioritaires</li>
-            <li>Ton estimation de temps gagnable</li>
-            <li>Un texte copiable pour DM</li>
+            <li>Ton score d’automatisation</li>
+<li>Les 3 systèmes à automatiser en priorité</li>
+<li>Le temps que tu peux récupérer chaque semaine</li>
+<li>Ton plan d’action prêt à envoyer</li>
           </ul>
         </div>
       </div>
