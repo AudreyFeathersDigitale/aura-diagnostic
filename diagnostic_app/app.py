@@ -863,10 +863,10 @@ entre 5 et 15 heures récupérables par semaine.</div>
               <img class="chatHeaderAvatar" src="/static/aura_head.png" alt="AURA">
             </div>
             <div class="chatHeaderText">
-              <div class="chatHeaderTitle">Salut 👋 Je suis AURA.
-              <br>Je détecte les endroits où ton business
-perd du temps inutilement.</div>
-              <div class="chatHeaderSub">Prête ? On fait ce diagnostic en 10 questions.</div>
+              <div class="chatHeaderTitle">Salut 👋 Je suis AURA.</div>
+              <div class="chatHeaderSub"><br>Je détecte les endroits où ton business
+perd du temps inutilement.
+<br>Prête ? On fait ce diagnostic en 10 questions.</div>
             </div>
           </div>
           <div class="chatHeaderRight">~2 minutes</div>
