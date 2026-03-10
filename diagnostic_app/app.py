@@ -844,7 +844,7 @@ HTML = r"""
           <div class="progress"><div id="bar" class="bar"></div></div>
 
           <hr class="hr">
-          <div class="leftTitle">À la fin, tu obtiens :</div>
+          <div class="leftTitle">En 2 minutes tu obtiens :</div>
           <ul class="bullets">
             <li>Ton score d’automatisation</li>
 <li>Les 3 systèmes à automatiser en priorité</li>
