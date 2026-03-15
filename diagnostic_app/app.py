@@ -14,31 +14,33 @@ LINKEDIN_URL = "https://www.linkedin.com/in/audrey-mouton-80b902217/?skipRedirec
 WEIGHTS = {"A": 3, "B": 2, "C": 1, "D": 0}
 
 QUESTIONS = [
-    ("dependance", "Si vous arrêtez de travailler 1 semaine, que se passe-t-il ?", {
+    ("dependance", "Si vous arrêtez de travailler pendant <b>1 semaine</b>, que se passe-t-il dans votre business ?", {
         "A": "Tout continue normalement.",
         "B": "Quelques tâches s'accumulent, mais ça va.",
         "C": "Certaines tâches bloquent / retards clients.",
         "D": "Tout s'arrête.",
     }),
-    ("leads", "Où arrivent vos nouveaux prospects aujourd'hui ?", {
-        "A": "Automatiquement dans un CRM.",
-        "B": "Dans un tableur / outil central + un peu de manuel.",
-        "C": "Dans la messagerie / DM / notes éparses.",
+    ("leads", "Où arrivent vos nouveaux prospects aujourd’hui ?", {
+        "A": "Directement dans un CRM structuré.",
+        "B": "Dans un outil central + un peu de manuel.",
+        "C": "Dans plusieurs endroits (DM, emails, notes).",
         "D": "Je n'ai pas de système clair.",
     }),
-    ("onboarding", "Quand un client signe, l'onboarding se passe comment ?", {
-        "A": "Automatisé (contrat/paiement/accès/infos).",
-        "B": "Semi-automatisé.",
-        "C": "Plutôt manuel (copier-coller, checklists).",
-        "D": "Souvent le chaos / ça dépend.",
+    ("onboarding", "Quand un client signe, l’onboarding se passe comment ?", {
+        "A": "Tout est automatisé.",
+        "B": "Partiellement automatisé.",
+        "C": "Plusieurs étapes manuelles.",
+        "D": "Ça dépend / c’est souvent improvisé.",
     }),
-    ("outils", "Combien d'outils utilisez-vous pour gérer votre activité ?", {
+    ("outils", "Combien d’outils utilisez-vous pour gérer votre activité ?"
+    "<br>Utiliser beaucoup d’outils peut parfois créer plus de complexité que de clarté.", {
         "A": "1 à 3",
         "B": "4 à 6",
         "C": "7 à 10",
         "D": "10+",
     }),
-    ("repetitif", "Combien de tâches répétitives faites-vous manuellement chaque semaine ?", {
+    ("repetitif", "Combien de tâches répétitives faites-vous chaque semaine ?
+(copier-coller, relances, organisation…)", {
         "A": "0 à 2",
         "B": "3 à 5",
         "C": "6 à 10",
@@ -50,29 +52,29 @@ QUESTIONS = [
         "C": "Non.",
         "D": "C'est dans ma tête.",
     }),
-    ("frein", "Votre frein principal aujourd'hui ?", {
-        "A": "Manque de leads / visibilité.",
+    ("frein", "Aujourd’hui, qu’est-ce qui vous ralentit le plus ?", {
+        "A": "Trouver des clients.",
         "B": "Manque de temps.",
-        "C": "Trop d'opérationnel / trop de tâches.",
-        "D": "Organisation floue / trop d'outils / pas de système.",
+        "C": "Trop d’opérationnel",
+        "D": "Organisation / outils / process.",
     }),
-    ("temps_perdu", "Combien d'heures par semaine passez-vous sur des tâches que quelqu'un d'autre pourrait faire ou automatiser ?", {
+    ("temps_perdu", "Combien d’heures par semaine passez-vous sur des tâches qui pourraient être automatisées ou déléguées ?", {
         "A": "Moins de 2 heures.",
         "B": "2 à 5 heures.",
         "C": "5 à 10 heures.",
         "D": "Plus de 10 heures.",
     }),
-    ("charge", "Avez-vous parfois l'impression d'avoir trop de choses à gérer en même temps ?", {
+    ("charge", "Avez-vous parfois l’impression de devoir tout gérer en même temps ?", {
         "A": "Rarement.",
         "B": "Parfois.",
         "C": "Souvent.",
         "D": "Tout le temps.",
     }),
-    ("goulot", "Aujourd'hui, qu'est-ce qui vous ralentit le plus dans votre activité ?", {
-        "A": "Rien de particulier, mon organisation est fluide.",
-        "B": "Le manque de temps.",
-        "C": "Trop de tâches manuelles.",
-        "D": "L'organisation, les outils ou les process.",
+    ("goulot", "Si votre business était mieux structuré, qu’est-ce que vous aimeriez le plus améliorer ?", {
+        "A": "Rien de particulier",
+        "B": "Gagner du temps.",
+        "C": "Réduire les tâches manuelles.",
+        "D": "Avoir un système clair qui tourne sans moi.",
     }),
 ]
 
