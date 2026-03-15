@@ -56,10 +56,10 @@ QUESTIONS = [
         "C": "Manque de temps.",
         "D": "Organisation / outils / process.",
     }),
-    ("temps_perdu", "Combien d’heures par semaine passez-vous sur des tâches qui pourraient être automatisées ou déléguées ?", {
+    ("temps_perdu", "Combien d’heures par semaine passez-vous sur des tâches répétitives ou manuelles ?\n(relances, copier-coller, organisation, suivi clients…)\nBeaucoup d’entrepreneurs découvrent ici plusieurs heures récupérables.", {
         "A": "Moins de 2 heures.",
         "B": "2 à 5 heures.",
-        "C": "5 à 10 heures.",
+        "C": "6 à 10 heures.",
         "D": "Plus de 10 heures.",
     }),
     ("charge", "Avez-vous parfois l’impression de devoir tout gérer en même temps ?", {
