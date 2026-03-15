@@ -32,14 +32,13 @@ QUESTIONS = [
         "C": "Plusieurs étapes manuelles.",
         "D": "Ça dépend / c’est souvent improvisé.",
     }),
-    ("outils", "Combien d’outils utilisez-vous pour gérer votre activité ?"
-    "<br>Utiliser beaucoup d’outils peut parfois créer plus de complexité que de clarté.", {
+    ("outils", "Combien d’outils utilisez-vous pour gérer votre activité ?<br>Utiliser beaucoup d’outils peut parfois créer plus de complexité que de clarté.", {
         "A": "1 à 3",
         "B": "4 à 6",
         "C": "7 à 10",
         "D": "10+",
     }),
-    ("repetitif", "Combien de tâches répétitives faites-vous chaque semaine ?\n(copier-coller, relances, organisation…)", {
+    ("repetitif", "Combien de tâches répétitives faites-vous chaque semaine ?<br>(copier-coller, relances, organisation…)", {
         "A": "0 à 2",
         "B": "3 à 5",
         "C": "6 à 10",
@@ -54,7 +53,7 @@ QUESTIONS = [
     ("frein", "Aujourd’hui, qu’est-ce qui vous ralentit le plus ?", {
         "A": "Trouver des clients.",
         "B": "Manque de temps.",
-        "C": "Trop d’opérationnel",
+        "C": "Trop d’opérationnel.",
         "D": "Organisation / outils / process.",
     }),
     ("temps_perdu", "Combien d’heures par semaine passez-vous sur des tâches qui pourraient être automatisées ou déléguées ?", {
@@ -70,7 +69,7 @@ QUESTIONS = [
         "D": "Tout le temps.",
     }),
     ("goulot", "Si votre business était mieux structuré, qu’est-ce que vous aimeriez le plus améliorer ?", {
-        "A": "Rien de particulier",
+        "A": "Rien de particulier.",
         "B": "Gagner du temps.",
         "C": "Réduire les tâches manuelles.",
         "D": "Avoir un système clair qui tourne sans moi.",
@@ -150,14 +149,14 @@ def rule_based_priorities(answers: dict):
     recos = []
 
     if answers.get("leads") in ("C", "D"):
-        recos.append("Système Leads : capture → tagging → CRM → réponse auto + pipeline clair.")
+        recos.append("Gestion des leads")
     else:
-        recos.append("Système Leads : standardiser pipeline (stades/tags/relances) + qualification automatique.")
+        recos.append("Optimisation du système de leads")
 
     if answers.get("onboarding") in ("C", "D"):
-        recos.append("Système Onboarding : contrat + paiement + email de bienvenue + accès + checklist automatique.")
+        recos.append("Onboarding client")
     else:
-        recos.append("Système Onboarding : consolider (templates, centralisation infos, automatisations).")
+        recos.append("Fluidité de l’onboarding")
 
     if (
         answers.get("repetitif") in ("C", "D")
@@ -166,9 +165,9 @@ def rule_based_priorities(answers: dict):
         or answers.get("charge") in ("C", "D")
         or answers.get("goulot") in ("C", "D")
     ):
-        recos.append("Système Suivi/Opérations : rappels, relances, tâches récurrentes + SOP (documentation).")
+        recos.append("Suivi des opérations")
     else:
-        recos.append("Système Suivi/Opérations : améliorer reporting, relances et standardisation SOP.")
+        recos.append("Organisation des opérations")
 
     return recos[:3]
 
@@ -418,9 +417,8 @@ HTML = r"""
     color: var(--muted);
     font-size:13px;
     font-weight:650;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: normal;
+    line-height:1.35;
   }
 
   .chatHeaderRight{
@@ -848,12 +846,13 @@ HTML = r"""
           <div class="leftTitle">En 2 minutes tu obtiens :</div>
           <ul class="bullets">
             <li>Ton score d’automatisation</li>
-<li>Les 3 systèmes à automatiser en priorité</li>
-<li>Le temps que tu peux récupérer chaque semaine</li>
-<li>Ton plan d’action prêt à envoyer</li>
+            <li>Les 3 systèmes à automatiser en priorité</li>
+            <li>Le temps que tu peux récupérer chaque semaine</li>
+            <li>Ton plan d’action prêt à envoyer</li>
           </ul>
-          <br><br><div class="leftTitle">💡 En moyenne, les entrepreneurs découvrent
-5 à 15 heures perdues chaque semaine.</div>
+
+          <br><br>
+          <div class="leftTitle">💡 En moyenne, les entrepreneurs découvrent 5 à 15 heures perdues chaque semaine.</div>
         </div>
       </div>
 
@@ -865,9 +864,7 @@ HTML = r"""
             </div>
             <div class="chatHeaderText">
               <div class="chatHeaderTitle">Salut 👋 Je suis AURA.</div>
-              <div class="chatHeaderSub">Je détecte les endroits où ton business
-perd du temps inutilement.
-<br>Prête ? On fait ce diagnostic en 10 questions.</div>
+              <div class="chatHeaderSub">Je détecte les endroits où ton business perd du temps inutilement.<br>Prête ? On fait ce diagnostic en 10 questions.</div>
             </div>
           </div>
           <div class="chatHeaderRight">~2 minutes</div>
@@ -1069,7 +1066,7 @@ Résumé : ${baseData.summary}
 Estimation AURA :
 Je pourrais probablement économiser entre ${baseData.estimated_min} et ${baseData.estimated_max} heures par semaine avec les bonnes automatisations.
 
-Mes 3 priorités :
+Mes 3 zones prioritaires :
 1) ${baseData.top3[0]}
 2) ${baseData.top3[1]}
 3) ${baseData.top3[2]}
@@ -1101,7 +1098,7 @@ function renderFinalCTA(baseData){
       <div>
         <label for="toolsInput">Dis-moi en plus sur les tâches qui te sont répétitives aujourd'hui & les outils que tu utilises déjà</label>
         <textarea id="toolsInput" class="leadTextarea" placeholder="Ex : Notion, Calendly, Stripe, Gmail, Make, Airtable..."></textarea>
-        <div class="micro">Je réponds en général avec 2 ou 3 recommandations concrètes adaptées à votre activité.</div>
+        <div class="micro">Je réponds en général avec 2 ou 3 recommandations concrètes adaptées à ton activité.</div>
       </div>
     </div>
 
@@ -1277,10 +1274,11 @@ async function finish(){
   await sleep(800);
 
   await addBotMsgTyped(
-    `<b>Voici les 3 zones où l'automatisation aurait le plus d'impact chez vous :</b><br>
+    `<b>Voici les 3 zones où votre business perd probablement le plus de temps :</b><br>
      1) ${data.top3[0]}<br>
      2) ${data.top3[1]}<br>
-     3) ${data.top3[2]}`,
+     3) ${data.top3[2]}<br><br>
+     Ce sont généralement les systèmes qui créent le plus de friction dans un business.`,
     "",
     14
   );
@@ -1288,9 +1286,9 @@ async function finish(){
   await sleep(800);
 
   await addBotMsgTyped(
-    `Je peux vous préparer votre <b>plan d’automatisation personnalisé</b> :<br><br>
+    `Je peux analyser votre <b>diagnostic AURA</b> et vous dire précisément :<br><br>
      • les 5 automatisations prioritaires<br>
-     • les outils à utiliser<br>
+     • les outils à connecter<br>
      • dans quel ordre les mettre en place`,
     "",
     14
@@ -1299,16 +1297,8 @@ async function finish(){
   await sleep(800);
 
   await addBotMsgTyped(
-    `La plupart des personnes gagnent entre <b>5 et 15 heures par semaine</b> après avoir mis ces systèmes en place.`,
-    "",
-    14
-  );
-
-  await sleep(800);
-
-  await addBotMsgTyped(
-    `Ajoute ton activité et tes outils, puis envoie-moi le message préparé sur LinkedIn.<br>
-     ⏱ Je réponds généralement en moins de 24h.`,
+    `Cela me prend environ <b>15 minutes</b>.<br><br>
+     Ajoute ton activité et tes outils, puis envoie-moi le message préparé sur LinkedIn.`,
     "",
     14
   );
@@ -1382,7 +1372,7 @@ async def result(request: Request):
         f"Résumé : {summary}\n\n"
         f"Estimation AURA :\n"
         f"Je pourrais probablement économiser entre {estimated_min} et {estimated_max} heures par semaine avec les bonnes automatisations.\n\n"
-        f"Mes 3 priorités :\n"
+        f"Mes 3 zones prioritaires :\n"
         f"1) {top3[0]}\n"
         f"2) {top3[1]}\n"
         f"3) {top3[2]}\n\n"
