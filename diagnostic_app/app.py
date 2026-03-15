@@ -24,7 +24,7 @@ QUESTIONS = [
         "A": "Directement dans un CRM structuré.",
         "B": "Dans un outil central + un peu de manuel.",
         "C": "Dans plusieurs endroits (DM, emails, notes).",
-        "D": "Je n'ai pas de système clair.",
+        "D": "Je n’ai pas vraiment de système.",
     }),
     ("onboarding", "Quand un client signe, l’onboarding se passe comment ?", {
         "A": "Tout est automatisé.",
@@ -52,8 +52,8 @@ QUESTIONS = [
     }),
     ("frein", "Aujourd’hui, qu’est-ce qui vous ralentit le plus ?", {
         "A": "Trouver des clients.",
-        "B": "Manque de temps.",
-        "C": "Trop d’opérationnel.",
+        "B": "Trop d’opérationnel.",
+        "C": "Manque de temps.",
         "D": "Organisation / outils / process.",
     }),
     ("temps_perdu", "Combien d’heures par semaine passez-vous sur des tâches qui pourraient être automatisées ou déléguées ?", {
@@ -72,7 +72,7 @@ QUESTIONS = [
         "A": "Rien de particulier.",
         "B": "Gagner du temps.",
         "C": "Réduire les tâches manuelles.",
-        "D": "Avoir un système clair qui tourne sans moi.",
+        "D": "Avoir un système clair qui fonctionne même quand je ne travaille pas.",
     }),
 ]
 
