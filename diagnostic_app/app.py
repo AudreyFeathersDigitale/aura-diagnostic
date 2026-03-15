@@ -39,8 +39,7 @@ QUESTIONS = [
         "C": "7 à 10",
         "D": "10+",
     }),
-    ("repetitif", "Combien de tâches répétitives faites-vous chaque semaine ?
-(copier-coller, relances, organisation…)", {
+    ("repetitif", "Combien de tâches répétitives faites-vous chaque semaine ?\n(copier-coller, relances, organisation…)", {
         "A": "0 à 2",
         "B": "3 à 5",
         "C": "6 à 10",
