@@ -1104,13 +1104,13 @@ Je viens de faire ton diagnostic AURA.
 Mon résultat : ${baseData.score}/30 — ${baseData.level} (${baseData.subtitle})
 Résumé : ${baseData.summary}
 
-Estimation AURA :
-Et apparemment, je pourrais récupérer entre ${baseData.estimated_min} et ${baseData.estimated_max} heures /semaine avec les bonnes automatisations.
-
 Ça a surtout pointé :
 1) ${baseData.top3[0]}
 2) ${baseData.top3[1]}
 3) ${baseData.top3[2]}
+
+Estimation AURA :
+Et apparemment, je pourrais récupérer entre ${baseData.estimated_min} et ${baseData.estimated_max} heures /semaine avec les bonnes automatisations.
 
 Mon activité : ${activity}
 Mes outils actuels : ${tools}
