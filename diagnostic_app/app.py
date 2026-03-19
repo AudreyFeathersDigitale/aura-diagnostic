@@ -1103,7 +1103,7 @@ function renderFinalCTA(baseData){
 
     <div class="resultActions">
   <a class="dmBtn" id="linkedinBtn" href="${LINKEDIN_URL}" target="_blank" rel="noopener noreferrer">
-    Recevoir mon plan personnalisé
+    Envoyer sur LinkedIn
    <button class="copyBtn" id="copyDmBtn" type="button">Copier le message</button>
 </div>
   `;
