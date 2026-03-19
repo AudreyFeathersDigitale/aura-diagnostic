@@ -7,6 +7,7 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 LINKEDIN_URL = "https://www.linkedin.com/in/audrey-mouton-80b902217/?skipRedirect=true"
+INSTAGRAM_URL = "https://www.instagram.com/business.auto.feathersdigital/"
 
 # Scoring inversé
 # A = très bien / sain
@@ -50,11 +51,11 @@ QUESTIONS = [
         "C": "Non.",
         "D": "C'est dans ma tête.",
     }),
-    ("frein", "Aujourd’hui, qu’est-ce qui vous ralentit le plus ?", {
-        "A": "Trouver des clients.",
-        "B": "Trop d’opérationnel.",
-        "C": "Manque de temps.",
-        "D": "Organisation / outils / process.",
+    ("frein", "Qui gère aujourd’hui la majorité des opérations ?", {
+        "A": "Mon système / automatisations",
+        "B": "Moi + quelques automatisations",
+        "C": "Principalement moi",
+        "D": "Uniquement moi",
     }),
     ("temps_perdu", "Combien d’heures par semaine passez-vous sur des tâches répétitives ou manuelles ?\n(relances, copier-coller, organisation, suivi clients…)\nBeaucoup d’entrepreneurs découvrent ici plusieurs heures récupérables.", {
         "A": "Moins de 2 heures.",
@@ -864,7 +865,7 @@ HTML = r"""
             </div>
             <div class="chatHeaderText">
               <div class="chatHeaderTitle">Salut 👋 Je suis AURA.</div>
-              <div class="chatHeaderSub">Je détecte les endroits où ton business perd du temps inutilement.<br>Prête ? On fait ce diagnostic en 10 questions.</div>
+              <div class="chatHeaderSub">Le diagnostic qui révèle où ton business dépend encore de toi.<br>Prête ? On fait ce diagnostic en 10 questions.</div>
             </div>
           </div>
           <div class="chatHeaderRight">~2 minutes</div>
@@ -887,6 +888,7 @@ HTML = r"""
 <script>
 const QUESTIONS = %QUESTIONS_JSON%;
 const LINKEDIN_URL = %LINKEDIN_URL_JSON%;
+const INSTAGRAM_URL = %INSTAGRAM_URL_JSON%;
 
 let step = 0;
 let answers = {};
@@ -1103,9 +1105,14 @@ function renderFinalCTA(baseData){
     </div>
 
     <div class="resultActions">
-      <a class="dmBtn" id="linkedinBtn" href="${LINKEDIN_URL}" target="_blank" rel="noopener noreferrer">M’envoyer un DM sur LinkedIn</a>
-      <button class="copyBtn" id="copyDmBtn" type="button">Copier le message</button>
-    </div>
+  <a class="dmBtn" id="linkedinBtn" href="${LINKEDIN_URL}" target="_blank" rel="noopener noreferrer">
+    M’envoyer un DM sur LinkedIn
+  </a>
+  <a class="dmBtn" id="instagramBtn" href="${INSTAGRAM_URL}" target="_blank" rel="noopener noreferrer">
+    M’envoyer un message sur Instagram
+  </a>
+  <button class="copyBtn" id="copyDmBtn" type="button">Copier le message</button>
+</div>
   `;
   chat.appendChild(card);
   chat.scrollTop = chat.scrollHeight;
@@ -1114,6 +1121,7 @@ function renderFinalCTA(baseData){
   const toolsInput = document.getElementById("toolsInput");
   const copyBtn = document.getElementById("copyDmBtn");
   const linkedinBtn = document.getElementById("linkedinBtn");
+  const instagramBtn = document.getElementById("instagramBtn");
 
   const sync = () => {
     updateCopyBox();
@@ -1142,6 +1150,12 @@ function renderFinalCTA(baseData){
     copyBox.style.display = "block";
     copyBox.textContent = dmText;
   };
+
+  instagramBtn.onclick = () => {
+  const dmText = buildDmText(baseData);
+  copyBox.style.display = "block";
+  copyBox.textContent = dmText;
+};
 
   updateCopyBox();
 }
@@ -1339,6 +1353,7 @@ def home():
         HTML
         .replace("%QUESTIONS_JSON%", questions_as_json())
         .replace("%LINKEDIN_URL_JSON%", json.dumps(LINKEDIN_URL))
+        .replace("%INSTAGRAM_URL_JSON%", json.dumps(INSTAGRAM_URL))
     )
 
 @app.post("/result")
