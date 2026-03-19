@@ -240,7 +240,6 @@ HTML = r"""
     --blue:#2f6bff;
     --blue2:#1f5cff;
     --line:rgba(15,23,42,.08);
-    --ok:#16a34a;
   }
 
   *{ box-sizing:border-box; }
@@ -659,8 +658,7 @@ HTML = r"""
   }
 
   .restart,
-  .dmBtn,
-  .copyBtn{
+  .dmBtn{
     border:none;
     cursor:pointer;
     font-weight:950;
@@ -670,10 +668,6 @@ HTML = r"""
     display:inline-flex;
     align-items:center;
     justify-content:center;
-  }
-
-  .restart,
-  .dmBtn{
     color:white;
     background: linear-gradient(180deg, var(--blue), var(--blue2));
     box-shadow: 0 18px 26px rgba(47,107,255,.18);
@@ -682,17 +676,6 @@ HTML = r"""
   .restart:hover,
   .dmBtn:hover{
     filter:brightness(1.05);
-  }
-
-  .copyBtn{
-    color:var(--text);
-    background:#ffffff;
-    border:1px solid var(--line);
-    box-shadow: 0 8px 16px rgba(15,23,42,.06);
-  }
-
-  .copyBtn:hover{
-    border-color: rgba(47,107,255,.28);
   }
 
   .copy{
@@ -1104,26 +1087,12 @@ function renderFinalCTA(baseData){
 
     <div class="resultActions">
       <a class="dmBtn" id="linkedinBtn" href="${LINKEDIN_URL}" target="_blank" rel="noopener noreferrer">Recevoir mon plan sur LinkedIn</a>
-      <button class="copyBtn" id="copyDmBtn" type="button">Copier le message</button>
     </div>
   `;
   chat.appendChild(card);
   chat.scrollTop = chat.scrollHeight;
 
-  const copyBtn = document.getElementById("copyDmBtn");
   const linkedinBtn = document.getElementById("linkedinBtn");
-
-  copyBtn.onclick = async () => {
-    const dmText = buildDmText(baseData);
-    try{
-      await navigator.clipboard.writeText(dmText);
-      copyBtn.textContent = "Message copié";
-      showCopyPreview("✅ Message copié. Collez-le dans LinkedIn avec Ctrl+V / Cmd+V.", true);
-    }catch(e){
-      showCopyPreview(dmText, false);
-      copyBtn.textContent = "Copie ci-dessous";
-    }
-  };
 
   linkedinBtn.onclick = async (e) => {
     e.preventDefault();
