@@ -875,7 +875,7 @@ HTML = r"""
         <div class="choices" id="choices"></div>
 
         <div class="footer" id="footer">
-          <div class="cta">Mot clé LinkedIn : <code>diagnostic</code></div>
+          <div class="cta">Mot clé LinkedIn & Insta : <code>diagnostic</code></div>
           <button class="restart" id="restart">Recommencer</button>
         </div>
 
@@ -1109,7 +1109,7 @@ function renderFinalCTA(baseData){
     M’envoyer un DM sur LinkedIn
   </a>
   <a class="dmBtn" id="instagramBtn" href="${INSTAGRAM_URL}" target="_blank" rel="noopener noreferrer">
-    M’envoyer un message sur Instagram
+    M’envoyer un DM sur Instagram
   </a>
   <button class="copyBtn" id="copyDmBtn" type="button">Copier le message</button>
 </div>
