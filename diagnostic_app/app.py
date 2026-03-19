@@ -1102,7 +1102,6 @@ function buildDmText(baseData){
 Je viens de faire ton diagnostic AURA.
 
 Je suis à ${baseData.score}/30 — ${baseData.level} (${baseData.subtitle})
-Résumé : ${baseData.summary}
 
 Ça a surtout pointé :
 1) ${baseData.top3[0]}
@@ -1113,8 +1112,6 @@ Et apparemment, Aura estime que je pourrais récupérer entre ${baseData.estimat
 
 Tu commencerais par quoi à ma place ?
 
-Mon activité : ${activity}
-Mes outils actuels : ${tools}`;
 }
 
 function updateCopyBox(){
@@ -1128,7 +1125,7 @@ function renderFinalCTA(baseData){
   card.className = "resultCard messageAppear";
   card.innerHTML = `
     <div style="font-weight:900;font-size:18px;">👇 Recevoir mon plan d’automatisation personnalisé</div>
-    <div class="micro">Ajoute ton activité et tes outils, puis envoie-moi le message préparé sur LinkedIn.</div>
+    <div class="micro">Envoie-moi le message préparé sur LinkedIn.</div>
 
     <div class="leadForm">
       <div>
@@ -1338,7 +1335,7 @@ async function finish(){
 
   await addBotMsgTyped(
     `Cela me prend environ <b>15 minutes</b>.<br><br>
-     Ajoute ton activité et tes outils, puis envoie-moi le message préparé sur LinkedIn.`,
+     Envoie-moi le message préparé sur LinkedIn.`,
     "",
     14
   );
@@ -1425,8 +1422,6 @@ async def result(request: Request):
         f"1) {top3[0]}\n"
         f"2) {top3[1]}\n"
         f"3) {top3[2]}\n\n"
-        f"Mon activité : [à compléter]\n"
-        f"Mes outils actuels : [à compléter]\n\n"
         f"Et apparemment, je pourrais récupérer entre {estimated_min} et {estimated_max} heures /semaine avec les bonnes automatisations.\n\n"
         f"Tu commencerais par quoi pour débloquer ça rapidement ?"
     )
