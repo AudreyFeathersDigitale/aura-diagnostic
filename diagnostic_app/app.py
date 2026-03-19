@@ -1418,19 +1418,18 @@ async def result(request: Request):
         )
 
     dm_copy = (
-        f"Bonjour Audrey,\n\n"
+        f"Hello Audrey,\n\n"
         f"Je viens de faire ton diagnostic AURA.\n\n"
-        f"Mon résultat : {score}/30 — {level} ({subtitle})\n"
-        f"Résumé : {summary}\n\n"
+        f"Je suis {score}/30 — {level} ({subtitle})\n"
         f"Estimation AURA :\n"
-        f"Je pourrais probablement économiser entre {estimated_min} et {estimated_max} heures par semaine avec les bonnes automatisations.\n\n"
-        f"Mes 3 zones prioritaires :\n"
+        f"Ça a surtout pointé :\n"
         f"1) {top3[0]}\n"
         f"2) {top3[1]}\n"
         f"3) {top3[2]}\n\n"
         f"Mon activité : [à compléter]\n"
         f"Mes outils actuels : [à compléter]\n\n"
-        f"Peux-tu me dire quelles 5 automatisations tu me recommandes en premier ?"
+        f"Et apparemment, je pourrais récupérer entre {estimated_min} et {estimated_max} heures /semaine avec les bonnes automatisations.\n\n"
+        f"Tu commencerais par quoi pour débloquer ça rapidement ?"
     )
 
     return JSONResponse(
