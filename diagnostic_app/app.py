@@ -14,66 +14,106 @@ LINKEDIN_URL = "https://www.linkedin.com/in/audrey-mouton-80b902217/?skipRedirec
 WEIGHTS = {"A": 3, "B": 2, "C": 1, "D": 0}
 
 QUESTIONS = [
-    ("dependance", "Si vous arrêtez de travailler pendant <b>1 semaine</b>, que se passe-t-il dans votre business ?", {
-        "A": "Tout continue normalement.",
-        "B": "Quelques tâches s'accumulent, mais ça va.",
-        "C": "Certaines tâches bloquent / retards clients.",
-        "D": "Tout s'arrête.",
-    }),
-    ("leads", "Où arrivent vos nouveaux prospects aujourd’hui ?", {
-        "A": "Directement dans un CRM structuré.",
-        "B": "Dans un outil central + un peu de manuel.",
-        "C": "Dans plusieurs endroits (DM, emails, notes).",
-        "D": "Je n’ai pas vraiment de système.",
-    }),
-    ("onboarding", "Quand un client signe, l’onboarding se passe comment ?", {
-        "A": "Tout est automatisé.",
-        "B": "Partiellement automatisé.",
-        "C": "Plusieurs étapes manuelles.",
-        "D": "Ça dépend / c’est souvent improvisé.",
-    }),
-    ("outils", "Combien d’outils utilisez-vous pour gérer votre activité ?<br>Utiliser beaucoup d’outils peut parfois créer plus de complexité que de clarté.", {
-        "A": "1 à 3",
-        "B": "4 à 6",
-        "C": "7 à 10",
-        "D": "10+",
-    }),
-    ("repetitif", "Combien de tâches répétitives faites-vous chaque semaine ?<br>(copier-coller, relances, organisation…)", {
-        "A": "0 à 2",
-        "B": "3 à 5",
-        "C": "6 à 10",
-        "D": "10+",
-    }),
-    ("process", "Vos process sont-ils documentés et structurés ?", {
-        "A": "Oui, clairement.",
-        "B": "Partiellement.",
-        "C": "Non.",
-        "D": "C'est dans ma tête.",
-    }),
-    ("frein", "Qui gère aujourd’hui la majorité des opérations ?", {
-        "A": "Mon système / automatisations",
-        "B": "Moi + quelques automatisations",
-        "C": "Principalement moi",
-        "D": "Uniquement moi",
-    }),
-    ("temps_perdu", "Combien d’heures par semaine passez-vous sur des tâches répétitives ou manuelles ?\n(relances, copier-coller, organisation, suivi clients…)\nBeaucoup d’entrepreneurs découvrent ici plusieurs heures récupérables.", {
-        "A": "Moins de 2 heures.",
-        "B": "2 à 5 heures.",
-        "C": "6 à 10 heures.",
-        "D": "Plus de 10 heures.",
-    }),
-    ("charge", "Avez-vous parfois l’impression de devoir tout gérer en même temps ?", {
-        "A": "Rarement.",
-        "B": "Parfois.",
-        "C": "Souvent.",
-        "D": "Tout le temps.",
-    }),
-    ("goulot", "Si votre business était mieux structuré, qu’est-ce que vous aimeriez le plus améliorer ?", {
-        "A": "Rien de particulier.",
-        "B": "Gagner du temps.",
-        "C": "Réduire les tâches manuelles.",
-        "D": "Avoir un système clair qui fonctionne même quand je ne travaille pas.",
-    }),
+    (
+        "dependance",
+        "Si vous arrêtez de travailler pendant <b>1 semaine</b>, que se passe-t-il dans votre business ?",
+        {
+            "A": "Tout continue normalement.",
+            "B": "Quelques tâches s'accumulent, mais ça va.",
+            "C": "Certaines tâches bloquent / retards clients.",
+            "D": "Tout s'arrête.",
+        },
+    ),
+    (
+        "leads",
+        "Où arrivent vos nouveaux prospects aujourd’hui ?",
+        {
+            "A": "Directement dans un CRM structuré.",
+            "B": "Dans un outil central + un peu de manuel.",
+            "C": "Dans plusieurs endroits (DM, emails, notes).",
+            "D": "Je n’ai pas vraiment de système.",
+        },
+    ),
+    (
+        "onboarding",
+        "Quand un client signe, l’onboarding se passe comment ?",
+        {
+            "A": "Tout est automatisé.",
+            "B": "Partiellement automatisé.",
+            "C": "Plusieurs étapes manuelles.",
+            "D": "Ça dépend / c’est souvent improvisé.",
+        },
+    ),
+    (
+        "outils",
+        "Combien d’outils utilisez-vous pour gérer votre activité ?<br>Utiliser beaucoup d’outils peut parfois créer plus de complexité que de clarté.",
+        {
+            "A": "1 à 3",
+            "B": "4 à 6",
+            "C": "7 à 10",
+            "D": "10+",
+        },
+    ),
+    (
+        "repetitif",
+        "Combien de tâches répétitives faites-vous chaque semaine ?<br>(copier-coller, relances, organisation…)",
+        {
+            "A": "0 à 2",
+            "B": "3 à 5",
+            "C": "6 à 10",
+            "D": "10+",
+        },
+    ),
+    (
+        "process",
+        "Vos process sont-ils documentés et structurés ?",
+        {
+            "A": "Oui, clairement.",
+            "B": "Partiellement.",
+            "C": "Non.",
+            "D": "C'est dans ma tête.",
+        },
+    ),
+    (
+        "frein",
+        "Qui gère aujourd’hui la majorité des opérations ?",
+        {
+            "A": "Mon système / automatisations",
+            "B": "Moi + quelques automatisations",
+            "C": "Principalement moi",
+            "D": "Uniquement moi",
+        },
+    ),
+    (
+        "temps_perdu",
+        "Combien d’heures par semaine passez-vous sur des tâches répétitives ou manuelles ?\n(relances, copier-coller, organisation, suivi clients…)\nBeaucoup d’entrepreneurs découvrent ici plusieurs heures récupérables.",
+        {
+            "A": "Moins de 2 heures.",
+            "B": "2 à 5 heures.",
+            "C": "6 à 10 heures.",
+            "D": "Plus de 10 heures.",
+        },
+    ),
+    (
+        "charge",
+        "Avez-vous parfois l’impression de devoir tout gérer en même temps ?",
+        {
+            "A": "Rarement.",
+            "B": "Parfois.",
+            "C": "Souvent.",
+            "D": "Tout le temps.",
+        },
+    ),
+    (
+        "goulot",
+        "Si votre business était mieux structuré, qu’est-ce que vous aimeriez le plus améliorer ?",
+        {
+            "A": "Rien de particulier.",
+            "B": "Gagner du temps.",
+            "C": "Réduire les tâches manuelles.",
+            "D": "Avoir un système clair qui fonctionne même quand je ne travaille pas.",
+        },
+    ),
 ]
 
 
@@ -174,6 +214,7 @@ def rule_based_priorities(answers: dict):
 
 def questions_as_json():
     import json
+
     out = []
     for key, prompt, opts in QUESTIONS:
         out.append({"key": key, "prompt": prompt, "options": opts})
@@ -1056,25 +1097,26 @@ function buildDmText(baseData){
   const activity = (document.getElementById("activityInput")?.value || "").trim() || "[à compléter]";
   const tools = (document.getElementById("toolsInput")?.value || "").trim() || "[à compléter]";
 
-  return `Hello Audrey,
+  return `Bonjour Audrey,
 
 Je viens de faire ton diagnostic AURA.
 
 Mon résultat : ${baseData.score}/30 — ${baseData.level} (${baseData.subtitle})
 Résumé : ${baseData.summary}
 
-Ça a surtout pointé :
+Estimation AURA :
+Je pourrais probablement économiser entre ${baseData.estimated_min} et ${baseData.estimated_max} heures par semaine avec les bonnes automatisations.
+
+Mes 3 zones prioritaires :
 1) ${baseData.top3[0]}
 2) ${baseData.top3[1]}
 3) ${baseData.top3[2]}
 
-Et apparemment, je pourrais récupérer entre ${baseData.estimated_min} et ${baseData.estimated_max} heures /semaine avec les bonnes automatisations 😅
-
-Tu commencerais par quoi pour débloquer ça rapidement ?`;
-}
-
 Mon activité : ${activity}
 Mes outils actuels : ${tools}
+
+Peux-tu me dire quelles 5 automatisations tu me recommandes en premier ?`;
+}
 
 function updateCopyBox(){
   if(!finalData) return;
@@ -1102,10 +1144,9 @@ function renderFinalCTA(baseData){
     </div>
 
     <div class="resultActions">
-  <a class="dmBtn" id="linkedinBtn" href="${LINKEDIN_URL}" target="_blank" rel="noopener noreferrer">
-    Envoyer sur LinkedIn
-   <button class="copyBtn" id="copyDmBtn" type="button">Copier le message</button>
-</div>
+      <a class="dmBtn" id="linkedinBtn" href="${LINKEDIN_URL}" target="_blank" rel="noopener noreferrer">M’envoyer un DM sur LinkedIn</a>
+      <button class="copyBtn" id="copyDmBtn" type="button">Copier le message</button>
+    </div>
   `;
   chat.appendChild(card);
   chat.scrollTop = chat.scrollHeight;
@@ -1114,7 +1155,7 @@ function renderFinalCTA(baseData){
   const toolsInput = document.getElementById("toolsInput");
   const copyBtn = document.getElementById("copyDmBtn");
   const linkedinBtn = document.getElementById("linkedinBtn");
-  
+
   const sync = () => {
     updateCopyBox();
     copyBtn.textContent = "Copier le message";
@@ -1332,14 +1373,17 @@ reset();
 </html>
 """
 
+
 @app.get("/", response_class=HTMLResponse)
 def home():
     import json
+
     return (
         HTML
         .replace("%QUESTIONS_JSON%", questions_as_json())
         .replace("%LINKEDIN_URL_JSON%", json.dumps(LINKEDIN_URL))
-        )
+    )
+
 
 @app.post("/result")
 async def result(request: Request):
@@ -1352,18 +1396,26 @@ async def result(request: Request):
     estimated_min, estimated_max = estimate_time_gain(answers)
 
     if level == "Niveau 1":
-        summary = ("Votre business repose encore fortement sur vous. "
-                   "Si vous ralentissez, certaines opérations peuvent ralentir ou s’arrêter. "
-                   "Il y a plusieurs points de friction à structurer rapidement.")
+        summary = (
+            "Votre business repose encore fortement sur vous. "
+            "Si vous ralentissez, certaines opérations peuvent ralentir ou s’arrêter. "
+            "Il y a plusieurs points de friction à structurer rapidement."
+        )
     elif level == "Niveau 2":
-        summary = ("Vous avez déjà une base, mais trop d'étapes restent encore manuelles ou dépendantes de vous. "
-                   "Avec quelques bons systèmes, vous pourriez déjà gagner un vrai confort.")
+        summary = (
+            "Vous avez déjà une base, mais trop d'étapes restent encore manuelles ou dépendantes de vous. "
+            "Avec quelques bons systèmes, vous pourriez déjà gagner un vrai confort."
+        )
     elif level == "Niveau 3":
-        summary = ("Votre organisation est plutôt saine. "
-                   "Quelques optimisations ciblées pourraient vous faire gagner du temps et alléger la charge mentale.")
+        summary = (
+            "Votre organisation est plutôt saine. "
+            "Quelques optimisations ciblées pourraient vous faire gagner du temps et alléger la charge mentale."
+        )
     else:
-        summary = ("Votre système est déjà solide. "
-                   "L’enjeu est maintenant d’optimiser, simplifier et préparer le scaling.")
+        summary = (
+            "Votre système est déjà solide. "
+            "L’enjeu est maintenant d’optimiser, simplifier et préparer le scaling."
+        )
 
     dm_copy = (
         f"Bonjour Audrey,\n\n"
@@ -1381,16 +1433,18 @@ async def result(request: Request):
         f"Peux-tu me dire quelles 5 automatisations tu me recommandes en premier ?"
     )
 
-    return JSONResponse({
-        "score": score,
-        "level": level,
-        "subtitle": subtitle,
-        "summary": summary,
-        "top3": top3,
-        "estimated_min": estimated_min,
-        "estimated_max": estimated_max,
-        "dm_copy": dm_copy
-    })
+    return JSONResponse(
+        {
+            "score": score,
+            "level": level,
+            "subtitle": subtitle,
+            "summary": summary,
+            "top3": top3,
+            "estimated_min": estimated_min,
+            "estimated_max": estimated_max,
+            "dm_copy": dm_copy,
+        }
+    )
 
 
 if __name__ == "__main__":
