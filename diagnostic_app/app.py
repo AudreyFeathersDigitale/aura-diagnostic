@@ -1472,11 +1472,11 @@ function renderFinalCTA(baseData){
   card.innerHTML = `
     <div style="font-weight:900;font-size:18px;">👇 Recevoir mon plan personnalisé (5 actions concrètes)</div>
     <div class="micro">Je vais analyser ton cas et te dire :
-<br>
+<br><br>
 • quoi automatiser en priorité  
-• quels outils utiliser  
-• dans quel ordre le faire  
-<br>
+<br>• quels outils utiliser  
+<br>• dans quel ordre le faire  
+<br><br>
 👉 pour que tu récupères du temps rapidement</div>
 
     <div class="leadForm">
@@ -1496,7 +1496,7 @@ function renderFinalCTA(baseData){
       </div>
     </div>
 
-    <div class="micro">Je te réponds en général avec 2–3 recommandations adaptées à ton cas.</div>
+    <div class="micro">Je t’envoie un plan clair avec 5 actions concrètes adaptées à ton business.</div>
 
     <div class="resultActions">
       <a class="dmBtn" id="linkedinBtn" href="${LINKEDIN_URL}" target="_blank" rel="noopener noreferrer">Voir quoi automatiser en priorité (plan personalisé)</a>
@@ -1691,9 +1691,9 @@ async function finish(){
 
   await addBotMsgTyped(
     `Ce que je vois surtout, c’est que si rien ne change, tu vas continuer à perdre du temps chaque semaine sur des tâches évitables.
-<br>
+<br><br>
 Mais la bonne nouvelle, c’est que c’est exactement le type de situation qui peut être débloqué rapidement.
-<br>
+<br><br>
 👉 Je peux te dire précisément par quoi commencer (et te donner un plan clair en 5 actions).<br>
     `,
     "",
