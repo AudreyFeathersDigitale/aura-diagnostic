@@ -2,16 +2,18 @@ from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 import uvicorn
+import json
+import sqlite3
+from pathlib import Path
+from datetime import datetime, timezone
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-LINKEDIN_URL = "https://www.linkedin.com/in/audrey-mouton-80b902217/?skipRedirect=true"
+BASE_DIR = Path(__file__).resolve().parent
+DB_PATH = BASE_DIR / "aura_leads.db"
 
-# Scoring inversé
-# A = très bien / sain
-# D = critique / douloureux
-WEIGHTS = {"A": 3, "B": 2, "C": 1, "D": 0}
+LINKEDIN_URL = "https://www.linkedin.com/in/audrey-mouton-80b902217/?skipRedirect=true"
 
 QUESTIONS = [
     (
@@ -116,24 +118,133 @@ QUESTIONS = [
     ),
 ]
 
+# Score interne : plus haut = plus de friction
+ANSWER_SCORES = {
+    "A": 0,
+    "B": 1,
+    "C": 2,
+    "D": 3,
+}
 
-def score_answers(answers: dict) -> int:
-    total = 0
+QUESTION_WEIGHTS = {
+    "dependance": 3.0,
+    "frein": 3.0,
+    "temps_perdu": 2.5,
+    "charge": 2.5,
+    "goulot": 2.5,
+    "leads": 2.0,
+    "onboarding": 2.0,
+    "process": 2.0,
+    "repetitif": 1.5,
+    "outils": 1.0,
+}
+
+CATEGORY_MAP = {
+    "dependance": "dependance",
+    "frein": "dependance",
+    "charge": "dependance",
+    "goulot": "dependance",
+    "leads": "operations",
+    "onboarding": "operations",
+    "process": "operations",
+    "outils": "operations",
+    "repetitif": "temps",
+    "temps_perdu": "temps",
+}
+
+
+def utcnow_iso() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def get_conn() -> sqlite3.Connection:
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+def init_db() -> None:
+    with get_conn() as conn:
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS leads (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                created_at TEXT NOT NULL,
+                updated_at TEXT NOT NULL,
+                answers_json TEXT NOT NULL,
+                score_pct INTEGER NOT NULL,
+                score_display_30 INTEGER NOT NULL,
+                level TEXT NOT NULL,
+                subtitle TEXT NOT NULL,
+                profile_title TEXT NOT NULL,
+                profile_text TEXT NOT NULL,
+                category_scores_json TEXT NOT NULL,
+                top3_json TEXT NOT NULL,
+                estimated_min INTEGER NOT NULL,
+                estimated_max INTEGER NOT NULL,
+                activity TEXT,
+                repetitive_tasks TEXT,
+                tools TEXT,
+                linkedin_clicked INTEGER NOT NULL DEFAULT 0,
+                dm_text TEXT
+            )
+            """
+        )
+
+
+def questions_as_json() -> str:
+    out = []
+    for key, prompt, opts in QUESTIONS:
+        out.append({"key": key, "prompt": prompt, "options": opts})
+    return json.dumps(out, ensure_ascii=False)
+
+
+def weighted_score(answers: dict) -> tuple[float, float]:
+    total = 0.0
+    max_total = 0.0
+
     for key, _, _ in QUESTIONS:
-        v = answers.get(key)
-        if v in WEIGHTS:
-            total += WEIGHTS[v]
-    return total
+        answer = answers.get(key, "A")
+        score = ANSWER_SCORES.get(answer, 0)
+        weight = QUESTION_WEIGHTS.get(key, 1.0)
+        total += score * weight
+        max_total += 3 * weight
+
+    return total, max_total
 
 
-def level_from_score(score: int):
-    if score <= 10:
-        return ("Niveau 1", "Business très manuel / forte dépendance")
-    if score <= 18:
-        return ("Niveau 2", "Base existante, mais trop de tâches restent manuelles")
-    if score <= 25:
-        return ("Niveau 3", "Bonne structure avec optimisation possible")
-    return ("Niveau 4", "Système déjà solide, prêt à scaler")
+def friction_percentage(answers: dict) -> int:
+    total, max_total = weighted_score(answers)
+    if max_total == 0:
+        return 0
+    return round((total / max_total) * 100)
+
+
+def display_score_30(friction_pct: int) -> int:
+    display_score = 100 - friction_pct
+    return round((display_score / 100) * 30)
+
+
+def level_from_percentage(friction_pct: int) -> tuple[str, str]:
+    if friction_pct < 25:
+        return (
+            "Niveau 4",
+            "Système déjà solide, avec quelques optimisations possibles",
+        )
+    if friction_pct < 50:
+        return (
+            "Niveau 3",
+            "Base présente, mais plusieurs frictions limitent encore la fluidité",
+        )
+    if friction_pct < 75:
+        return (
+            "Niveau 2",
+            "Business encore trop dépendant et trop manuel",
+        )
+    return (
+        "Niveau 1",
+        "Business fortement dépendant de vous, avec plusieurs blocages critiques",
+    )
 
 
 def human_level_label(level: str) -> str:
@@ -148,7 +259,53 @@ def human_level_label(level: str) -> str:
     return "encore trop au centre de mon business"
 
 
-def estimate_time_gain(answers: dict):
+def category_scores(answers: dict) -> dict:
+    scores = {"dependance": 0.0, "operations": 0.0, "temps": 0.0}
+    max_scores = {"dependance": 0.0, "operations": 0.0, "temps": 0.0}
+
+    for key, _, _ in QUESTIONS:
+        category = CATEGORY_MAP.get(key)
+        if not category:
+            continue
+
+        answer = answers.get(key, "A")
+        score = ANSWER_SCORES.get(answer, 0)
+        weight = QUESTION_WEIGHTS.get(key, 1.0)
+
+        scores[category] += score * weight
+        max_scores[category] += 3 * weight
+
+    result = {}
+    for cat in scores:
+        if max_scores[cat] == 0:
+            result[cat] = 0
+        else:
+            result[cat] = round((scores[cat] / max_scores[cat]) * 100)
+    return result
+
+
+def dominant_profile(category_pct: dict) -> tuple[str, str]:
+    dominant = max(category_pct, key=category_pct.get)
+
+    mapping = {
+        "dependance": (
+            "Business très dépendant",
+            "Votre principal blocage aujourd’hui, c’est que trop de choses reposent encore directement sur vous.",
+        ),
+        "operations": (
+            "Business désorganisé",
+            "Votre principal frein, ce sont des opérations encore trop dispersées, manuelles ou mal structurées.",
+        ),
+        "temps": (
+            "Business chronophage",
+            "Votre principal problème aujourd’hui, c’est le volume de temps perdu sur des tâches évitables.",
+        ),
+    }
+
+    return mapping[dominant]
+
+
+def estimate_time_gain(answers: dict) -> tuple[int, int]:
     repetitif_map = {"A": 1, "B": 3, "C": 6, "D": 10}
     temps_map = {"A": 1, "B": 4, "C": 8, "D": 12}
 
@@ -197,7 +354,7 @@ def estimate_time_gain(answers: dict):
     return estimate_min, estimate_max
 
 
-def rule_based_priorities(answers: dict):
+def rule_based_priorities(answers: dict) -> list[str]:
     recos = []
 
     if answers.get("leads") in ("C", "D"):
@@ -224,13 +381,130 @@ def rule_based_priorities(answers: dict):
     return recos[:3]
 
 
-def questions_as_json():
-    import json
+def level_messages(level: str) -> tuple[str, str]:
+    if level == "Niveau 1":
+        summary = (
+            "Aujourd’hui, votre business dépend encore fortement de vous. "
+            "Si vous ralentissez, certaines opérations ralentissent ou s’arrêtent aussi. "
+            "Votre enjeu n’est pas seulement d’automatiser quelques tâches : "
+            "c’est de sortir votre business du mode survie."
+        )
+        closing = (
+            "La bonne nouvelle, c’est que c’est souvent le niveau où les gains sont les plus rapides. "
+            "Avec les bons systèmes, vous pouvez vite récupérer du temps et enlever plusieurs frictions."
+        )
+        return summary, closing
 
-    out = []
-    for key, prompt, opts in QUESTIONS:
-        out.append({"key": key, "prompt": prompt, "options": opts})
-    return json.dumps(out, ensure_ascii=False)
+    if level == "Niveau 2":
+        summary = (
+            "Vous avez déjà une base de fonctionnement, mais trop d’étapes reposent encore sur vous "
+            "ou sur des manipulations manuelles. "
+            "Votre business ne repose plus entièrement sur l’improvisation, "
+            "mais il n’est pas encore vraiment fluide."
+        )
+        closing = (
+            "C’est généralement le moment où structurer les bons systèmes fait une vraie différence : "
+            "moins de charge mentale, moins d’actions répétitives, plus de fluidité."
+        )
+        return summary, closing
+
+    if level == "Niveau 3":
+        summary = (
+            "Votre business est déjà plutôt bien structuré. "
+            "Vous n’avez pas un problème majeur de survie opérationnelle, "
+            "mais plusieurs zones peuvent encore être optimisées pour vous faire gagner du temps."
+        )
+        closing = (
+            "À ce niveau, l’enjeu n’est plus de tout reconstruire, "
+            "mais d’identifier les bons leviers pour simplifier et accélérer."
+        )
+        return summary, closing
+
+    summary = (
+        "Votre système est déjà solide. "
+        "Votre business ne semble pas reposer excessivement sur vous au quotidien, "
+        "ce qui est déjà un très bon signal."
+    )
+    closing = (
+        "Votre enjeu aujourd’hui n’est probablement pas de structurer les bases, "
+        "mais d’optimiser ce qui peut encore vous faire gagner en fluidité, performance ou temps."
+    )
+    return summary, closing
+
+
+def create_lead_record(answers: dict, result_data: dict) -> int:
+    now = utcnow_iso()
+    with get_conn() as conn:
+        cur = conn.execute(
+            """
+            INSERT INTO leads (
+                created_at,
+                updated_at,
+                answers_json,
+                score_pct,
+                score_display_30,
+                level,
+                subtitle,
+                profile_title,
+                profile_text,
+                category_scores_json,
+                top3_json,
+                estimated_min,
+                estimated_max,
+                dm_text
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                now,
+                now,
+                json.dumps(answers, ensure_ascii=False),
+                result_data["score_pct"],
+                result_data["score_display_30"],
+                result_data["level"],
+                result_data["subtitle"],
+                result_data["profile_title"],
+                result_data["profile_text"],
+                json.dumps(result_data["category_scores"], ensure_ascii=False),
+                json.dumps(result_data["top3"], ensure_ascii=False),
+                result_data["estimated_min"],
+                result_data["estimated_max"],
+                result_data["dm_copy"],
+            ),
+        )
+        return int(cur.lastrowid)
+
+
+def update_lead_details(
+    lead_id: int,
+    activity: str | None,
+    repetitive_tasks: str | None,
+    tools: str | None,
+    linkedin_clicked: bool,
+    dm_text: str | None,
+) -> None:
+    now = utcnow_iso()
+    with get_conn() as conn:
+        conn.execute(
+            """
+            UPDATE leads
+            SET updated_at = ?,
+                activity = ?,
+                repetitive_tasks = ?,
+                tools = ?,
+                linkedin_clicked = ?,
+                dm_text = COALESCE(?, dm_text)
+            WHERE id = ?
+            """,
+            (
+                now,
+                activity,
+                repetitive_tasks,
+                tools,
+                1 if linkedin_clicked else 0,
+                dm_text,
+                lead_id,
+            ),
+        )
 
 
 HTML = r"""
@@ -424,28 +698,10 @@ HTML = r"""
     transition: width .25s ease;
   }
 
-  .hr{
-    height:1px;
-    background: rgba(15,23,42,.10);
-    border:none;
-    margin:14px 0;
-  }
-
   .leftTitle{
     font-weight:900;
     margin:0 0 10px;
     font-size:16px;
-  }
-
-  .bullets{
-    margin:0;
-    padding-left:18px;
-    color:var(--muted);
-    font-weight:650;
-  }
-
-  .bullets li{
-    margin:8px 0;
   }
 
   .chatHeader{
@@ -916,7 +1172,7 @@ HTML = r"""
           <div class="tag">Découvre pourquoi ton business dépend encore de toi.</div>
 
           <div class="promiseBox">
-            <div class="promiseTitle">En 2 minutes, tu vas découvrir :</div>
+            <div class="promiseTitle">En 2 minutes, AURA te montre :</div>
             <ul class="promiseList">
               <li>où ton business dépend encore trop de toi</li>
               <li>où tu perds du temps chaque semaine</li>
@@ -927,7 +1183,9 @@ HTML = r"""
 
           <div class="progress"><div id="bar" class="bar"></div></div>
 
-          <div class="leftTitle">💡 En moyenne, les entrepreneurs découvrent 5 à 15 heures perdues chaque semaine.</div>
+          <div style="margin-top:18px;" class="leftTitle">
+            💡 En moyenne, les entrepreneurs découvrent 5 à 15 heures perdues chaque semaine.
+          </div>
         </div>
       </div>
 
@@ -968,6 +1226,7 @@ let answers = {};
 let locked = false;
 let currentQuestionRow = null;
 let finalData = null;
+let currentLeadId = null;
 
 const chat = document.getElementById("chat");
 const choices = document.getElementById("choices");
@@ -1058,7 +1317,7 @@ function renderChoices(q){
     const btn = document.createElement("button");
     btn.className = "btn";
     btn.innerHTML = `<div class="key">${k}</div><div>${opts[k]}</div>`;
-    btn.onclick = (e) => choose(q.key, k, opts[k], e.currentTarget);
+    btn.onclick = (e) => choose(q.key, k, e.currentTarget);
     choices.appendChild(btn);
   }
 }
@@ -1102,7 +1361,7 @@ function botAsk(){
   }, 650);
 }
 
-function choose(key, letter, label, btn){
+function choose(key, letter, btn){
   if(locked) return;
 
   btn.classList.add("btnSelected");
@@ -1185,6 +1444,28 @@ function updateCopyBox(){
   showCopyPreview(buildDmText(finalData), false);
 }
 
+async function saveLeadDetails(linkedinClicked=false){
+  if(!currentLeadId || !finalData) return;
+
+  const activity = (document.getElementById("activityInput")?.value || "").trim();
+  const repetitive_tasks = (document.getElementById("repetitiveInput")?.value || "").trim();
+  const tools = (document.getElementById("toolsInput")?.value || "").trim();
+  const dm_text = buildDmText(finalData);
+
+  await fetch("/save-lead", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({
+      lead_id: currentLeadId,
+      activity,
+      repetitive_tasks,
+      tools,
+      linkedin_clicked: linkedinClicked,
+      dm_text
+    })
+  });
+}
+
 function renderFinalCTA(baseData){
   const card = document.createElement("div");
   card.className = "resultCard messageAppear";
@@ -1223,8 +1504,9 @@ function renderFinalCTA(baseData){
   const toolsInput = document.getElementById("toolsInput");
   const linkedinBtn = document.getElementById("linkedinBtn");
 
-  const syncPreview = () => {
+  const syncPreview = async () => {
     updateCopyBox();
+    await saveLeadDetails(false);
   };
 
   activityInput.addEventListener("input", syncPreview);
@@ -1243,6 +1525,7 @@ function renderFinalCTA(baseData){
       showCopyPreview(dmText, false);
     }
 
+    await saveLeadDetails(true);
     window.open(LINKEDIN_URL, "_blank", "noopener,noreferrer");
   };
 
@@ -1352,21 +1635,29 @@ async function finish(){
 
   const data = await res.json();
   finalData = data;
+  currentLeadId = data.lead_id;
 
   await sleep(2200);
   clearInterval(loaderInterval);
 
   await typeHtmlInto(
     loadingMsg.bubble,
-    `<b>Aujourd’hui, ton business dépend encore beaucoup de toi.</b><br><br>
-     ${data.summary}`,
+    `<b>Ton système aujourd’hui : ${data.score_display_30}/30</b><br><br>${data.summary}`,
     14
   );
 
   await sleep(700);
 
   await addBotMsgTyped(
-    `Si rien ne change, tu continues probablement à perdre entre <b>${data.estimated_min} et ${data.estimated_max} heures par semaine</b> sur des tâches qui pourraient être simplifiées ou automatisées.`,
+    `<b>Ton principal levier aujourd’hui :</b><br>${data.profile_title}<br><br>${data.profile_text}`,
+    "",
+    14
+  );
+
+  await sleep(700);
+
+  await addBotMsgTyped(
+    `Tu pourrais probablement récupérer entre <b>${data.estimated_min} et ${data.estimated_max} heures par semaine</b> avec les bons systèmes.`,
     "estimateBox",
     14
   );
@@ -1374,7 +1665,7 @@ async function finish(){
   await sleep(700);
 
   await addBotMsgTyped(
-    `<b>Les 3 points qui te bloquent probablement le plus aujourd’hui :</b><br>
+    `<b>Les 3 zones à traiter en priorité :</b><br>
      1) ${data.top3[0]}<br>
      2) ${data.top3[1]}<br>
      3) ${data.top3[2]}`,
@@ -1385,7 +1676,7 @@ async function finish(){
   await sleep(700);
 
   await addBotMsgTyped(
-    `C’est généralement ce qui empêche de vraiment déléguer, respirer ou faire tourner son business sans être au centre de tout.`,
+    `${data.closing}`,
     "",
     14
   );
@@ -1411,6 +1702,7 @@ function reset(){
   locked = false;
   currentQuestionRow = null;
   finalData = null;
+  currentLeadId = null;
   chat.innerHTML = "";
   choices.innerHTML = "";
   copyBox.style.display = "none";
@@ -1430,10 +1722,13 @@ reset();
 """
 
 
+@app.on_event("startup")
+def on_startup():
+    init_db()
+
+
 @app.get("/", response_class=HTMLResponse)
 def home():
-    import json
-
     return (
         HTML
         .replace("%QUESTIONS_JSON%", questions_as_json())
@@ -1446,34 +1741,16 @@ async def result(request: Request):
     body = await request.json()
     answers = body.get("answers", {})
 
-    score = score_answers(answers)
-    level, subtitle = level_from_score(score)
+    score_pct = friction_percentage(answers)
+    score_30 = display_score_30(score_pct)
+    level, subtitle = level_from_percentage(score_pct)
+    cats = category_scores(answers)
+    profile_title, profile_text = dominant_profile(cats)
     top3 = rule_based_priorities(answers)
     estimated_min, estimated_max = estimate_time_gain(answers)
-
-    if level == "Niveau 1":
-        summary = (
-            "Si vous ralentissez, certaines opérations peuvent ralentir ou s’arrêter. "
-            "Vous êtes encore le point de passage de beaucoup trop de choses."
-        )
-    elif level == "Niveau 2":
-        summary = (
-            "Vous avez déjà une base, mais trop d’étapes restent encore manuelles ou dépendantes de vous. "
-            "Vous avez probablement commencé à structurer, sans encore vraiment fluidifier."
-        )
-    elif level == "Niveau 3":
-        summary = (
-            "Votre base est plutôt saine, mais certaines zones continuent probablement à vous faire perdre du temps inutilement. "
-            "Vous n’êtes plus dans le chaos, mais pas encore dans la fluidité."
-        )
-    else:
-        summary = (
-            "Votre structure est déjà solide. "
-            "L’enjeu n’est plus de survivre à l’opérationnel, mais d’optimiser ce qui peut encore vous freiner."
-        )
+    summary, closing = level_messages(level)
 
     avg_hours = round((estimated_min + estimated_max) / 2)
-
     dm_copy = (
         f"Hello Audrey,\n\n"
         f"Je viens de faire ton diagnostic AURA.\n\n"
@@ -1486,18 +1763,46 @@ async def result(request: Request):
         f"Tu commencerais par quoi à ma place ?"
     )
 
-    return JSONResponse(
-        {
-            "score": score,
-            "level": level,
-            "subtitle": subtitle,
-            "summary": summary,
-            "top3": top3,
-            "estimated_min": estimated_min,
-            "estimated_max": estimated_max,
-            "dm_copy": dm_copy,
-        }
+    result_data = {
+        "score_pct": score_pct,
+        "score_display_30": score_30,
+        "level": level,
+        "subtitle": subtitle,
+        "profile_title": profile_title,
+        "profile_text": profile_text,
+        "category_scores": cats,
+        "top3": top3,
+        "estimated_min": estimated_min,
+        "estimated_max": estimated_max,
+        "summary": summary,
+        "closing": closing,
+        "dm_copy": dm_copy,
+    }
+
+    lead_id = create_lead_record(answers, result_data)
+    result_data["lead_id"] = lead_id
+
+    return JSONResponse(result_data)
+
+
+@app.post("/save-lead")
+async def save_lead(request: Request):
+    body = await request.json()
+
+    lead_id = body.get("lead_id")
+    if not lead_id:
+        return JSONResponse({"ok": False, "error": "lead_id manquant"}, status_code=400)
+
+    update_lead_details(
+        lead_id=int(lead_id),
+        activity=body.get("activity"),
+        repetitive_tasks=body.get("repetitive_tasks"),
+        tools=body.get("tools"),
+        linkedin_clicked=bool(body.get("linkedin_clicked")),
+        dm_text=body.get("dm_text"),
     )
+
+    return JSONResponse({"ok": True})
 
 
 if __name__ == "__main__":
