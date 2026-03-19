@@ -1058,26 +1058,25 @@ function buildDmText(baseData){
   const activity = (document.getElementById("activityInput")?.value || "").trim() || "[à compléter]";
   const tools = (document.getElementById("toolsInput")?.value || "").trim() || "[à compléter]";
 
-  return `Bonjour Audrey,
+  return `Hello Audrey,
 
 Je viens de faire ton diagnostic AURA.
 
 Mon résultat : ${baseData.score}/30 — ${baseData.level} (${baseData.subtitle})
 Résumé : ${baseData.summary}
 
-Estimation AURA :
-Je pourrais probablement économiser entre ${baseData.estimated_min} et ${baseData.estimated_max} heures par semaine avec les bonnes automatisations.
-
-Mes 3 zones prioritaires :
+Ça a surtout pointé :
 1) ${baseData.top3[0]}
 2) ${baseData.top3[1]}
 3) ${baseData.top3[2]}
 
+Et apparemment, je pourrais récupérer entre ${baseData.estimated_min} et ${baseData.estimated_max} heures /semaine avec les bonnes automatisations 😅
+
+Tu commencerais par quoi pour débloquer ça rapidement ?`;
+}
+
 Mon activité : ${activity}
 Mes outils actuels : ${tools}
-
-Peux-tu me dire quelles 5 automatisations tu me recommandes en premier ?`;
-}
 
 function updateCopyBox(){
   if(!finalData) return;
