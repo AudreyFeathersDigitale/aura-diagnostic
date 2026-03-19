@@ -1419,7 +1419,7 @@ async def result(request: Request):
     dm_copy = (
         f"Hello Audrey,\n\n"
         f"Je viens de faire ton diagnostic AURA.\n\n"
-        f"Je suis {score}/30 — {level} ({subtitle})\n"
+        f"Je suis à {score}/30 — {level} ({subtitle})\n"
         f"Estimation AURA :\n"
         f"Ça a surtout pointé :\n"
         f"1) {top3[0]}\n"
