@@ -1106,10 +1106,10 @@ function renderFinalCTA(baseData){
 
     <div class="resultActions">
   <a class="dmBtn" id="linkedinBtn" href="${LINKEDIN_URL}" target="_blank" rel="noopener noreferrer">
-    M’envoyer un DM sur LinkedIn
+    DM LinkedIn
   </a>
   <a class="dmBtn" id="instagramBtn" href="${INSTAGRAM_URL}" target="_blank" rel="noopener noreferrer">
-    M’envoyer un DM sur Instagram
+    DM Instagram
   </a>
   <button class="copyBtn" id="copyDmBtn" type="button">Copier le message</button>
 </div>
