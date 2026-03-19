@@ -136,6 +136,18 @@ def level_from_score(score: int):
     return ("Niveau 4", "Système déjà solide, prêt à scaler")
 
 
+def human_level_label(level: str) -> str:
+    if level == "Niveau 1":
+        return "encore très dépendant(e) de moi dans mon business"
+    if level == "Niveau 2":
+        return "encore trop au centre de mon business"
+    if level == "Niveau 3":
+        return "déjà assez structuré(e), mais avec encore des optimisations à faire"
+    if level == "Niveau 4":
+        return "déjà bien structuré(e), avec encore un peu d’optimisation possible"
+    return "encore trop au centre de mon business"
+
+
 def estimate_time_gain(answers: dict):
     repetitif_map = {"A": 1, "B": 3, "C": 6, "D": 10}
     temps_map = {"A": 1, "B": 4, "C": 8, "D": 12}
@@ -1050,12 +1062,20 @@ function averageHours(baseData){
   return Math.round((baseData.estimated_min + baseData.estimated_max) / 2);
 }
 
+function humanLevelLabel(level){
+  if(level === "Niveau 1") return "encore très dépendant(e) de moi dans mon business";
+  if(level === "Niveau 2") return "encore trop au centre de mon business";
+  if(level === "Niveau 3") return "déjà assez structuré(e), mais avec encore des optimisations à faire";
+  if(level === "Niveau 4") return "déjà bien structuré(e), avec encore un peu d’optimisation possible";
+  return "encore trop au centre de mon business";
+}
+
 function buildDmText(baseData){
   return `Hello Audrey,
 
 Je viens de faire ton diagnostic AURA.
 
-Je suis ${baseData.level.toLowerCase()}.
+Je suis ${humanLevelLabel(baseData.level)}.
 
 Ça a surtout pointé :
 - ${baseData.top3[0]}
@@ -1343,7 +1363,7 @@ async def result(request: Request):
     dm_copy = (
         f"Hello Audrey,\n\n"
         f"Je viens de faire ton diagnostic AURA.\n\n"
-        f"Je suis {level.lower()}.\n\n"
+        f"Je suis {human_level_label(level)}.\n\n"
         f"Ça a surtout pointé :\n"
         f"- {top3[0]}\n"
         f"- {top3[1]}\n"
