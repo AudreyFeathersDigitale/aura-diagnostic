@@ -1471,7 +1471,13 @@ function renderFinalCTA(baseData){
   card.className = "resultCard messageAppear";
   card.innerHTML = `
     <div style="font-weight:900;font-size:18px;">👇 Recevoir mon plan personnalisé (5 actions concrètes)</div>
-    <div class="micro">Je peux te dire par quoi commencer pour débloquer ça rapidement, avec des recommandations adaptées à ton cas.</div>
+    <div class="micro">Je vais analyser ton cas et te dire :
+<br>
+• quoi automatiser en priorité  
+• quels outils utiliser  
+• dans quel ordre le faire  
+<br>
+👉 pour que tu récupères du temps rapidement</div>
 
     <div class="leadForm">
       <div>
@@ -1493,7 +1499,7 @@ function renderFinalCTA(baseData){
     <div class="micro">Je te réponds en général avec 2–3 recommandations adaptées à ton cas.</div>
 
     <div class="resultActions">
-      <a class="dmBtn" id="linkedinBtn" href="${LINKEDIN_URL}" target="_blank" rel="noopener noreferrer">Recevoir mon plan sur LinkedIn</a>
+      <a class="dmBtn" id="linkedinBtn" href="${LINKEDIN_URL}" target="_blank" rel="noopener noreferrer">Voir quoi automatiser en priorité (plan personalisé)</a>
     </div>
   `;
   chat.appendChild(card);
@@ -1684,8 +1690,12 @@ async function finish(){
   await sleep(700);
 
   await addBotMsgTyped(
-    `Si tu veux, je peux te dire exactement par quoi commencer pour débloquer ça rapidement.<br><br>
-     👉 Et te préparer un plan personnalisé avec 5 actions concrètes.`,
+    `Ce que je vois surtout, c’est que si rien ne change, tu vas continuer à perdre du temps chaque semaine sur des tâches évitables.
+<br>
+Mais la bonne nouvelle, c’est que c’est exactement le type de situation qui peut être débloqué rapidement.
+<br>
+👉 Je peux te dire précisément par quoi commencer (et te donner un plan clair en 5 actions).<br>
+    `,
     "",
     14
   );
