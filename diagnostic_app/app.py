@@ -240,6 +240,7 @@ HTML = r"""
     --blue:#2f6bff;
     --blue2:#1f5cff;
     --line:rgba(15,23,42,.08);
+    --ok:#16a34a;
   }
 
   *{ box-sizing:border-box; }
@@ -706,6 +707,12 @@ HTML = r"""
     font-size:12px;
   }
 
+  .copy.success{
+    background: #f0fdf4;
+    color: #166534;
+    border: 1px solid rgba(22,163,74,.2);
+  }
+
   .resultCard{
     margin-top:12px;
     background:#fff;
@@ -720,43 +727,6 @@ HTML = r"""
     gap:10px;
     flex-wrap:wrap;
     margin-top:14px;
-  }
-
-  .leadForm{
-    display:grid;
-    gap:12px;
-    margin-top:14px;
-  }
-
-  .leadForm label{
-    font-size:13px;
-    font-weight:800;
-    color:var(--text);
-    display:block;
-    margin-bottom:6px;
-  }
-
-  .leadInput,
-  .leadTextarea{
-    width:100%;
-    border:1px solid var(--line);
-    border-radius:14px;
-    padding:12px 14px;
-    font:inherit;
-    background:#fff;
-    color:var(--text);
-    outline:none;
-  }
-
-  .leadInput:focus,
-  .leadTextarea:focus{
-    border-color: rgba(47,107,255,.45);
-    box-shadow: 0 0 0 4px rgba(47,107,255,.08);
-  }
-
-  .leadTextarea{
-    min-height:90px;
-    resize:vertical;
   }
 
   .micro{
@@ -1093,31 +1063,36 @@ function choose(key, letter, label, btn){
   }, 180);
 }
 
-function buildDmText(baseData){
-  const activity = (document.getElementById("activityInput")?.value || "").trim() || "[à compléter]";
-  const tools = (document.getElementById("toolsInput")?.value || "").trim() || "[à compléter]";
+function averageHours(baseData){
+  return Math.round((baseData.estimated_min + baseData.estimated_max) / 2);
+}
 
+function buildDmText(baseData){
   return `Hello Audrey,
 
 Je viens de faire ton diagnostic AURA.
 
-Je suis à ${baseData.score}/30 — ${baseData.level} (${baseData.subtitle})
+Je suis ${baseData.level.toLowerCase()}.
 
 Ça a surtout pointé :
-1) ${baseData.top3[0]}
-2) ${baseData.top3[1]}
-3) ${baseData.top3[2]}
+- ${baseData.top3[0]}
+- ${baseData.top3[1]}
+- ${baseData.top3[2]}
 
-Et apparemment, Aura estime que je pourrais récupérer entre ${baseData.estimated_min} et ${baseData.estimated_max} heures /semaine avec les bonnes automatisations 😅
+Et visiblement je pourrais récupérer ~${averageHours(baseData)}h/semaine là-dessus 😅
 
-Tu commencerais par quoi à ma place ?
+Tu commencerais par quoi à ma place ?`;
+}
 
+function showCopyPreview(text, isSuccess=false){
+  copyBox.style.display = "block";
+  copyBox.classList.toggle("success", isSuccess);
+  copyBox.textContent = text;
 }
 
 function updateCopyBox(){
   if(!finalData) return;
-  copyBox.style.display = "block";
-  copyBox.textContent = buildDmText(finalData);
+  showCopyPreview(buildDmText(finalData), false);
 }
 
 function renderFinalCTA(baseData){
@@ -1125,59 +1100,44 @@ function renderFinalCTA(baseData){
   card.className = "resultCard messageAppear";
   card.innerHTML = `
     <div style="font-weight:900;font-size:18px;">👇 Recevoir mon plan d’automatisation personnalisé</div>
-    <div class="micro">Envoie-moi le message préparé sur LinkedIn.</div>
-
-    <div class="leadForm">
-      <div>
-        <label for="activityInput">Présente-toi en quelques mots</label>
-        <input id="activityInput" class="leadInput" type="text" placeholder="Ex : Coach business, freelance, e-commerce...">
-      </div>
-      <div>
-        <label for="toolsInput">Dis-moi en plus sur les tâches qui te sont répétitives aujourd'hui & les outils que tu utilises déjà</label>
-        <textarea id="toolsInput" class="leadTextarea" placeholder="Ex : Notion, Calendly, Stripe, Gmail, Make, Airtable..."></textarea>
-        <div class="micro">Je réponds en général avec 2 ou 3 recommandations concrètes adaptées à ton activité.</div>
-      </div>
-    </div>
+    <div class="micro">Le message est déjà préparé. Clique sur le bouton, LinkedIn s’ouvre, puis colle le message.</div>
 
     <div class="resultActions">
-      <a class="dmBtn" id="linkedinBtn" href="${LINKEDIN_URL}" target="_blank" rel="noopener noreferrer">M’envoyer un DM sur LinkedIn</a>
+      <a class="dmBtn" id="linkedinBtn" href="${LINKEDIN_URL}" target="_blank" rel="noopener noreferrer">Recevoir mon plan sur LinkedIn</a>
       <button class="copyBtn" id="copyDmBtn" type="button">Copier le message</button>
     </div>
   `;
   chat.appendChild(card);
   chat.scrollTop = chat.scrollHeight;
 
-  const activityInput = document.getElementById("activityInput");
-  const toolsInput = document.getElementById("toolsInput");
   const copyBtn = document.getElementById("copyDmBtn");
   const linkedinBtn = document.getElementById("linkedinBtn");
-
-  const sync = () => {
-    updateCopyBox();
-    copyBtn.textContent = "Copier le message";
-  };
-
-  activityInput.addEventListener("input", sync);
-  toolsInput.addEventListener("input", sync);
 
   copyBtn.onclick = async () => {
     const dmText = buildDmText(baseData);
     try{
       await navigator.clipboard.writeText(dmText);
       copyBtn.textContent = "Message copié";
-      copyBox.style.display = "block";
-      copyBox.textContent = dmText;
+      showCopyPreview("✅ Message copié. Collez-le dans LinkedIn avec Ctrl+V / Cmd+V.", true);
     }catch(e){
-      copyBox.style.display = "block";
-      copyBox.textContent = dmText;
+      showCopyPreview(dmText, false);
       copyBtn.textContent = "Copie ci-dessous";
     }
   };
 
-  linkedinBtn.onclick = () => {
+  linkedinBtn.onclick = async (e) => {
+    e.preventDefault();
+
     const dmText = buildDmText(baseData);
-    copyBox.style.display = "block";
-    copyBox.textContent = dmText;
+
+    try{
+      await navigator.clipboard.writeText(dmText);
+      showCopyPreview("✅ Message copié. LinkedIn s’ouvre dans un nouvel onglet. Collez-le avec Ctrl+V / Cmd+V.", true);
+    }catch(e){
+      showCopyPreview(dmText, false);
+    }
+
+    window.open(LINKEDIN_URL, "_blank", "noopener,noreferrer");
   };
 
   updateCopyBox();
@@ -1245,7 +1205,6 @@ async function addBotMsgTyped(html, extraClass="", speed=16){
 }
 
 async function finish(){
-
   locked = true;
   choices.innerHTML = "";
   setProgress();
@@ -1323,10 +1282,7 @@ async function finish(){
   await sleep(800);
 
   await addBotMsgTyped(
-    `Je peux analyser votre <b>diagnostic AURA</b> et vous dire précisément :<br><br>
-     • les 5 automatisations prioritaires<br>
-     • les outils à connecter<br>
-     • dans quel ordre les mettre en place`,
+    `Je peux analyser votre <b>diagnostic AURA</b> et vous dire précisément par quoi commencer pour débloquer ça rapidement.`,
     "",
     14
   );
@@ -1334,8 +1290,7 @@ async function finish(){
   await sleep(800);
 
   await addBotMsgTyped(
-    `Cela me prend environ <b>15 minutes</b>.<br><br>
-     Envoie-moi le message préparé sur LinkedIn.`,
+    `Clique ci-dessous : le message est déjà préparé pour toi.`,
     "",
     14
   );
@@ -1355,6 +1310,7 @@ function reset(){
   chat.innerHTML = "";
   choices.innerHTML = "";
   copyBox.style.display = "none";
+  copyBox.classList.remove("success");
   copyBox.textContent = "";
   restartBtn.textContent = "Recommencer";
 
@@ -1413,17 +1369,18 @@ async def result(request: Request):
             "L’enjeu est maintenant d’optimiser, simplifier et préparer le scaling."
         )
 
+    avg_hours = round((estimated_min + estimated_max) / 2)
+
     dm_copy = (
         f"Hello Audrey,\n\n"
         f"Je viens de faire ton diagnostic AURA.\n\n"
-        f"Je suis à {score}/30 — {level} ({subtitle})\n"
-        f"Estimation AURA :\n"
+        f"Je suis {level.lower()}.\n\n"
         f"Ça a surtout pointé :\n"
-        f"1) {top3[0]}\n"
-        f"2) {top3[1]}\n"
-        f"3) {top3[2]}\n\n"
-        f"Et apparemment, je pourrais récupérer entre {estimated_min} et {estimated_max} heures /semaine avec les bonnes automatisations.\n\n"
-        f"Tu commencerais par quoi pour débloquer ça rapidement ?"
+        f"- {top3[0]}\n"
+        f"- {top3[1]}\n"
+        f"- {top3[2]}\n\n"
+        f"Et visiblement je pourrais récupérer ~{avg_hours}h/semaine là-dessus 😅\n\n"
+        f"Tu commencerais par quoi à ma place ?"
     )
 
     return JSONResponse(
