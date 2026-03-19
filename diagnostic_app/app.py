@@ -7,7 +7,6 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 LINKEDIN_URL = "https://www.linkedin.com/in/audrey-mouton-80b902217/?skipRedirect=true"
-INSTAGRAM_URL = "https://www.instagram.com/business.auto.feathersdigital/"
 
 # Scoring inversé
 # A = très bien / sain
@@ -875,7 +874,7 @@ HTML = r"""
         <div class="choices" id="choices"></div>
 
         <div class="footer" id="footer">
-          <div class="cta">Mot clé LinkedIn & Insta : <code>diagnostic</code></div>
+          <div class="cta">Mot clé LinkedIn : <code>diagnostic</code></div>
           <button class="restart" id="restart">Recommencer</button>
         </div>
 
@@ -888,7 +887,6 @@ HTML = r"""
 <script>
 const QUESTIONS = %QUESTIONS_JSON%;
 const LINKEDIN_URL = %LINKEDIN_URL_JSON%;
-const INSTAGRAM_URL = %INSTAGRAM_URL_JSON%;
 
 let step = 0;
 let answers = {};
@@ -1105,12 +1103,8 @@ function renderFinalCTA(baseData){
 
     <div class="resultActions">
   <a class="dmBtn" id="linkedinBtn" href="${LINKEDIN_URL}" target="_blank" rel="noopener noreferrer">
-    DM LinkedIn
-  </a>
-  <a class="dmBtn" id="instagramBtn" href="${INSTAGRAM_URL}" target="_blank" rel="noopener noreferrer">
-    DM Instagram
-  </a>
-  <button class="copyBtn" id="copyDmBtn" type="button">Copier le message</button>
+    Recevoir mon plan personnalisé
+   <button class="copyBtn" id="copyDmBtn" type="button">Copier le message</button>
 </div>
   `;
   chat.appendChild(card);
@@ -1120,8 +1114,7 @@ function renderFinalCTA(baseData){
   const toolsInput = document.getElementById("toolsInput");
   const copyBtn = document.getElementById("copyDmBtn");
   const linkedinBtn = document.getElementById("linkedinBtn");
-  const instagramBtn = document.getElementById("instagramBtn");
-
+  
   const sync = () => {
     updateCopyBox();
     copyBtn.textContent = "Copier le message";
@@ -1149,12 +1142,6 @@ function renderFinalCTA(baseData){
     copyBox.style.display = "block";
     copyBox.textContent = dmText;
   };
-
-  instagramBtn.onclick = () => {
-  const dmText = buildDmText(baseData);
-  copyBox.style.display = "block";
-  copyBox.textContent = dmText;
-};
 
   updateCopyBox();
 }
@@ -1352,8 +1339,7 @@ def home():
         HTML
         .replace("%QUESTIONS_JSON%", questions_as_json())
         .replace("%LINKEDIN_URL_JSON%", json.dumps(LINKEDIN_URL))
-        .replace("%INSTAGRAM_URL_JSON%", json.dumps(INSTAGRAM_URL))
-    )
+        )
 
 @app.post("/result")
 async def result(request: Request):
