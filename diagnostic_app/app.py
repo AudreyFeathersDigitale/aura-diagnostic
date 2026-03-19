@@ -1101,7 +1101,7 @@ function buildDmText(baseData){
 
 Je viens de faire ton diagnostic AURA.
 
-Mon résultat : ${baseData.score}/30 — ${baseData.level} (${baseData.subtitle})
+Je suis à ${baseData.score}/30 — ${baseData.level} (${baseData.subtitle})
 Résumé : ${baseData.summary}
 
 Ça a surtout pointé :
@@ -1109,13 +1109,12 @@ Résumé : ${baseData.summary}
 2) ${baseData.top3[1]}
 3) ${baseData.top3[2]}
 
-Estimation AURA :
-Et apparemment, je pourrais récupérer entre ${baseData.estimated_min} et ${baseData.estimated_max} heures /semaine avec les bonnes automatisations.
+Et apparemment, Aura estime que je pourrais récupérer entre ${baseData.estimated_min} et ${baseData.estimated_max} heures /semaine avec les bonnes automatisations 😅
+
+Tu commencerais par quoi à ma place ?
 
 Mon activité : ${activity}
-Mes outils actuels : ${tools}
-
-Tu commencerais par quoi à ma place ?`;
+Mes outils actuels : ${tools}`;
 }
 
 function updateCopyBox(){
