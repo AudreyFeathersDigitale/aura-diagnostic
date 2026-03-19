@@ -376,6 +376,38 @@ HTML = r"""
     margin-top:6px;
   }
 
+  .promiseBox{
+    margin-top:16px;
+    padding:14px 14px 10px;
+    border-radius:18px;
+    background: rgba(47,107,255,.06);
+    border:1px solid rgba(47,107,255,.10);
+  }
+
+  .promiseTitle{
+    font-weight:900;
+    font-size:15px;
+    margin-bottom:8px;
+  }
+
+  .promiseList{
+    margin:0;
+    padding-left:18px;
+    color:var(--text);
+    font-weight:650;
+  }
+
+  .promiseList li{
+    margin:8px 0;
+  }
+
+  .promiseHighlight{
+    margin-top:10px;
+    font-weight:900;
+    color:var(--blue2);
+    font-size:14px;
+  }
+
   .progress{
     margin:16px 0 14px;
     height:12px;
@@ -735,6 +767,43 @@ HTML = r"""
     border:1px solid rgba(47,107,255,.14);
   }
 
+  .leadForm{
+    display:grid;
+    gap:12px;
+    margin-top:16px;
+  }
+
+  .leadForm label{
+    font-size:13px;
+    font-weight:800;
+    color:var(--text);
+    display:block;
+    margin-bottom:6px;
+  }
+
+  .leadInput,
+  .leadTextarea{
+    width:100%;
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:12px 14px;
+    font:inherit;
+    background:#fff;
+    color:var(--text);
+    outline:none;
+  }
+
+  .leadInput:focus,
+  .leadTextarea:focus{
+    border-color: rgba(47,107,255,.45);
+    box-shadow: 0 0 0 4px rgba(47,107,255,.08);
+  }
+
+  .leadTextarea{
+    min-height:90px;
+    resize:vertical;
+  }
+
   .messageAppear{
     animation: messageAppear .35s ease;
   }
@@ -844,17 +913,27 @@ HTML = r"""
 
           <div class="name">AURA</div>
           <div class="subtitle">Agent IA • Diagnostic automatisation</div>
-          <div class="tag">Je pose 10 questions, une par une.</div>
+          <div class="tag">Découvre pourquoi ton business dépend encore de toi.</div>
+
+          <div class="promiseBox">
+            <div class="promiseTitle">En 2 minutes, tu vas découvrir :</div>
+            <ul class="promiseList">
+              <li>où ton business dépend encore trop de toi</li>
+              <li>où tu perds du temps chaque semaine</li>
+              <li>quoi automatiser en priorité</li>
+            </ul>
+            <div class="promiseHighlight">+ tu peux recevoir un plan d’automatisation personnalisé à la fin</div>
+          </div>
 
           <div class="progress"><div id="bar" class="bar"></div></div>
 
           <hr class="hr">
-          <div class="leftTitle">En 2 minutes tu obtiens :</div>
+          <div class="leftTitle">Ce que tu obtiens :</div>
           <ul class="bullets">
-            <li>Ton score d’automatisation</li>
-            <li>Les 3 systèmes à automatiser en priorité</li>
-            <li>Le temps que tu peux récupérer chaque semaine</li>
-            <li>Ton plan d’action prêt à envoyer</li>
+            <li>Une prise de conscience claire sur ton niveau de dépendance</li>
+            <li>Les 3 zones qui te font perdre le plus de temps</li>
+            <li>Le temps que tu peux potentiellement récupérer</li>
+            <li>Une prochaine étape simple pour avancer</li>
           </ul>
 
           <br><br>
@@ -870,7 +949,7 @@ HTML = r"""
             </div>
             <div class="chatHeaderText">
               <div class="chatHeaderTitle">Salut 👋 Je suis AURA.</div>
-              <div class="chatHeaderSub">Le diagnostic qui révèle où ton business dépend encore de toi.<br>Prête ? On fait ce diagnostic en 10 questions.</div>
+              <div class="chatHeaderSub">Je vais t’aider à voir où ton business dépend encore trop de toi… puis te montrer comment commencer à débloquer ça.</div>
             </div>
           </div>
           <div class="chatHeaderRight">~2 minutes</div>
@@ -1071,6 +1150,24 @@ function humanLevelLabel(level){
 }
 
 function buildDmText(baseData){
+  const activity = (document.getElementById("activityInput")?.value || "").trim();
+  const repetitive = (document.getElementById("repetitiveInput")?.value || "").trim();
+  const tools = (document.getElementById("toolsInput")?.value || "").trim();
+
+  let extra = "";
+
+  if(activity){
+    extra += `\n\nMon activité : ${activity}`;
+  }
+
+  if(repetitive){
+    extra += `\n\nLes tâches qui me prennent du temps aujourd’hui : ${repetitive}`;
+  }
+
+  if(tools){
+    extra += `\n\nLes outils que j’utilise déjà : ${tools}`;
+  }
+
   return `Hello Audrey,
 
 Je viens de faire ton diagnostic AURA.
@@ -1082,7 +1179,7 @@ Je suis ${humanLevelLabel(baseData.level)}.
 - ${baseData.top3[1]}
 - ${baseData.top3[2]}
 
-Et visiblement je pourrais récupérer ~${averageHours(baseData)}h/semaine là-dessus 😅
+Et visiblement je pourrais récupérer ~${averageHours(baseData)}h/semaine là-dessus 😅${extra}
 
 Tu commencerais par quoi à ma place ?`;
 }
@@ -1102,8 +1199,27 @@ function renderFinalCTA(baseData){
   const card = document.createElement("div");
   card.className = "resultCard messageAppear";
   card.innerHTML = `
-    <div style="font-weight:900;font-size:18px;">👇 Recevoir mon plan d’automatisation personnalisé</div>
-    <div class="micro">Le message est déjà préparé. Clique sur le bouton, LinkedIn s’ouvre, puis colle le message.</div>
+    <div style="font-weight:900;font-size:18px;">👇 Recevoir mon plan personnalisé (5 actions concrètes)</div>
+    <div class="micro">Je peux te dire par quoi commencer pour débloquer ça rapidement, avec des recommandations adaptées à ton cas.</div>
+
+    <div class="leadForm">
+      <div>
+        <label for="activityInput">Ton activité</label>
+        <input id="activityInput" class="leadInput" type="text" placeholder="Ex : coach business, freelance, agence, e-commerce...">
+      </div>
+
+      <div>
+        <label for="repetitiveInput">Quelles sont les tâches que tu fais souvent et qui te prennent du temps ?</label>
+        <textarea id="repetitiveInput" class="leadTextarea" placeholder="Ex : relances, onboarding, suivi client, organisation, copier-coller..."></textarea>
+      </div>
+
+      <div>
+        <label for="toolsInput">Quels outils utilises-tu déjà ?</label>
+        <input id="toolsInput" class="leadInput" type="text" placeholder="Ex : Notion, Calendly, Stripe, Gmail, Make, Airtable...">
+      </div>
+    </div>
+
+    <div class="micro">Je te réponds en général avec 2–3 recommandations adaptées à ton cas.</div>
 
     <div class="resultActions">
       <a class="dmBtn" id="linkedinBtn" href="${LINKEDIN_URL}" target="_blank" rel="noopener noreferrer">Recevoir mon plan sur LinkedIn</a>
@@ -1112,7 +1228,18 @@ function renderFinalCTA(baseData){
   chat.appendChild(card);
   chat.scrollTop = chat.scrollHeight;
 
+  const activityInput = document.getElementById("activityInput");
+  const repetitiveInput = document.getElementById("repetitiveInput");
+  const toolsInput = document.getElementById("toolsInput");
   const linkedinBtn = document.getElementById("linkedinBtn");
+
+  const syncPreview = () => {
+    updateCopyBox();
+  };
+
+  activityInput.addEventListener("input", syncPreview);
+  repetitiveInput.addEventListener("input", syncPreview);
+  toolsInput.addEventListener("input", syncPreview);
 
   linkedinBtn.onclick = async (e) => {
     e.preventDefault();
@@ -1241,45 +1368,43 @@ async function finish(){
 
   await typeHtmlInto(
     loadingMsg.bubble,
-    `<b>Résultat : ${data.score}/30 — ${data.level} (${data.subtitle})</b><br><br>
-     ${data.summary}<br><br>
-     Bonne nouvelle : ce type de business est souvent le plus facile à transformer avec les bonnes automatisations.`,
+    `<b>Aujourd’hui, ton business dépend encore beaucoup de toi.</b><br><br>
+     ${data.summary}`,
     14
   );
 
-  await sleep(800);
+  await sleep(700);
 
   await addBotMsgTyped(
-    `<b>Estimation AURA :</b><br>
-     Vous pourriez probablement économiser entre <b>${data.estimated_min} et ${data.estimated_max} heures par semaine</b> avec les bonnes automatisations.`,
+    `Si rien ne change, tu continues probablement à perdre entre <b>${data.estimated_min} et ${data.estimated_max} heures par semaine</b> sur des tâches qui pourraient être simplifiées ou automatisées.`,
     "estimateBox",
     14
   );
 
-  await sleep(800);
+  await sleep(700);
 
   await addBotMsgTyped(
-    `<b>Voici les 3 zones où votre business perd probablement le plus de temps :</b><br>
+    `<b>Les 3 points qui te bloquent probablement le plus aujourd’hui :</b><br>
      1) ${data.top3[0]}<br>
      2) ${data.top3[1]}<br>
-     3) ${data.top3[2]}<br><br>
-     Ce sont généralement les systèmes qui créent le plus de friction dans un business.`,
+     3) ${data.top3[2]}`,
     "",
     14
   );
 
-  await sleep(800);
+  await sleep(700);
 
   await addBotMsgTyped(
-    `Je peux analyser votre <b>diagnostic AURA</b> et vous dire précisément par quoi commencer pour débloquer ça rapidement.`,
+    `C’est généralement ce qui empêche de vraiment déléguer, respirer ou faire tourner son business sans être au centre de tout.`,
     "",
     14
   );
 
-  await sleep(800);
+  await sleep(700);
 
   await addBotMsgTyped(
-    `Clique ci-dessous : le message est déjà préparé pour toi.`,
+    `Si tu veux, je peux te dire exactement par quoi commencer pour débloquer ça rapidement.<br><br>
+     👉 Et te préparer un plan personnalisé avec 5 actions concrètes.`,
     "",
     14
   );
@@ -1338,24 +1463,23 @@ async def result(request: Request):
 
     if level == "Niveau 1":
         summary = (
-            "Votre business repose encore fortement sur vous. "
             "Si vous ralentissez, certaines opérations peuvent ralentir ou s’arrêter. "
-            "Il y a plusieurs points de friction à structurer rapidement."
+            "Vous êtes encore le point de passage de beaucoup trop de choses."
         )
     elif level == "Niveau 2":
         summary = (
-            "Vous avez déjà une base, mais trop d'étapes restent encore manuelles ou dépendantes de vous. "
-            "Avec quelques bons systèmes, vous pourriez déjà gagner un vrai confort."
+            "Vous avez déjà une base, mais trop d’étapes restent encore manuelles ou dépendantes de vous. "
+            "Vous avez probablement commencé à structurer, sans encore vraiment fluidifier."
         )
     elif level == "Niveau 3":
         summary = (
-            "Votre organisation est plutôt saine. "
-            "Quelques optimisations ciblées pourraient vous faire gagner du temps et alléger la charge mentale."
+            "Votre base est plutôt saine, mais certaines zones continuent probablement à vous faire perdre du temps inutilement. "
+            "Vous n’êtes plus dans le chaos, mais pas encore dans la fluidité."
         )
     else:
         summary = (
-            "Votre système est déjà solide. "
-            "L’enjeu est maintenant d’optimiser, simplifier et préparer le scaling."
+            "Votre structure est déjà solide. "
+            "L’enjeu n’est plus de survivre à l’opérationnel, mais d’optimiser ce qui peut encore vous freiner."
         )
 
     avg_hours = round((estimated_min + estimated_max) / 2)
