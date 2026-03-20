@@ -26,7 +26,7 @@ PROFILE_QUESTIONS = [
         {
             "freelance": "Solopreneur (freelance, coach, consultant)",
             "agency": "Agence",
-            "info": "Formation / Infoprenariat",
+            "info": "Infopreneur / Formation",
             "saas": "SaaS / Produit digital",
             "ecommerce": "E-commerce",
         },
@@ -180,7 +180,7 @@ QUESTION_DIMENSIONS = {
     "frein": {"main": "STR", "secondary": ("DEL", 0.5), "weight": 1.5},
     "temps_perdu": {"main": "DEL", "secondary": None, "weight": 1.2},
     "charge": {"main": "STR", "secondary": ("DEL", 0.3), "weight": 1.2},
-    "goulot": {"main": "STR", "secondary": None, "weight": 0.4},  # très léger : question de projection
+    "goulot": {"main": "STR", "secondary": None, "weight": 0.4},
 }
 
 PROFILE_WEIGHTS = {
@@ -243,8 +243,6 @@ def init_db() -> None:
             )
             """
         )
-
-        # Colonnes ajoutées sans casser les bases existantes
         ensure_column(conn, "leads", "profile_json", "TEXT")
         ensure_column(conn, "leads", "business_type", "TEXT")
         ensure_column(conn, "leads", "revenue_band", "TEXT")
@@ -273,11 +271,11 @@ def profile_label(profile: dict) -> str:
     mapping = {
         "freelance": "solopreneur",
         "agency": "agence",
-        "info": "infopreneur / formateur",
-        "saas": "SaaS / produit digital",
-        "ecommerce": "e-commerce",
+        "info": "infopreneur",
+        "saas": "business SaaS",
+        "ecommerce": "business e-commerce",
     }
-    return mapping.get(business_type, "entrepreneur")
+    return mapping.get(business_type, "business")
 
 
 def get_profile_dimension_weights(profile: dict) -> dict:
@@ -312,10 +310,7 @@ def compute_dimension_scores(answers: dict, profile: dict) -> dict:
     for dim in raw_scores:
         weighted_score = raw_scores[dim] * profile_weights.get(dim, 1.0)
         weighted_max = raw_max[dim] * profile_weights.get(dim, 1.0)
-        if weighted_max <= 0:
-            final_scores[dim] = 0
-        else:
-            final_scores[dim] = round((weighted_score / weighted_max) * 100)
+        final_scores[dim] = 0 if weighted_max <= 0 else round((weighted_score / weighted_max) * 100)
 
     return final_scores
 
@@ -351,38 +346,250 @@ def level_from_dependency_pct(dependency_pct: int) -> tuple[str, str]:
 
 
 def display_score_30(dependency_pct: int) -> int:
-    # score secondaire discret, uniquement si tu veux le garder côté admin / compatibilité
     autonomy = compute_autonomy_pct(dependency_pct)
     return round((autonomy / 100) * 30)
 
 
-def dominant_profile(dimension_scores: dict) -> tuple[str, str]:
-    ordered = sorted(dimension_scores.items(), key=lambda x: x[1], reverse=True)
-    main_dim = ordered[0][0]
-    second_dim = ordered[1][0]
+def business_summary_intro(profile: dict) -> str:
+    business_type = profile.get("business_type", "freelance")
+    mapping = {
+        "freelance": "Pour un solopreneur comme toi",
+        "agency": "Pour une agence comme la tienne",
+        "info": "Pour un business de formation comme le tien",
+        "saas": "Pour un business SaaS comme le tien",
+        "ecommerce": "Pour un business e-commerce comme le tien",
+    }
+    return mapping.get(business_type, "Pour ton business")
 
-    if main_dim == "STR":
+
+def summary_message(dependency_pct: int, profile: dict) -> str:
+    intro = business_summary_intro(profile)
+    business_type = profile.get("business_type", "freelance")
+
+    if business_type == "freelance":
+        if dependency_pct < 25:
+            return (
+                f"{intro}, la base est déjà plutôt saine.<br><br>"
+                f"👉 Mais ton activité avance encore partiellement grâce à ta présence directe, là où ton système devrait déjà prendre davantage le relais."
+            )
+        if dependency_pct < 50:
+            return (
+                f"{intro}, ton business fonctionne… mais il reste encore trop soutenu par toi.<br><br>"
+                f"👉 Tu compenses encore plusieurs zones à la main, ce qui crée une charge invisible qui te suit chaque semaine."
+            )
+        if dependency_pct < 75:
+            return (
+                f"{intro}, ton business repose encore fortement sur toi pour avancer de façon fluide.<br><br>"
+                f"👉 Tu restes la personne qui relance, organise, débloque et fait tenir le système plus souvent que tu ne devrais."
+            )
         return (
-            "Ton business repose encore trop sur toi",
-            "Le principal problème aujourd’hui, c’est que trop de choses dépendent encore directement de toi pour avancer correctement."
+            f"{intro}, tu es encore le système principal de ton business.<br><br>"
+            f"👉 Sans toi, plusieurs zones critiques ralentissent, se bloquent ou deviennent vite fragiles."
         )
 
-    if main_dim == "DEL":
+    if business_type == "agency":
+        if dependency_pct < 25:
+            return (
+                f"{intro}, la structure est déjà plus saine que la moyenne.<br><br>"
+                f"👉 Mais certaines zones clés remontent encore jusqu’à toi alors qu’elles devraient être absorbées par le système ou l’équipe."
+            )
+        if dependency_pct < 50:
+            return (
+                f"{intro}, ton business tient… mais il repose encore trop sur ta supervision directe.<br><br>"
+                f"👉 Validation, arbitrage, suivi, organisation : trop de choses passent encore par toi."
+            )
+        if dependency_pct < 75:
+            return (
+                f"{intro}, ta croissance continue de créer de la complexité… et cette complexité revient encore trop souvent sur toi.<br><br>"
+                f"👉 Tant que tu restes ce point de passage central, ton agence avance, mais elle ne se fluidifie pas vraiment."
+            )
         return (
-            "Tu absorbes encore trop d’opérations manuelles",
-            "Ton principal frein aujourd’hui, c’est le volume de tâches répétitives, de manipulations et de suivi opérationnel qui reposent encore sur toi."
+            f"{intro}, tu restes encore le centre de gravité opérationnel de la structure.<br><br>"
+            f"👉 Si tu ralentis, une partie du suivi, des validations et de la fluidité interne ralentit avec toi."
         )
 
-    if main_dim == "ONB":
+    if business_type == "info":
+        if dependency_pct < 25:
+            return (
+                f"{intro}, les bases existent déjà.<br><br>"
+                f"👉 Mais certaines étapes entre acquisition, vente et delivery reposent encore inutilement sur toi."
+            )
+        if dependency_pct < 50:
+            return (
+                f"{intro}, ton activité fonctionne, mais plusieurs briques demandent encore ton intervention directe.<br><br>"
+                f"👉 Résultat : tu restes encore trop présent(e) dans des étapes qui devraient déjà être fluides."
+            )
+        if dependency_pct < 75:
+            return (
+                f"{intro}, ton système n’absorbe pas encore assez la charge entre acquisition, vente et exécution.<br><br>"
+                f"👉 Tu continues à porter trop d’étapes manuellement, ce qui limite ton effet de levier."
+            )
         return (
-            "Ton onboarding crée encore trop de friction",
-            "Le passage prospect → client n’est pas encore assez fluide, ce qui t’oblige à intervenir plus que nécessaire."
+            f"{intro}, trop de choses reposent encore directement sur toi pour fonctionner proprement.<br><br>"
+            f"👉 Tant que ce système n’est pas plus robuste, tu restes le point de passage obligé sur plusieurs zones."
         )
 
+    if business_type == "saas":
+        if dependency_pct < 25:
+            return (
+                f"{intro}, le système semble déjà plus robuste que la moyenne.<br><br>"
+                f"👉 Mais certaines frictions opérationnelles continuent encore de dépendre de toi ou de traitements manuels."
+            )
+        if dependency_pct < 50:
+            return (
+                f"{intro}, ton produit existe, mais certaines zones de support, d’exécution ou de coordination restent encore trop humaines.<br><br>"
+                f"👉 Ça te fait perdre de l’effet de levier là où le système devrait déjà être plus solide."
+            )
+        if dependency_pct < 75:
+            return (
+                f"{intro}, ton business garde encore trop de dépendances opérationnelles sur des points qui devraient déjà être fluides.<br><br>"
+                f"👉 Le risque n’est pas seulement la perte de temps : c’est un manque de robustesse qui limite ta scalabilité."
+            )
+        return (
+            f"{intro}, tu restes encore un point de compensation majeur dans le fonctionnement global.<br><br>"
+            f"👉 Tant que certaines zones critiques ne sont pas mieux structurées, ton effet de levier reste artificiellement limité."
+        )
+
+    # ecommerce
+    if dependency_pct < 25:
+        return (
+            f"{intro}, la machine tourne déjà mieux que la moyenne.<br><br>"
+            f"👉 Mais certaines frictions d’exécution et de suivi dépendent encore trop de ton attention."
+        )
+    if dependency_pct < 50:
+        return (
+            f"{intro}, les ventes tournent, mais plusieurs opérations restent encore trop manuelles.<br><br>"
+            f"👉 Tu compenses encore des zones qui devraient déjà être plus fluides, plus connectées et moins chronophages."
+        )
+    if dependency_pct < 75:
+        return (
+            f"{intro}, trop de tâches d’exécution, de suivi ou de coordination reposent encore sur des manipulations évitables.<br><br>"
+            f"👉 Tu laisses du temps, de la marge et de la sérénité sur la table."
+        )
     return (
-        "Ton acquisition manque encore de système",
-        "Tes opportunités existent, mais leur suivi et leur traitement dépendent encore trop d’une gestion humaine ou dispersée."
+        f"{intro}, ton activité absorbe encore trop d’opérations manuelles pour rester sereine sans toi.<br><br>"
+        f"👉 Si tu ralentis, plusieurs points de friction remontent immédiatement au lieu d’être absorbés par le système."
     )
+
+
+def dominant_profile(dimension_scores: dict, profile: dict) -> tuple[str, str]:
+    main_dim = max(dimension_scores, key=dimension_scores.get)
+    business_type = profile.get("business_type", "freelance")
+
+    COPY = {
+        "freelance": {
+            "STR": (
+                "Ton business repose encore trop sur toi",
+                "En tant que solopreneur, le vrai problème n’est pas que ton business ne tourne pas. "
+                "C’est qu’il tourne encore trop parce que tu es là pour compenser, organiser, relancer ou débloquer. "
+                "Tant que cette dépendance reste forte, tu continues à porter une charge que ton système devrait déjà absorber à ta place."
+            ),
+            "DEL": (
+                "Tu absorbes encore trop d’opérationnel à la main",
+                "Ton principal frein aujourd’hui, c’est le volume de tâches répétitives, de suivi et de micro-actions qui reposent encore sur toi. "
+                "Ça te fait avancer, mais au prix d’un temps et d’une énergie que tu ne récupères jamais vraiment."
+            ),
+            "ONB": (
+                "Ton onboarding crée encore trop de friction",
+                "Dès qu’un client arrive, tu dois encore trop intervenir pour faire avancer les étapes. "
+                "Résultat : chaque nouvelle vente recrée une charge au lieu d’alimenter un système déjà fluide."
+            ),
+            "ACQ": (
+                "Ton acquisition manque encore de structure",
+                "Tes opportunités existent, mais leur suivi dépend encore trop de toi. "
+                "Quand les relances, le tri ou l’organisation ne sont pas assez systématisés, tu perds du temps… et parfois des prospects."
+            ),
+        },
+        "agency": {
+            "STR": (
+                "Ton agence dépend encore trop de toi pour rester fluide",
+                "Trop de choses remontent encore jusqu’à toi : validation, suivi, arbitrage, organisation. "
+                "Tant que tu restes ce point de passage central, ta structure peut avancer, mais elle ne peut pas vraiment se fluidifier ni grandir sans te charger davantage."
+            ),
+            "DEL": (
+                "L’exécution crée encore trop de charge dans ton agence",
+                "Ton principal frein aujourd’hui, c’est que l’opérationnel n’absorbe pas encore assez la complexité. "
+                "Quand trop de suivi, de coordination ou de micro-décisions restent manuels, la charge revient mécaniquement sur toi."
+            ),
+            "ONB": (
+                "Ton onboarding client manque encore de système",
+                "Le démarrage client devrait poser du cadre et créer de la fluidité. "
+                "Quand ce n’est pas assez structuré, ça génère du flou, des allers-retours et une dépendance inutile à ton intervention."
+            ),
+            "ACQ": (
+                "Ton pipeline commercial manque encore de système",
+                "Les opportunités existent, mais leur traitement n’est pas encore assez robuste. "
+                "Quand le suivi commercial dépend trop de vérifications humaines, tu crées de la friction là où tu devrais créer de la prévisibilité."
+            ),
+        },
+        "info": {
+            "STR": (
+                "Ton activité repose encore trop sur toi",
+                "Même si certaines briques existent déjà, trop d’étapes entre acquisition, vente et delivery demandent encore ton intervention directe. "
+                "Tant que le système n’absorbe pas mieux cette charge, tu restes le moteur là où tu devrais être davantage en surplomb."
+            ),
+            "DEL": (
+                "Tu gères encore trop de delivery à la main",
+                "Le vrai problème n’est pas seulement le volume de tâches. "
+                "C’est que des étapes répétitives ou prévisibles demandent encore de ton temps alors qu’elles devraient déjà être mieux cadrées ou automatisées."
+            ),
+            "ONB": (
+                "Ton onboarding n’est pas encore assez fluide",
+                "Le passage entre vente et mise en route devrait être presque évident. "
+                "Quand il dépend encore trop de toi, chaque nouveau client ou membre recrée de la charge au lieu d’entrer dans un système propre."
+            ),
+            "ACQ": (
+                "Ton acquisition manque encore de fluidité",
+                "Tes entrées existent, mais le suivi de ces opportunités repose encore trop sur des actions humaines dispersées. "
+                "Ça ralentit ton système et t’oblige à rester plus présent(e) que nécessaire."
+            ),
+        },
+        "saas": {
+            "STR": (
+                "Ton business manque encore de robustesse opérationnelle",
+                "Même avec un produit digital, certaines zones critiques reposent encore trop sur toi ou sur des ajustements manuels. "
+                "Tant que cette dépendance reste là, ton effet de levier reste inférieur à ce qu’il devrait être."
+            ),
+            "DEL": (
+                "Trop de frictions opérationnelles restent encore manuelles",
+                "Support, suivi, exécution, coordination : trop d’éléments ne sont pas encore assez absorbés par le système. "
+                "Le risque, ce n’est pas seulement la perte de temps : c’est un manque de robustesse qui freine ta scalabilité."
+            ),
+            "ONB": (
+                "Ton onboarding n’est pas encore assez robuste",
+                "L’entrée utilisateur ou client devrait être fluide et fiable. "
+                "Quand elle dépend encore trop d’interventions ou de corrections humaines, tu perds de l’effet de levier là où le système devrait déjà être stable."
+            ),
+            "ACQ": (
+                "Ton acquisition manque encore de système",
+                "Le traitement des opportunités n’est pas encore assez fluide ou assez structuré. "
+                "Quand le suivi repose trop sur de l’humain, tu limites la vitesse et la prévisibilité de ton moteur commercial."
+            ),
+        },
+        "ecommerce": {
+            "STR": (
+                "Ton activité e-commerce dépend encore trop de toi",
+                "Même si les ventes tournent, trop de points de suivi, de coordination ou de contrôle remontent encore jusqu’à toi. "
+                "Tant que ça fonctionne comme ça, tu restes plus opérateur que pilote."
+            ),
+            "DEL": (
+                "Tu absorbes encore trop de tâches manuelles dans l’exécution",
+                "Ton principal frein aujourd’hui, c’est le volume d’opérations évitables dans l’exécution et le suivi. "
+                "Tu laisses du temps, de la marge et de la sérénité sur la table à cause de frictions qui devraient déjà être mieux absorbées."
+            ),
+            "ONB": (
+                "Tes flux de mise en route et de traitement manquent encore de fluidité",
+                "Quand les entrées, le traitement ou certaines étapes amont demandent encore trop de vérifications ou d’actions humaines, tu crées une dépendance inutile à ton attention."
+            ),
+            "ACQ": (
+                "Ton acquisition n’est pas encore assez cadrée",
+                "Les opportunités existent, mais leur organisation et leur suivi ne sont pas encore assez fiables. "
+                "Quand le système n’absorbe pas bien la captation et le suivi, tu perds à la fois du temps et de la visibilité."
+            ),
+        },
+    }
+
+    return COPY.get(business_type, COPY["freelance"]).get(main_dim, COPY["freelance"]["STR"])
 
 
 def estimate_time_gain(answers: dict, dependency_pct: int, dimension_scores: dict) -> tuple[int, int]:
@@ -413,84 +620,133 @@ def dimension_priority_copy(dim: str, profile: dict) -> str:
     if dim == "STR":
         if business_type == "agency":
             return "Formaliser les process et réduire la dépendance au fondateur"
+        if business_type == "saas":
+            return "Renforcer la robustesse du système sur les zones encore trop dépendantes de toi"
         return "Formaliser les process clés et réduire la dépendance à toi"
 
     if dim == "DEL":
         if business_type == "ecommerce":
             return "Réduire les tâches manuelles dans l’exécution et le suivi"
+        if business_type == "agency":
+            return "Fluidifier l’exécution et limiter les remontées opérationnelles"
         return "Automatiser les tâches répétitives et l’exécution"
 
     if dim == "ONB":
-        return "Fluidifier l’onboarding client"
+        return "Fluidifier l’onboarding"
 
     return "Structurer le suivi des leads et des relances"
 
 
 def priorities_from_dimensions(dimension_scores: dict, profile: dict) -> list[str]:
     ordered = sorted(dimension_scores.items(), key=lambda x: x[1], reverse=True)
-    top_dims = [dim for dim, _ in ordered[:3]]
-    return [dimension_priority_copy(dim, profile) for dim in top_dims]
+    return [dimension_priority_copy(dim, profile) for dim, _ in ordered[:3]]
 
 
-def summary_message(level: str, dependency_pct: int, profile: dict) -> str:
-    label = profile_label(profile)
+def level_messages(dependency_pct: int, profile: dict) -> tuple[str, str]:
+    business_type = profile.get("business_type", "freelance")
+
+    COPY = {
+        "freelance": {
+            "low": (
+                "👉 Si rien ne change, ton activité restera stable… mais tu continueras quand même à porter une partie de la charge que ton système pourrait déjà absorber.",
+                "La bonne nouvelle, c’est qu’avec quelques optimisations ciblées, tu peux te libérer encore plus sans alourdir ta structure."
+            ),
+            "mid": (
+                "👉 Si rien ne change, tu risques de rester coincé(e) dans une zone intermédiaire : ton business tourne, mais encore trop grâce à ta présence directe.",
+                "La bonne nouvelle, c’est que quelques bons ajustements peuvent déjà te faire récupérer un vrai volume de temps."
+            ),
+            "high": (
+                "👉 Si rien ne change, tu vas continuer à absorber chaque semaine des relances, de l’organisation et des micro-décisions qui ne devraient plus dépendre de toi.",
+                "La bonne nouvelle, c’est que c’est exactement le type de situation qui peut se débloquer rapidement avec les bons systèmes."
+            ),
+            "critical": (
+                "👉 Si rien ne change, ton business restera directement accroché à ton niveau de disponibilité. Dès que tu ralentis, plusieurs choses commencent à se tendre.",
+                "La bonne nouvelle, c’est qu’en traitant les bons points dans le bon ordre, tu peux reprendre le contrôle beaucoup plus vite que tu ne le penses."
+            ),
+        },
+        "agency": {
+            "low": (
+                "👉 Si rien ne change, la structure continuera à avancer… mais une partie de la complexité reviendra encore inutilement sur toi.",
+                "La bonne nouvelle, c’est qu’avec quelques ajustements ciblés, tu peux alléger fortement la charge de supervision."
+            ),
+            "mid": (
+                "👉 Si rien ne change, tu risques de rester l’arbitre permanent de trop de sujets : validation, suivi, coordination, organisation.",
+                "La bonne nouvelle, c’est qu’en renforçant les bons points, tu peux créer beaucoup plus de fluidité sans tout reconstruire."
+            ),
+            "high": (
+                "👉 Si rien ne change, chaque palier de croissance continuera à créer plus de complexité… et cette complexité reviendra encore trop souvent sur toi.",
+                "La bonne nouvelle, c’est qu’une meilleure structuration peut rapidement casser cette mécanique."
+            ),
+            "critical": (
+                "👉 Si rien ne change, ton agence continuera à dépendre trop fortement de toi pour tenir proprement la charge, les validations et la fluidité interne.",
+                "La bonne nouvelle, c’est qu’en traitant les bons goulots maintenant, tu peux éviter que la croissance te coûte encore plus cher en énergie."
+            ),
+        },
+        "info": {
+            "low": (
+                "👉 Si rien ne change, ton activité restera stable, mais tu continueras quand même à intervenir sur des étapes qui devraient déjà être plus fluides.",
+                "La bonne nouvelle, c’est que quelques optimisations peuvent encore renforcer ton effet de levier."
+            ),
+            "mid": (
+                "👉 Si rien ne change, tu vas rester trop présent(e) entre acquisition, vente et delivery, là où ton système devrait déjà mieux relier les briques.",
+                "La bonne nouvelle, c’est que les gains ici sont souvent rapides dès qu’on traite les bons points."
+            ),
+            "high": (
+                "👉 Si rien ne change, tu continueras à porter manuellement des étapes qui grignotent ton temps sans réelle valeur ajoutée.",
+                "La bonne nouvelle, c’est qu’un meilleur système peut vite transformer cette charge en fluidité."
+            ),
+            "critical": (
+                "👉 Si rien ne change, ton activité restera trop dépendante de toi pour absorber proprement l’acquisition, la vente et l’exécution.",
+                "La bonne nouvelle, c’est qu’une fois les bons points corrigés, ton système peut enfin commencer à respirer sans toi."
+            ),
+        },
+        "saas": {
+            "low": (
+                "👉 Si rien ne change, ton système restera globalement stable, mais tu laisseras encore du levier sur la table sur des zones qui pourraient être plus robustes.",
+                "La bonne nouvelle, c’est qu’avec quelques optimisations, tu peux encore renforcer la scalabilité réelle du business."
+            ),
+            "mid": (
+                "👉 Si rien ne change, tu risques de garder des dépendances humaines sur des points qui devraient déjà être plus robustes et plus prévisibles.",
+                "La bonne nouvelle, c’est que traiter ces zones améliore vite l’effet de levier global."
+            ),
+            "high": (
+                "👉 Si rien ne change, certaines frictions opérationnelles continueront à limiter ta scalabilité bien plus que ton produit lui-même.",
+                "La bonne nouvelle, c’est qu’en renforçant la structure, tu peux récupérer à la fois du temps et de la robustesse."
+            ),
+            "critical": (
+                "👉 Si rien ne change, ton business continuera à dépendre trop fortement de ta capacité à compenser les failles du système.",
+                "La bonne nouvelle, c’est qu’une fois ces points corrigés, ton effet de levier peut changer de niveau."
+            ),
+        },
+        "ecommerce": {
+            "low": (
+                "👉 Si rien ne change, l’activité restera globalement stable, mais certaines frictions de suivi ou d’exécution continueront à te consommer inutilement.",
+                "La bonne nouvelle, c’est qu’il y a encore des gains rapides à aller chercher sans tout remettre à plat."
+            ),
+            "mid": (
+                "👉 Si rien ne change, tu vas continuer à compenser des zones d’exécution qui devraient déjà être plus fluides et mieux connectées.",
+                "La bonne nouvelle, c’est que les gains ici sont souvent très concrets dès qu’on traite les bons flux."
+            ),
+            "high": (
+                "👉 Si rien ne change, tu continueras à perdre du temps, de la marge et de la sérénité sur des opérations qui ne devraient plus dépendre autant de toi.",
+                "La bonne nouvelle, c’est qu’un meilleur système peut rapidement alléger cette pression."
+            ),
+            "critical": (
+                "👉 Si rien ne change, ton activité e-commerce restera trop sensible à ta présence sur l’exécution, le suivi et les points de friction quotidiens.",
+                "La bonne nouvelle, c’est qu’en corrigeant les bonnes zones, tu peux vite reprendre de l’air."
+            ),
+        },
+    }
+
+    profile_copy = COPY.get(business_type, COPY["freelance"])
 
     if dependency_pct < 25:
-        return (
-            f"Pour un profil {label} comme le tien, la base est déjà plutôt saine.<br><br>"
-            f"👉 Mais il reste encore quelques points où ton business dépend directement de toi."
-        )
+        return profile_copy["low"]
     if dependency_pct < 50:
-        return (
-            f"Pour un profil {label} comme le tien, ton business tient déjà sur une base correcte.<br><br>"
-            f"👉 Mais plusieurs frictions t’obligent encore à intervenir trop souvent."
-        )
+        return profile_copy["mid"]
     if dependency_pct < 75:
-        return (
-            f"Pour un profil {label} comme le tien, ton business dépend encore fortement de toi.<br><br>"
-            f"👉 Plusieurs zones clés ne sont pas encore assez fluides, documentées ou automatisées."
-        )
-    return (
-        f"Pour un profil {label} comme le tien, tu es encore le système principal de ton business.<br><br>"
-        f"👉 Si tu ralentis, plusieurs zones critiques ralentissent avec toi."
-    )
-
-
-def level_messages(dependency_pct: int) -> tuple[str, str]:
-    if dependency_pct < 25:
-        tension = (
-            "👉 Si rien ne change, ton activité restera stable, mais tu laisseras encore des gains faciles de temps et de fluidité sur la table."
-        )
-        closing = (
-            "La bonne nouvelle, c’est qu’avec quelques optimisations ciblées, tu peux encore alléger ton quotidien sans tout reconstruire."
-        )
-        return tension, closing
-
-    if dependency_pct < 50:
-        tension = (
-            "👉 Si rien ne change, tu risques de rester bloqué dans une zone intermédiaire : ça fonctionne, mais tu restes trop mobilisé(e) pour faire tourner l’ensemble."
-        )
-        closing = (
-            "La bonne nouvelle, c’est que quelques ajustements bien choisis peuvent déjà te faire récupérer un vrai volume de temps."
-        )
-        return tension, closing
-
-    if dependency_pct < 75:
-        tension = (
-            "👉 Si rien ne change, tu vas continuer à absorber chaque semaine des tâches évitables, manuelles ou mal transmises."
-        )
-        closing = (
-            "La bonne nouvelle, c’est que c’est exactement le type de situation qui peut se débloquer rapidement avec les bons systèmes."
-        )
-        return tension, closing
-
-    tension = (
-        "👉 Si rien ne change, ton business restera fortement dépendant de toi : moindre baisse de disponibilité, et plusieurs choses commencent à bloquer."
-    )
-    closing = (
-        "La bonne nouvelle, c’est qu’en traitant les bons points dans le bon ordre, tu peux commencer à reprendre le contrôle très vite."
-    )
-    return tension, closing
+        return profile_copy["high"]
+    return profile_copy["critical"]
 
 
 def human_level_label(dependency_pct: int) -> str:
@@ -540,7 +796,7 @@ def create_lead_record(answers: dict, profile: dict, result_data: dict) -> int:
                 profile.get("business_type"),
                 profile.get("revenue_band"),
                 profile.get("team_size"),
-                result_data["dependency_pct"],  # compat
+                result_data["dependency_pct"],
                 result_data["dependency_pct"],
                 result_data["autonomy_pct"],
                 result_data["score_display_30"],
@@ -548,7 +804,7 @@ def create_lead_record(answers: dict, profile: dict, result_data: dict) -> int:
                 result_data["subtitle"],
                 result_data["profile_title"],
                 result_data["profile_text"],
-                json.dumps(result_data["dimension_scores"], ensure_ascii=False),  # compat
+                json.dumps(result_data["dimension_scores"], ensure_ascii=False),
                 json.dumps(result_data["dimension_scores"], ensure_ascii=False),
                 json.dumps(result_data["top3"], ensure_ascii=False),
                 result_data["estimated_min"],
@@ -1498,7 +1754,6 @@ function botAsk(){
 
     msg.bubble.classList.remove("bubbleTyping");
     msg.bubble.classList.add("bubbleQuestion");
-
     msg.bubble.innerHTML = `
       <div class="questionTag">Question ${currentQuestionIndex()} / ${totalQuestions()} • ${Math.round((currentQuestionIndex()/totalQuestions())*100)}%</div>
       <div style="margin-bottom:6px;color:#64748b;font-size:13px;">${r}</div>
@@ -1550,13 +1805,6 @@ function choose(key, value, btn, isProfile=false){
 
 function averageHours(baseData){
   return Math.round((baseData.estimated_min + baseData.estimated_max) / 2);
-}
-
-function humanLevelLabel(dependencyPct){
-  if(dependencyPct < 25) return "déjà assez structuré(e), mais encore un peu trop présent(e) sur certains points";
-  if(dependencyPct < 50) return "encore trop au centre de certaines zones de mon business";
-  if(dependencyPct < 75) return "encore fortement au centre de mon business";
-  return "encore le système principal de mon business";
 }
 
 function buildDmText(baseData){
@@ -1956,11 +2204,11 @@ async def result(request: Request):
     autonomy_pct = compute_autonomy_pct(dependency_pct)
     score_30 = display_score_30(dependency_pct)
     level, subtitle = level_from_dependency_pct(dependency_pct)
-    profile_title, profile_text = dominant_profile(dimension_scores)
+    profile_title, profile_text = dominant_profile(dimension_scores, profile)
     top3 = priorities_from_dimensions(dimension_scores, profile)
     estimated_min, estimated_max = estimate_time_gain(answers, dependency_pct, dimension_scores)
-    summary = summary_message(level, dependency_pct, profile)
-    tension, closing = level_messages(dependency_pct)
+    summary = summary_message(dependency_pct, profile)
+    tension, closing = level_messages(dependency_pct, profile)
 
     avg_hours = round((estimated_min + estimated_max) / 2)
     dm_copy = (
@@ -1978,8 +2226,8 @@ async def result(request: Request):
     result_data = {
         "dependency_pct": dependency_pct,
         "autonomy_pct": autonomy_pct,
-        "score_pct": dependency_pct,      # compat
-        "score_display_30": score_30,     # compat / admin
+        "score_pct": dependency_pct,
+        "score_display_30": score_30,
         "level": level,
         "subtitle": subtitle,
         "profile_title": profile_title,
