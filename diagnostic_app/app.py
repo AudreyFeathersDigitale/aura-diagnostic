@@ -490,8 +490,8 @@ def summary_message(dependency_pct: int, profile: dict) -> str:
             )
         return (
             f"{intro}, tu restes encore le centre de gravité opérationnel de la structure.<br><br>"
-                f"👉 Si tu ralentis, une partie du suivi, des validations et de la fluidité interne ralentit avec toi."
-            )
+            f"👉 Si tu ralentis, une partie du suivi, des validations et de la fluidité interne ralentit avec toi."
+        )
 
     if business_type == "info":
         if dependency_pct < 25:
@@ -1535,8 +1535,16 @@ HTML = r"""
     margin-top:6px;
   }
 
+  .scorePercent.good{
+    color:#16a34a !important;
+  }
+
+  .scorePercent.warning{
+    color:#f59e0b !important;
+  }
+
   .scorePercent.danger{
-    color:#dc2626;
+    color:#ef4444 !important;
   }
 
   .scoreSecondary{
@@ -1579,12 +1587,16 @@ HTML = r"""
     line-height:1.3;
   }
 
+  .dimensionValue.good{
+    color:#16a34a;
+  }
+
   .dimensionValue.warning{
-    color:#b45309;
+    color:#f59e0b;
   }
 
   .dimensionValue.danger{
-    color:#dc2626;
+    color:#ef4444;
   }
 
   @media (max-width: 980px){
@@ -1630,30 +1642,6 @@ HTML = r"""
       auraGlow 2.8s ease-in-out infinite,
       auraCute .35s ease-in-out 1 !important;
   }
-
-  .scorePercent.good{
-  color:#16a34a !important; /* vert */
-}
-
-.scorePercent.warning{
-  color:#b45309 !important; /* orange */
-}
-
-.scorePercent.danger{
-  color:#dc2626 !important; /* rouge */
-}
-
-.dimensionValue.good{
-  color:#16a34a;
-}
-
-.dimensionValue.warning{
-  color:#b45309;
-}
-
-.dimensionValue.danger{
-  color:#dc2626;
-}
 
   @keyframes popIn {
     0%{ transform: scale(.85); opacity:.0; }
@@ -2147,7 +2135,7 @@ function getDimensionClass(value){
 }
 
 function getScoreClass(value){
-  return value >= 70 ? "danger";
+  if (value >= 70) return "danger";
   if (value >= 40) return "warning";
   return "good";
 }
