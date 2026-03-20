@@ -118,7 +118,6 @@ QUESTIONS = [
     ),
 ]
 
-# Score interne : plus haut = plus de friction
 ANSWER_SCORES = {
     "A": 0,
     "B": 1,
@@ -289,16 +288,16 @@ def dominant_profile(category_pct: dict) -> tuple[str, str]:
 
     mapping = {
         "dependance": (
-            "Business très dépendant",
-            "Votre principal blocage aujourd’hui, c’est que trop de choses reposent encore directement sur vous.",
+            "Ton business repose encore trop sur toi",
+            "Ton principal blocage aujourd’hui, c’est que trop de choses passent encore directement par toi.",
         ),
         "operations": (
-            "Business désorganisé",
-            "Votre principal frein, ce sont des opérations encore trop dispersées, manuelles ou mal structurées.",
+            "Tes opérations manquent encore de fluidité",
+            "Ton principal frein aujourd’hui, ce sont des opérations encore trop dispersées, manuelles ou mal structurées.",
         ),
         "temps": (
-            "Business chronophage",
-            "Votre principal problème aujourd’hui, c’est le volume de temps perdu sur des tâches évitables.",
+            "Tu perds encore trop de temps sur l’opérationnel",
+            "Ton principal problème aujourd’hui, c’est le volume de temps perdu sur des tâches évitables.",
         ),
     }
 
@@ -396,10 +395,8 @@ def priorities_by_level(answers: dict, level: str) -> list[str]:
 def level_messages(level: str) -> tuple[str, str, str]:
     if level == "Niveau 1":
         summary = (
-            "Aujourd’hui, ton business repose encore beaucoup sur toi.<br><br>"
-            "👉 Si tu ralentis, certaines choses ralentissent ou s’arrêtent aussi.<br><br>"
-            "Ce n’est pas juste un problème d’organisation : "
-            "c’est un système qui ne tourne pas encore sans toi."
+            "Ton business repose encore beaucoup sur toi.<br><br>"
+            "👉 Si tu ralentis, certaines choses ralentissent ou s’arrêtent aussi."
         )
         tension = (
             "👉 Ce que je vois surtout, c’est que si rien ne change, tu vas continuer à perdre du temps "
@@ -413,14 +410,11 @@ def level_messages(level: str) -> tuple[str, str, str]:
 
     if level == "Niveau 2":
         summary = (
-            "Aujourd’hui, ton business commence à être structuré, mais il repose encore trop sur toi au quotidien.<br><br>"
-            "👉 Certaines choses fonctionnent, mais beaucoup d’étapes demandent encore ton intervention.<br><br>"
-            "Ce n’est pas un problème de base : "
-            "c’est un manque de fluidité dans ton système."
+            "Ton business commence à être structuré, mais il repose encore trop sur toi au quotidien.<br><br>"
+            "👉 Certaines choses fonctionnent, mais beaucoup d’étapes demandent encore ton intervention."
         )
         tension = (
-            "👉 Si rien ne change, tu risques de rester bloqué dans un fonctionnement "
-            "encore trop manuel."
+            "👉 Si rien ne change, tu risques de rester bloqué dans un fonctionnement encore trop manuel."
         )
         closing = (
             "Mais la bonne nouvelle, c’est que quelques bons ajustements "
@@ -430,11 +424,9 @@ def level_messages(level: str) -> tuple[str, str, str]:
 
     if level == "Niveau 3":
         summary = (
-            "Aujourd’hui, ton business est déjà plutôt bien structuré.<br><br>"
+            "Ton business est déjà plutôt bien structuré.<br><br>"
             "👉 Les bases sont là, mais certaines zones peuvent encore être optimisées "
-            "pour gagner en efficacité.<br><br>"
-            "Tu n’as pas un problème majeur : "
-            "tu as surtout des optimisations à activer."
+            "pour gagner en efficacité."
         )
         tension = (
             "👉 Si rien ne change, tu risques simplement de passer à côté de gains faciles "
@@ -447,11 +439,8 @@ def level_messages(level: str) -> tuple[str, str, str]:
         return summary, tension, closing
 
     summary = (
-        "Aujourd’hui, ton business est déjà bien structuré.<br><br>"
-        "👉 Ton système ne semble pas reposer excessivement sur toi au quotidien.<br><br>"
-        "Tu n’as pas un problème de structure : "
-        "ton enjeu est maintenant d’optimiser ce qui peut encore te faire gagner du temps "
-        "ou améliorer la performance."
+        "Ton business est déjà bien structuré.<br><br>"
+        "👉 Ton système ne semble pas reposer excessivement sur toi au quotidien."
     )
     tension = (
         "👉 Si rien ne change, ton système restera stable, mais certaines optimisations "
@@ -1678,14 +1667,22 @@ async function finish(){
 
   await typeHtmlInto(
     loadingMsg.bubble,
-    `<b>Ton système aujourd’hui : ${data.score_display_30}/30</b><br><br>${data.summary}`,
+    `Voici ce que ton diagnostic montre aujourd’hui :<br><br>${data.summary}`,
     14
   );
 
   await sleep(700);
 
   await addBotMsgTyped(
-    `<b>Ton principal levier aujourd’hui :</b><br>${data.profile_title}<br><br>${data.profile_text}`,
+    `<b>Score estimé de structure :</b> ${data.score_display_30}/30`,
+    "",
+    14
+  );
+
+  await sleep(700);
+
+  await addBotMsgTyped(
+    `<b>Ton principal blocage aujourd’hui :</b><br>${data.profile_title}<br><br>${data.profile_text}`,
     "",
     14
   );
@@ -1712,7 +1709,7 @@ async function finish(){
   await sleep(700);
 
   await addBotMsgTyped(
-    `${data.closing}`,
+    `Les profils dans cette situation récupèrent souvent plusieurs heures par semaine après mise en place des bons systèmes.`,
     "",
     14
   );
@@ -1720,7 +1717,7 @@ async function finish(){
   await sleep(700);
 
   await addBotMsgTyped(
-    `${data.tension}<br><br>${data.good_news}<br><br>👉 Je peux te dire précisément par quoi commencer (et te donner un plan clair en 5 actions).`,
+    `${data.tension}<br><br>${data.closing}<br><br>👉 Je peux te dire précisément par quoi commencer et te préparer un plan clair en 5 actions.`,
     "",
     14
   );
@@ -1785,15 +1782,6 @@ async def result(request: Request):
     estimated_min, estimated_max = estimate_time_gain(answers)
     summary, tension, closing = level_messages(level)
 
-    if level == "Niveau 1":
-        good_news = "Mais la bonne nouvelle, c’est que c’est exactement le type de situation qui peut être débloqué rapidement."
-    elif level == "Niveau 2":
-        good_news = "Mais la bonne nouvelle, c’est que quelques bons ajustements peuvent rapidement améliorer la fluidité de ton business."
-    elif level == "Niveau 3":
-        good_news = "Mais la bonne nouvelle, c’est que quelques optimisations ciblées peuvent déjà faire une vraie différence."
-    else:
-        good_news = "Mais la bonne nouvelle, c’est qu’avec les bons ajustements, tu peux encore améliorer ton système sans tout remettre en question."
-
     avg_hours = round((estimated_min + estimated_max) / 2)
     dm_copy = (
         f"Hello Audrey,\n\n"
@@ -1821,7 +1809,6 @@ async def result(request: Request):
         "summary": summary,
         "tension": tension,
         "closing": closing,
-        "good_news": good_news,
         "dm_copy": dm_copy,
     }
 
@@ -1849,6 +1836,59 @@ async def save_lead(request: Request):
     )
 
     return JSONResponse({"ok": True})
+
+
+@app.get("/admin/leads", response_class=HTMLResponse)
+def admin_leads():
+    with get_conn() as conn:
+        rows = conn.execute(
+            """
+            SELECT id, created_at, score_display_30, level, profile_title,
+                   estimated_min, estimated_max, activity, repetitive_tasks,
+                   tools, linkedin_clicked, top3_json
+            FROM leads
+            ORDER BY id DESC
+            """
+        ).fetchall()
+
+    cards = []
+    for row in rows:
+        top3 = json.loads(row["top3_json"]) if row["top3_json"] else []
+        cards.append(f"""
+        <div style="background:white;border:1px solid #e5e7eb;border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 4px 16px rgba(15,23,42,.05);">
+            <div style="font-weight:900;font-size:18px;">Lead #{row["id"]} — {row["score_display_30"]}/30</div>
+            <div style="color:#64748b;margin-top:4px;">{row["created_at"]}</div>
+
+            <div style="margin-top:10px;"><b>Niveau :</b> {row["level"]}</div>
+            <div><b>Profil :</b> {row["profile_title"]}</div>
+            <div><b>Temps estimé :</b> {row["estimated_min"]} à {row["estimated_max"]} h/semaine</div>
+            <div><b>LinkedIn cliqué :</b> {"Oui" if row["linkedin_clicked"] else "Non"}</div>
+
+            <div style="margin-top:10px;"><b>Top 3 :</b><br>{"<br>".join(top3) if top3 else "-"}</div>
+
+            <div style="margin-top:10px;"><b>Activité :</b> {row["activity"] or "-"}</div>
+            <div><b>Tâches répétitives :</b> {row["repetitive_tasks"] or "-"}</div>
+            <div><b>Outils :</b> {row["tools"] or "-"}</div>
+        </div>
+        """)
+
+    html = f"""
+    <!doctype html>
+    <html lang="fr">
+    <head>
+      <meta charset="utf-8"/>
+      <title>Leads AURA</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    </head>
+    <body style="font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto;background:#f3f4f6;padding:24px;color:#0f172a;">
+      <div style="max-width:980px;margin:0 auto;">
+        <h1 style="margin-bottom:20px;">Leads AURA</h1>
+        {''.join(cards) if cards else '<p>Aucun lead pour le moment.</p>'}
+      </div>
+    </body>
+    </html>
+    """
+    return HTMLResponse(html)
 
 
 if __name__ == "__main__":
