@@ -354,82 +354,114 @@ def estimate_time_gain(answers: dict) -> tuple[int, int]:
     return estimate_min, estimate_max
 
 
-def rule_based_priorities(answers: dict) -> list[str]:
-    recos = []
-
-    if answers.get("leads") in ("C", "D"):
-        recos.append("Gestion des leads")
-    else:
-        recos.append("Optimisation du système de leads")
-
-    if answers.get("onboarding") in ("C", "D"):
-        recos.append("Onboarding client")
-    else:
-        recos.append("Fluidité de l’onboarding")
-
-    if (
+def priorities_by_level(answers: dict, level: str) -> list[str]:
+    leads_bad = answers.get("leads") in ("C", "D")
+    onboarding_bad = answers.get("onboarding") in ("C", "D")
+    ops_bad = (
         answers.get("repetitif") in ("C", "D")
         or answers.get("process") in ("C", "D")
         or answers.get("temps_perdu") in ("C", "D")
         or answers.get("charge") in ("C", "D")
         or answers.get("goulot") in ("C", "D")
-    ):
-        recos.append("Suivi des opérations")
-    else:
-        recos.append("Organisation des opérations")
+    )
 
-    return recos[:3]
+    if level == "Niveau 1":
+        return [
+            "Gestion des leads" if leads_bad else "Organisation des leads",
+            "Onboarding client" if onboarding_bad else "Fluidité de l’onboarding",
+            "Suivi des opérations" if ops_bad else "Organisation des opérations",
+        ]
+
+    if level == "Niveau 2":
+        return [
+            "Optimisation du système de leads" if not leads_bad else "Gestion des leads",
+            "Fluidité de l’onboarding" if not onboarding_bad else "Onboarding client",
+            "Organisation des opérations" if not ops_bad else "Suivi des opérations",
+        ]
+
+    if level == "Niveau 3":
+        return [
+            "Optimisation du suivi des leads",
+            "Simplification de l’onboarding",
+            "Fluidité des opérations",
+        ]
+
+    return [
+        "Optimisation des flux",
+        "Amélioration de la fluidité opérationnelle",
+        "Gains de performance système",
+    ]
 
 
-def level_messages(level: str) -> tuple[str, str]:
+def level_messages(level: str) -> tuple[str, str, str]:
     if level == "Niveau 1":
         summary = (
-            "Aujourd’hui, votre business dépend encore fortement de vous. "
-            "Si vous ralentissez, certaines opérations ralentissent ou s’arrêtent aussi. "
-            "Votre enjeu n’est pas seulement d’automatiser quelques tâches : "
-            "c’est de sortir votre business du mode survie."
+            "Aujourd’hui, ton business repose encore beaucoup sur toi.<br><br>"
+            "👉 Si tu ralentis, certaines choses ralentissent ou s’arrêtent aussi.<br><br>"
+            "Ce n’est pas juste un problème d’organisation : "
+            "c’est un système qui ne tourne pas encore sans toi."
+        )
+        tension = (
+            "👉 Ce que je vois surtout, c’est que si rien ne change, tu vas continuer à perdre du temps "
+            "chaque semaine sur des tâches évitables."
         )
         closing = (
-            "La bonne nouvelle, c’est que c’est souvent le niveau où les gains sont les plus rapides. "
-            "Avec les bons systèmes, vous pouvez vite récupérer du temps et enlever plusieurs frictions."
+            "Mais la bonne nouvelle, c’est que c’est exactement le type de situation "
+            "qui peut être débloqué rapidement."
         )
-        return summary, closing
+        return summary, tension, closing
 
     if level == "Niveau 2":
         summary = (
-            "Vous avez déjà une base de fonctionnement, mais trop d’étapes reposent encore sur vous "
-            "ou sur des manipulations manuelles. "
-            "Votre business ne repose plus entièrement sur l’improvisation, "
-            "mais il n’est pas encore vraiment fluide."
+            "Aujourd’hui, ton business commence à être structuré, mais il repose encore trop sur toi au quotidien.<br><br>"
+            "👉 Certaines choses fonctionnent, mais beaucoup d’étapes demandent encore ton intervention.<br><br>"
+            "Ce n’est pas un problème de base : "
+            "c’est un manque de fluidité dans ton système."
+        )
+        tension = (
+            "👉 Si rien ne change, tu risques de rester bloqué dans un fonctionnement "
+            "encore trop manuel."
         )
         closing = (
-            "C’est généralement le moment où structurer les bons systèmes fait une vraie différence : "
-            "moins de charge mentale, moins d’actions répétitives, plus de fluidité."
+            "Mais la bonne nouvelle, c’est que quelques bons ajustements "
+            "peuvent rapidement améliorer la fluidité de ton business."
         )
-        return summary, closing
+        return summary, tension, closing
 
     if level == "Niveau 3":
         summary = (
-            "Votre business est déjà plutôt bien structuré. "
-            "Vous n’avez pas un problème majeur de survie opérationnelle, "
-            "mais plusieurs zones peuvent encore être optimisées pour vous faire gagner du temps."
+            "Aujourd’hui, ton business est déjà plutôt bien structuré.<br><br>"
+            "👉 Les bases sont là, mais certaines zones peuvent encore être optimisées "
+            "pour gagner en efficacité.<br><br>"
+            "Tu n’as pas un problème majeur : "
+            "tu as surtout des optimisations à activer."
+        )
+        tension = (
+            "👉 Si rien ne change, tu risques simplement de passer à côté de gains faciles "
+            "en temps et en efficacité."
         )
         closing = (
-            "À ce niveau, l’enjeu n’est plus de tout reconstruire, "
-            "mais d’identifier les bons leviers pour simplifier et accélérer."
+            "Mais la bonne nouvelle, c’est que quelques optimisations ciblées "
+            "peuvent déjà faire une vraie différence."
         )
-        return summary, closing
+        return summary, tension, closing
 
     summary = (
-        "Votre système est déjà solide. "
-        "Votre business ne semble pas reposer excessivement sur vous au quotidien, "
-        "ce qui est déjà un très bon signal."
+        "Aujourd’hui, ton business est déjà bien structuré.<br><br>"
+        "👉 Ton système ne semble pas reposer excessivement sur toi au quotidien.<br><br>"
+        "Tu n’as pas un problème de structure : "
+        "ton enjeu est maintenant d’optimiser ce qui peut encore te faire gagner du temps "
+        "ou améliorer la performance."
+    )
+    tension = (
+        "👉 Si rien ne change, ton système restera stable, mais certaines optimisations "
+        "pourraient t’apporter encore plus de confort."
     )
     closing = (
-        "Votre enjeu aujourd’hui n’est probablement pas de structurer les bases, "
-        "mais d’optimiser ce qui peut encore vous faire gagner en fluidité, performance ou temps."
+        "Mais la bonne nouvelle, c’est qu’avec les bons ajustements, tu peux encore améliorer "
+        "ton système sans tout remettre en question."
     )
-    return summary, closing
+    return summary, tension, closing
 
 
 def create_lead_record(answers: dict, result_data: dict) -> int:
@@ -1470,14 +1502,12 @@ function renderFinalCTA(baseData){
   const card = document.createElement("div");
   card.className = "resultCard messageAppear";
   card.innerHTML = `
-    <div style="font-weight:900;font-size:18px;">👇 Recevoir mon plan personnalisé (5 actions concrètes)</div>
-    <div class="micro">Je vais analyser ton cas et te dire :
-<br><br>
-• quoi automatiser en priorité  
-<br>• quels outils utiliser  
-<br>• dans quel ordre le faire  
-<br><br>
-👉 pour que tu récupères du temps rapidement</div>
+    <div style="font-weight:900;font-size:18px;">👉 Voir quoi automatiser en priorité (plan personnalisé en 5 actions)</div>
+    <div class="micro">Je vais analyser ton cas et te montrer exactement :</div>
+    <div class="micro">• quoi automatiser en priorité</div>
+    <div class="micro">• quels outils utiliser</div>
+    <div class="micro">• dans quel ordre le mettre en place</div>
+    <div class="micro" style="margin-top:10px;">👉 pour que tu récupères du temps rapidement</div>
 
     <div class="leadForm">
       <div>
@@ -1486,12 +1516,12 @@ function renderFinalCTA(baseData){
       </div>
 
       <div>
-        <label for="repetitiveInput">Quelles sont les tâches que tu fais souvent et qui te prennent du temps ?</label>
+        <label for="repetitiveInput">Quelles tâches te prennent le plus de temps aujourd’hui ?</label>
         <textarea id="repetitiveInput" class="leadTextarea" placeholder="Ex : relances, onboarding, suivi client, organisation, copier-coller..."></textarea>
       </div>
 
       <div>
-        <label for="toolsInput">Quels outils utilises-tu déjà ?</label>
+        <label for="toolsInput">Quels outils utilises-tu actuellement pour gérer ton business ?</label>
         <input id="toolsInput" class="leadInput" type="text" placeholder="Ex : Notion, Calendly, Stripe, Gmail, Make, Airtable...">
       </div>
     </div>
@@ -1499,7 +1529,7 @@ function renderFinalCTA(baseData){
     <div class="micro">Je t’envoie un plan clair avec 5 actions concrètes adaptées à ton business.</div>
 
     <div class="resultActions">
-      <a class="dmBtn" id="linkedinBtn" href="${LINKEDIN_URL}" target="_blank" rel="noopener noreferrer">Voir quoi automatiser en priorité (plan personalisé)</a>
+      <a class="dmBtn" id="linkedinBtn" href="${LINKEDIN_URL}" target="_blank" rel="noopener noreferrer">Voir mes 5 actions prioritaires</a>
     </div>
   `;
   chat.appendChild(card);
@@ -1690,12 +1720,7 @@ async function finish(){
   await sleep(700);
 
   await addBotMsgTyped(
-    `Ce que je vois surtout, c’est que si rien ne change, tu vas continuer à perdre du temps chaque semaine sur des tâches évitables.
-<br><br>
-Mais la bonne nouvelle, c’est que c’est exactement le type de situation qui peut être débloqué rapidement.
-<br><br>
-👉 Je peux te dire précisément par quoi commencer (et te donner un plan clair en 5 actions).<br>
-    `,
+    `${data.tension}<br><br>${data.good_news}<br><br>👉 Je peux te dire précisément par quoi commencer (et te donner un plan clair en 5 actions).`,
     "",
     14
   );
@@ -1756,9 +1781,18 @@ async def result(request: Request):
     level, subtitle = level_from_percentage(score_pct)
     cats = category_scores(answers)
     profile_title, profile_text = dominant_profile(cats)
-    top3 = rule_based_priorities(answers)
+    top3 = priorities_by_level(answers, level)
     estimated_min, estimated_max = estimate_time_gain(answers)
-    summary, closing = level_messages(level)
+    summary, tension, closing = level_messages(level)
+
+    if level == "Niveau 1":
+        good_news = "Mais la bonne nouvelle, c’est que c’est exactement le type de situation qui peut être débloqué rapidement."
+    elif level == "Niveau 2":
+        good_news = "Mais la bonne nouvelle, c’est que quelques bons ajustements peuvent rapidement améliorer la fluidité de ton business."
+    elif level == "Niveau 3":
+        good_news = "Mais la bonne nouvelle, c’est que quelques optimisations ciblées peuvent déjà faire une vraie différence."
+    else:
+        good_news = "Mais la bonne nouvelle, c’est qu’avec les bons ajustements, tu peux encore améliorer ton système sans tout remettre en question."
 
     avg_hours = round((estimated_min + estimated_max) / 2)
     dm_copy = (
@@ -1785,7 +1819,9 @@ async def result(request: Request):
         "estimated_min": estimated_min,
         "estimated_max": estimated_max,
         "summary": summary,
+        "tension": tension,
         "closing": closing,
+        "good_news": good_news,
         "dm_copy": dm_copy,
     }
 
