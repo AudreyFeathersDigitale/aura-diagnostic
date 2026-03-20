@@ -15,10 +15,51 @@ DB_PATH = BASE_DIR / "aura_leads.db"
 
 LINKEDIN_URL = "https://www.linkedin.com/in/audrey-mouton-80b902217/?skipRedirect=true"
 
+# =========================
+# 1) SEGMENTATION EN AMONT
+# =========================
+
+PROFILE_QUESTIONS = [
+    (
+        "business_type",
+        "Avant de commencer, je personnalise ton diagnostic en 3 questions rapides.<br><br><b>Ton activité principale aujourd’hui ?</b>",
+        {
+            "freelance": "Freelance / Coach / Consultant",
+            "agency": "Agence",
+            "info": "Formation / Infoprenariat",
+            "saas": "SaaS / Produit digital",
+            "ecommerce": "E-commerce",
+        },
+    ),
+    (
+        "revenue_band",
+        "Ton niveau de chiffre d’affaires mensuel actuel ?",
+        {
+            "lt3": "Moins de 3k€/mois",
+            "3to10": "3k à 10k€/mois",
+            "10to30": "10k à 30k€/mois",
+            "30plus": "30k€+/mois",
+        },
+    ),
+    (
+        "team_size",
+        "Ton organisation aujourd’hui ?",
+        {
+            "solo": "Je suis seul(e)",
+            "small": "1 à 3 personnes",
+            "team": "4 personnes ou plus",
+        },
+    ),
+]
+
+# =========================
+# 2) QUIZ PRINCIPAL
+# =========================
+
 QUESTIONS = [
     (
         "dependance",
-        "Si vous arrêtez de travailler pendant <b>1 semaine</b>, votre business continue vraiment… ou certaines choses commencent à bloquer ?",
+        "Si tu arrêtes de travailler pendant <b>1 semaine</b>, ton business continue vraiment… ou certaines choses commencent à bloquer ?",
         {
             "A": "Tout continue sans moi, même les opérations importantes.",
             "B": "Globalement ça tourne, mais quelques tâches s’accumulent.",
@@ -28,7 +69,7 @@ QUESTIONS = [
     ),
     (
         "leads",
-        "Aujourd’hui, vos prospects arrivent… mais êtes-vous sûr de pouvoir tous les suivre sans en perdre ou en oublier ?",
+        "Aujourd’hui, tes prospects arrivent… mais es-tu sûr(e) de pouvoir tous les suivre sans en perdre ou en oublier ?",
         {
             "A": "Oui, tout est centralisé et suivi automatiquement.",
             "B": "J’ai un système, mais je vérifie encore manuellement.",
@@ -38,7 +79,7 @@ QUESTIONS = [
     ),
     (
         "onboarding",
-        "Quand un client signe, est-ce que tout est fluide… ou devez-vous encore intervenir à chaque étape ?",
+        "Quand un client signe, est-ce que tout est fluide… ou dois-tu encore intervenir à chaque étape ?",
         {
             "A": "Tout est automatisé et fluide.",
             "B": "Partiellement automatisé, mais pas partout.",
@@ -48,7 +89,7 @@ QUESTIONS = [
     ),
     (
         "outils",
-        "Vous utilisez plusieurs outils… mais est-ce qu’ils travaillent vraiment ensemble ou vous faites encore beaucoup de choses à la main ?",
+        "Tu utilises plusieurs outils… mais est-ce qu’ils travaillent vraiment ensemble ou tu fais encore beaucoup de choses à la main ?",
         {
             "A": "Tout est connecté et fonctionne ensemble.",
             "B": "Une partie des outils est connectée.",
@@ -58,7 +99,7 @@ QUESTIONS = [
     ),
     (
         "repetitif",
-        "Combien de fois par semaine refaites-vous les mêmes actions (copier-coller, relances, organisation…) sans automatisation ?",
+        "Combien de fois par semaine refais-tu les mêmes actions (copier-coller, relances, organisation…) sans automatisation ?",
         {
             "A": "Très rarement.",
             "B": "Quelques fois par semaine.",
@@ -68,7 +109,7 @@ QUESTIONS = [
     ),
     (
         "process",
-        "Si quelqu’un devait reprendre votre business demain, pourrait-il suivre vos process… ou tout est encore dans votre tête ?",
+        "Si quelqu’un devait reprendre ton business demain, pourrait-il suivre tes process… ou tout est encore dans ta tête ?",
         {
             "A": "Tout est documenté et structuré.",
             "B": "Une partie est documentée.",
@@ -78,7 +119,7 @@ QUESTIONS = [
     ),
     (
         "frein",
-        "Aujourd’hui, votre business tourne grâce à un système… ou surtout parce que vous êtes là pour tout gérer ?",
+        "Aujourd’hui, ton business tourne grâce à un système… ou surtout parce que tu es là pour tout gérer ?",
         {
             "A": "Le système gère la majorité.",
             "B": "Mix entre système et moi.",
@@ -88,7 +129,7 @@ QUESTIONS = [
     ),
     (
         "temps_perdu",
-        "Chaque semaine, combien d’heures passez-vous sur des tâches que vous pourriez éviter avec un meilleur système ?",
+        "Chaque semaine, combien d’heures passes-tu sur des tâches que tu pourrais éviter avec un meilleur système ?",
         {
             "A": "Moins de 2 heures.",
             "B": "2 à 5 heures.",
@@ -98,7 +139,7 @@ QUESTIONS = [
     ),
     (
         "charge",
-        "Avez-vous parfois l’impression que si vous ralentissez un peu, tout peut partir en vrille ?",
+        "As-tu parfois l’impression que si tu ralentis un peu, tout peut partir en vrille ?",
         {
             "A": "Non, tout est sous contrôle.",
             "B": "Parfois.",
@@ -108,7 +149,7 @@ QUESTIONS = [
     ),
     (
         "goulot",
-        "Si votre business était vraiment bien structuré, qu’est-ce qui ferait le plus de différence pour vous aujourd’hui ?",
+        "Si ton business était vraiment bien structuré, qu’est-ce qui ferait le plus de différence pour toi aujourd’hui ?",
         {
             "A": "Pas grand-chose, ça fonctionne déjà bien.",
             "B": "Gagner du temps.",
@@ -125,30 +166,36 @@ ANSWER_SCORES = {
     "D": 3,
 }
 
-QUESTION_WEIGHTS = {
-    "dependance": 3.0,
-    "frein": 3.0,
-    "temps_perdu": 2.5,
-    "charge": 2.5,
-    "goulot": 2.5,
-    "leads": 2.0,
-    "onboarding": 2.0,
-    "process": 2.0,
-    "repetitif": 1.5,
-    "outils": 1.0,
+# =========================
+# 3) MOTEUR DE SCORING
+# =========================
+
+QUESTION_DIMENSIONS = {
+    "dependance": {"main": "STR", "secondary": ("DEL", 0.5), "weight": 1.5},
+    "leads": {"main": "ACQ", "secondary": ("STR", 0.3), "weight": 1.0},
+    "onboarding": {"main": "ONB", "secondary": ("DEL", 0.4), "weight": 1.0},
+    "outils": {"main": "DEL", "secondary": ("STR", 0.5), "weight": 1.0},
+    "repetitif": {"main": "DEL", "secondary": ("STR", 0.3), "weight": 1.0},
+    "process": {"main": "STR", "secondary": ("DEL", 0.4), "weight": 1.5},
+    "frein": {"main": "STR", "secondary": ("DEL", 0.5), "weight": 1.5},
+    "temps_perdu": {"main": "DEL", "secondary": None, "weight": 1.2},
+    "charge": {"main": "STR", "secondary": ("DEL", 0.3), "weight": 1.2},
+    "goulot": {"main": "STR", "secondary": None, "weight": 0.4},  # très léger : question de projection
 }
 
-CATEGORY_MAP = {
-    "dependance": "dependance",
-    "frein": "dependance",
-    "charge": "dependance",
-    "goulot": "dependance",
-    "leads": "operations",
-    "onboarding": "operations",
-    "process": "operations",
-    "outils": "operations",
-    "repetitif": "temps",
-    "temps_perdu": "temps",
+PROFILE_WEIGHTS = {
+    "freelance": {"ACQ": 1.1, "ONB": 1.2, "DEL": 1.0, "STR": 1.1},
+    "agency": {"ACQ": 1.0, "ONB": 1.1, "DEL": 1.1, "STR": 1.3},
+    "info": {"ACQ": 1.1, "ONB": 1.0, "DEL": 1.0, "STR": 1.1},
+    "saas": {"ACQ": 0.9, "ONB": 1.0, "DEL": 1.1, "STR": 1.2},
+    "ecommerce": {"ACQ": 0.9, "ONB": 0.8, "DEL": 1.3, "STR": 1.2},
+}
+
+DIMENSION_LABELS = {
+    "ACQ": "Acquisition",
+    "ONB": "Onboarding",
+    "DEL": "Exécution",
+    "STR": "Structuration",
 }
 
 
@@ -160,6 +207,13 @@ def get_conn() -> sqlite3.Connection:
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
+
+
+def ensure_column(conn: sqlite3.Connection, table: str, column: str, ddl: str) -> None:
+    existing = conn.execute(f"PRAGMA table_info({table})").fetchall()
+    existing_cols = {row["name"] for row in existing}
+    if column not in existing_cols:
+        conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} {ddl}")
 
 
 def init_db() -> None:
@@ -190,6 +244,15 @@ def init_db() -> None:
             """
         )
 
+        # Colonnes ajoutées sans casser les bases existantes
+        ensure_column(conn, "leads", "profile_json", "TEXT")
+        ensure_column(conn, "leads", "business_type", "TEXT")
+        ensure_column(conn, "leads", "revenue_band", "TEXT")
+        ensure_column(conn, "leads", "team_size", "TEXT")
+        ensure_column(conn, "leads", "dependency_pct", "INTEGER DEFAULT 0")
+        ensure_column(conn, "leads", "autonomy_pct", "INTEGER DEFAULT 0")
+        ensure_column(conn, "leads", "dimension_scores_json", "TEXT")
+
 
 def questions_as_json() -> str:
     out = []
@@ -198,262 +261,249 @@ def questions_as_json() -> str:
     return json.dumps(out, ensure_ascii=False)
 
 
-def weighted_score(answers: dict) -> tuple[float, float]:
-    total = 0.0
-    max_total = 0.0
+def profile_questions_as_json() -> str:
+    out = []
+    for key, prompt, opts in PROFILE_QUESTIONS:
+        out.append({"key": key, "prompt": prompt, "options": opts})
+    return json.dumps(out, ensure_ascii=False)
+
+
+def profile_label(profile: dict) -> str:
+    business_type = profile.get("business_type", "")
+    mapping = {
+        "freelance": "freelance / coach / consultant",
+        "agency": "agence",
+        "info": "infopreneur / formateur",
+        "saas": "SaaS / produit digital",
+        "ecommerce": "e-commerce",
+    }
+    return mapping.get(business_type, "entrepreneur")
+
+
+def get_profile_dimension_weights(profile: dict) -> dict:
+    business_type = profile.get("business_type", "freelance")
+    return PROFILE_WEIGHTS.get(business_type, PROFILE_WEIGHTS["freelance"])
+
+
+def compute_dimension_scores(answers: dict, profile: dict) -> dict:
+    raw_scores = {"ACQ": 0.0, "ONB": 0.0, "DEL": 0.0, "STR": 0.0}
+    raw_max = {"ACQ": 0.0, "ONB": 0.0, "DEL": 0.0, "STR": 0.0}
 
     for key, _, _ in QUESTIONS:
         answer = answers.get(key, "A")
         score = ANSWER_SCORES.get(answer, 0)
-        weight = QUESTION_WEIGHTS.get(key, 1.0)
-        total += score * weight
-        max_total += 3 * weight
+        meta = QUESTION_DIMENSIONS[key]
 
-    return total, max_total
+        main_dim = meta["main"]
+        weight = meta["weight"]
+        secondary = meta["secondary"]
+
+        raw_scores[main_dim] += score * weight
+        raw_max[main_dim] += 3 * weight
+
+        if secondary:
+            sec_dim, sec_ratio = secondary
+            raw_scores[sec_dim] += score * weight * sec_ratio
+            raw_max[sec_dim] += 3 * weight * sec_ratio
+
+    profile_weights = get_profile_dimension_weights(profile)
+
+    final_scores = {}
+    for dim in raw_scores:
+        weighted_score = raw_scores[dim] * profile_weights.get(dim, 1.0)
+        weighted_max = raw_max[dim] * profile_weights.get(dim, 1.0)
+        if weighted_max <= 0:
+            final_scores[dim] = 0
+        else:
+            final_scores[dim] = round((weighted_score / weighted_max) * 100)
+
+    return final_scores
 
 
-def friction_percentage(answers: dict) -> int:
-    total, max_total = weighted_score(answers)
-    if max_total == 0:
-        return 0
-    return round((total / max_total) * 100)
+def compute_dependency_pct(dimension_scores: dict) -> int:
+    return round(sum(dimension_scores.values()) / len(dimension_scores))
 
 
-def display_score_30(friction_pct: int) -> int:
-    display_score = 100 - friction_pct
-    return round((display_score / 100) * 30)
+def compute_autonomy_pct(dependency_pct: int) -> int:
+    return max(0, 100 - dependency_pct)
 
 
-def level_from_percentage(friction_pct: int) -> tuple[str, str]:
-    if friction_pct < 25:
+def level_from_dependency_pct(dependency_pct: int) -> tuple[str, str]:
+    if dependency_pct < 25:
         return (
-            "Niveau 4",
-            "Système déjà solide, avec quelques optimisations possibles",
+            "Dépendance faible",
+            "Base déjà saine, mais certaines zones restent encore trop manuelles ou trop dépendantes de toi.",
         )
-    if friction_pct < 50:
+    if dependency_pct < 50:
         return (
-            "Niveau 3",
-            "Base présente, mais plusieurs frictions limitent encore la fluidité",
+            "Dépendance modérée",
+            "Ton activité tient, mais plusieurs frictions t’obligent encore à rester trop au centre.",
         )
-    if friction_pct < 75:
+    if dependency_pct < 75:
         return (
-            "Niveau 2",
-            "Business encore trop dépendant et trop manuel",
+            "Dépendance forte",
+            "Aujourd’hui, ton business dépend clairement de toi sur plusieurs points clés.",
         )
     return (
-        "Niveau 1",
-        "Business fortement dépendant de vous, avec plusieurs blocages critiques",
+        "Dépendance critique",
+        "Tu es encore le système principal de ton business. Si tu ralentis, plusieurs choses ralentissent aussi.",
     )
 
 
-def human_level_label(level: str) -> str:
-    if level == "Niveau 1":
-        return "encore très dépendant(e) de moi dans mon business"
-    if level == "Niveau 2":
-        return "encore trop au centre de mon business"
-    if level == "Niveau 3":
-        return "déjà assez structuré(e), mais avec encore des optimisations à faire"
-    if level == "Niveau 4":
-        return "déjà bien structuré(e), avec encore un peu d’optimisation possible"
-    return "encore trop au centre de mon business"
+def display_score_30(dependency_pct: int) -> int:
+    # score secondaire discret, uniquement si tu veux le garder côté admin / compatibilité
+    autonomy = compute_autonomy_pct(dependency_pct)
+    return round((autonomy / 100) * 30)
 
 
-def category_scores(answers: dict) -> dict:
-    scores = {"dependance": 0.0, "operations": 0.0, "temps": 0.0}
-    max_scores = {"dependance": 0.0, "operations": 0.0, "temps": 0.0}
+def dominant_profile(dimension_scores: dict) -> tuple[str, str]:
+    ordered = sorted(dimension_scores.items(), key=lambda x: x[1], reverse=True)
+    main_dim = ordered[0][0]
+    second_dim = ordered[1][0]
 
-    for key, _, _ in QUESTIONS:
-        category = CATEGORY_MAP.get(key)
-        if not category:
-            continue
-
-        answer = answers.get(key, "A")
-        score = ANSWER_SCORES.get(answer, 0)
-        weight = QUESTION_WEIGHTS.get(key, 1.0)
-
-        scores[category] += score * weight
-        max_scores[category] += 3 * weight
-
-    result = {}
-    for cat in scores:
-        if max_scores[cat] == 0:
-            result[cat] = 0
-        else:
-            result[cat] = round((scores[cat] / max_scores[cat]) * 100)
-    return result
-
-
-def dominant_profile(category_pct: dict) -> tuple[str, str]:
-    dominant = max(category_pct, key=category_pct.get)
-
-    mapping = {
-        "dependance": (
+    if main_dim == "STR":
+        return (
             "Ton business repose encore trop sur toi",
-            "Ton principal blocage aujourd’hui, c’est que trop de choses passent encore directement par toi.",
-        ),
-        "operations": (
-            "Tes opérations manquent encore de fluidité",
-            "Ton principal frein aujourd’hui, ce sont des opérations encore trop dispersées, manuelles ou mal structurées.",
-        ),
-        "temps": (
-            "Tu perds encore trop de temps sur l’opérationnel",
-            "Ton principal problème aujourd’hui, c’est le volume de temps perdu sur des tâches évitables.",
-        ),
-    }
+            "Le principal problème aujourd’hui, c’est que trop de choses dépendent encore directement de toi pour avancer correctement."
+        )
 
-    return mapping[dominant]
+    if main_dim == "DEL":
+        return (
+            "Tu absorbes encore trop d’opérations manuelles",
+            "Ton principal frein aujourd’hui, c’est le volume de tâches répétitives, de manipulations et de suivi opérationnel qui reposent encore sur toi."
+        )
+
+    if main_dim == "ONB":
+        return (
+            "Ton onboarding crée encore trop de friction",
+            "Le passage prospect → client n’est pas encore assez fluide, ce qui t’oblige à intervenir plus que nécessaire."
+        )
+
+    return (
+        "Ton acquisition manque encore de système",
+        "Tes opportunités existent, mais leur suivi et leur traitement dépendent encore trop d’une gestion humaine ou dispersée."
+    )
 
 
-def estimate_time_gain(answers: dict) -> tuple[int, int]:
-    repetitif_map = {"A": 1, "B": 3, "C": 6, "D": 10}
-    temps_map = {"A": 1, "B": 4, "C": 8, "D": 12}
+def estimate_time_gain(answers: dict, dependency_pct: int, dimension_scores: dict) -> tuple[int, int]:
+    if dependency_pct < 25:
+        estimate_min, estimate_max = 2, 5
+    elif dependency_pct < 50:
+        estimate_min, estimate_max = 5, 8
+    elif dependency_pct < 75:
+        estimate_min, estimate_max = 8, 14
+    else:
+        estimate_min, estimate_max = 12, 20
 
-    repetitif = answers.get("repetitif", "B")
-    temps_perdu = answers.get("temps_perdu", "B")
-    charge = answers.get("charge", "B")
-    onboarding = answers.get("onboarding", "B")
-    leads = answers.get("leads", "B")
-    process = answers.get("process", "B")
-    goulot = answers.get("goulot", "B")
+    if dimension_scores["DEL"] >= 70:
+        estimate_min += 1
+        estimate_max += 2
 
-    base = max(repetitif_map.get(repetitif, 3), temps_map.get(temps_perdu, 4))
+    if dimension_scores["STR"] >= 70:
+        estimate_min += 1
+        estimate_max += 2
 
-    bonus = 0
-    if charge == "C":
-        bonus += 1
-    elif charge == "D":
-        bonus += 3
-
-    if onboarding == "C":
-        bonus += 1
-    elif onboarding == "D":
-        bonus += 2
-
-    if leads == "C":
-        bonus += 1
-    elif leads == "D":
-        bonus += 2
-
-    if process == "C":
-        bonus += 1
-    elif process == "D":
-        bonus += 2
-
-    if goulot == "C":
-        bonus += 1
-    elif goulot == "D":
-        bonus += 2
-
-    estimate_min = max(2, round(base * 0.7 + bonus * 0.5))
-    estimate_max = min(20, estimate_min + 3 + min(bonus, 4))
-
-    if estimate_max < estimate_min:
-        estimate_max = estimate_min + 2
-
+    estimate_max = min(20, estimate_max)
     return estimate_min, estimate_max
 
 
-def priorities_by_level(answers: dict, level: str) -> list[str]:
-    leads_bad = answers.get("leads") in ("C", "D")
-    onboarding_bad = answers.get("onboarding") in ("C", "D")
-    ops_bad = (
-        answers.get("repetitif") in ("C", "D")
-        or answers.get("process") in ("C", "D")
-        or answers.get("temps_perdu") in ("C", "D")
-        or answers.get("charge") in ("C", "D")
-        or answers.get("goulot") in ("C", "D")
+def dimension_priority_copy(dim: str, profile: dict) -> str:
+    business_type = profile.get("business_type", "freelance")
+
+    if dim == "STR":
+        if business_type == "agency":
+            return "Formaliser les process et réduire la dépendance au fondateur"
+        return "Formaliser les process clés et réduire la dépendance à toi"
+
+    if dim == "DEL":
+        if business_type == "ecommerce":
+            return "Réduire les tâches manuelles dans l’exécution et le suivi"
+        return "Automatiser les tâches répétitives et l’exécution"
+
+    if dim == "ONB":
+        return "Fluidifier l’onboarding client"
+
+    return "Structurer le suivi des leads et des relances"
+
+
+def priorities_from_dimensions(dimension_scores: dict, profile: dict) -> list[str]:
+    ordered = sorted(dimension_scores.items(), key=lambda x: x[1], reverse=True)
+    top_dims = [dim for dim, _ in ordered[:3]]
+    return [dimension_priority_copy(dim, profile) for dim in top_dims]
+
+
+def summary_message(level: str, dependency_pct: int, profile: dict) -> str:
+    label = profile_label(profile)
+
+    if dependency_pct < 25:
+        return (
+            f"Pour un profil {label} comme le tien, la base est déjà plutôt saine.<br><br>"
+            f"👉 Mais il reste encore quelques points où ton business dépend directement de toi."
+        )
+    if dependency_pct < 50:
+        return (
+            f"Pour un profil {label} comme le tien, ton business tient déjà sur une base correcte.<br><br>"
+            f"👉 Mais plusieurs frictions t’obligent encore à intervenir trop souvent."
+        )
+    if dependency_pct < 75:
+        return (
+            f"Pour un profil {label} comme le tien, ton business dépend encore fortement de toi.<br><br>"
+            f"👉 Plusieurs zones clés ne sont pas encore assez fluides, documentées ou automatisées."
+        )
+    return (
+        f"Pour un profil {label} comme le tien, tu es encore le système principal de ton business.<br><br>"
+        f"👉 Si tu ralentis, plusieurs zones critiques ralentissent avec toi."
     )
 
-    if level == "Niveau 1":
-        return [
-            "Gestion des leads" if leads_bad else "Organisation des leads",
-            "Onboarding client" if onboarding_bad else "Fluidité de l’onboarding",
-            "Suivi des opérations" if ops_bad else "Organisation des opérations",
-        ]
 
-    if level == "Niveau 2":
-        return [
-            "Optimisation du système de leads" if not leads_bad else "Gestion des leads",
-            "Fluidité de l’onboarding" if not onboarding_bad else "Onboarding client",
-            "Organisation des opérations" if not ops_bad else "Suivi des opérations",
-        ]
-
-    if level == "Niveau 3":
-        return [
-            "Optimisation du suivi des leads",
-            "Simplification de l’onboarding",
-            "Fluidité des opérations",
-        ]
-
-    return [
-        "Optimisation des flux",
-        "Amélioration de la fluidité opérationnelle",
-        "Gains de performance système",
-    ]
-
-
-def level_messages(level: str) -> tuple[str, str, str]:
-    if level == "Niveau 1":
-        summary = (
-            "Ton business repose encore beaucoup sur toi.<br><br>"
-            "👉 Si tu ralentis, certaines choses ralentissent ou s’arrêtent aussi."
-        )
+def level_messages(dependency_pct: int) -> tuple[str, str]:
+    if dependency_pct < 25:
         tension = (
-            "👉 Ce que je vois surtout, c’est que si rien ne change, tu vas continuer à perdre du temps "
-            "chaque semaine sur des tâches évitables."
+            "👉 Si rien ne change, ton activité restera stable, mais tu laisseras encore des gains faciles de temps et de fluidité sur la table."
         )
         closing = (
-            "Mais la bonne nouvelle, c’est que c’est exactement le type de situation "
-            "qui peut être débloqué rapidement."
+            "La bonne nouvelle, c’est qu’avec quelques optimisations ciblées, tu peux encore alléger ton quotidien sans tout reconstruire."
         )
-        return summary, tension, closing
+        return tension, closing
 
-    if level == "Niveau 2":
-        summary = (
-            "Ton business commence à être structuré, mais il repose encore trop sur toi au quotidien.<br><br>"
-            "👉 Certaines choses fonctionnent, mais beaucoup d’étapes demandent encore ton intervention."
-        )
+    if dependency_pct < 50:
         tension = (
-            "👉 Si rien ne change, tu risques de rester bloqué dans un fonctionnement encore trop manuel."
+            "👉 Si rien ne change, tu risques de rester bloqué dans une zone intermédiaire : ça fonctionne, mais tu restes trop mobilisé(e) pour faire tourner l’ensemble."
         )
         closing = (
-            "Mais la bonne nouvelle, c’est que quelques bons ajustements "
-            "peuvent rapidement améliorer la fluidité de ton business."
+            "La bonne nouvelle, c’est que quelques ajustements bien choisis peuvent déjà te faire récupérer un vrai volume de temps."
         )
-        return summary, tension, closing
+        return tension, closing
 
-    if level == "Niveau 3":
-        summary = (
-            "Ton business est déjà plutôt bien structuré.<br><br>"
-            "👉 Les bases sont là, mais certaines zones peuvent encore être optimisées "
-            "pour gagner en efficacité."
-        )
+    if dependency_pct < 75:
         tension = (
-            "👉 Si rien ne change, tu risques simplement de passer à côté de gains faciles "
-            "en temps et en efficacité."
+            "👉 Si rien ne change, tu vas continuer à absorber chaque semaine des tâches évitables, manuelles ou mal transmises."
         )
         closing = (
-            "Mais la bonne nouvelle, c’est que quelques optimisations ciblées "
-            "peuvent déjà faire une vraie différence."
+            "La bonne nouvelle, c’est que c’est exactement le type de situation qui peut se débloquer rapidement avec les bons systèmes."
         )
-        return summary, tension, closing
+        return tension, closing
 
-    summary = (
-        "Ton business est déjà bien structuré.<br><br>"
-        "👉 Ton système ne semble pas reposer excessivement sur toi au quotidien."
-    )
     tension = (
-        "👉 Si rien ne change, ton système restera stable, mais certaines optimisations "
-        "pourraient t’apporter encore plus de confort."
+        "👉 Si rien ne change, ton business restera fortement dépendant de toi : moindre baisse de disponibilité, et plusieurs choses commencent à bloquer."
     )
     closing = (
-        "Mais la bonne nouvelle, c’est qu’avec les bons ajustements, tu peux encore améliorer "
-        "ton système sans tout remettre en question."
+        "La bonne nouvelle, c’est qu’en traitant les bons points dans le bon ordre, tu peux commencer à reprendre le contrôle très vite."
     )
-    return summary, tension, closing
+    return tension, closing
 
 
-def create_lead_record(answers: dict, result_data: dict) -> int:
+def human_level_label(dependency_pct: int) -> str:
+    if dependency_pct < 25:
+        return "déjà assez structuré(e), mais encore un peu trop présent(e) sur certains points"
+    if dependency_pct < 50:
+        return "encore trop au centre de certaines zones de mon business"
+    if dependency_pct < 75:
+        return "encore fortement au centre de mon business"
+    return "encore le système principal de mon business"
+
+
+def create_lead_record(answers: dict, profile: dict, result_data: dict) -> int:
     now = utcnow_iso()
     with get_conn() as conn:
         cur = conn.execute(
@@ -462,30 +512,44 @@ def create_lead_record(answers: dict, result_data: dict) -> int:
                 created_at,
                 updated_at,
                 answers_json,
+                profile_json,
+                business_type,
+                revenue_band,
+                team_size,
                 score_pct,
+                dependency_pct,
+                autonomy_pct,
                 score_display_30,
                 level,
                 subtitle,
                 profile_title,
                 profile_text,
                 category_scores_json,
+                dimension_scores_json,
                 top3_json,
                 estimated_min,
                 estimated_max,
                 dm_text
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 now,
                 now,
                 json.dumps(answers, ensure_ascii=False),
-                result_data["score_pct"],
+                json.dumps(profile, ensure_ascii=False),
+                profile.get("business_type"),
+                profile.get("revenue_band"),
+                profile.get("team_size"),
+                result_data["dependency_pct"],  # compat
+                result_data["dependency_pct"],
+                result_data["autonomy_pct"],
                 result_data["score_display_30"],
                 result_data["level"],
                 result_data["subtitle"],
                 result_data["profile_title"],
                 result_data["profile_text"],
-                json.dumps(result_data["category_scores"], ensure_ascii=False),
+                json.dumps(result_data["dimension_scores"], ensure_ascii=False),  # compat
+                json.dumps(result_data["dimension_scores"], ensure_ascii=False),
                 json.dumps(result_data["top3"], ensure_ascii=False),
                 result_data["estimated_min"],
                 result_data["estimated_max"],
@@ -946,6 +1010,7 @@ HTML = r"""
     background: linear-gradient(180deg, var(--blue), var(--blue2));
     color:white;
     font-weight:950;
+    flex:0 0 auto;
   }
 
   .footer{
@@ -1111,6 +1176,51 @@ HTML = r"""
     50%, 100%{ opacity:0; }
   }
 
+  .scoreHero{
+    background: linear-gradient(180deg, #ffffff, #f8fbff);
+    border:1px solid rgba(47,107,255,.14);
+  }
+
+  .scorePercent{
+    font-size:40px;
+    font-weight:950;
+    line-height:1;
+    margin-top:6px;
+  }
+
+  .scoreSecondary{
+    color:var(--muted);
+    font-size:13px;
+    font-weight:700;
+    margin-top:8px;
+  }
+
+  .dimensionGrid{
+    display:grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap:10px;
+    margin-top:10px;
+  }
+
+  .dimensionItem{
+    background:#f8fafc;
+    border:1px solid rgba(15,23,42,.06);
+    border-radius:14px;
+    padding:10px 12px;
+  }
+
+  .dimensionLabel{
+    font-size:12px;
+    color:var(--muted);
+    font-weight:800;
+  }
+
+  .dimensionValue{
+    font-size:22px;
+    font-weight:950;
+    margin-top:4px;
+  }
+
   @media (max-width: 980px){
     .grid{ grid-template-columns:1fr; }
     .right{ min-height:620px; }
@@ -1239,15 +1349,21 @@ HTML = r"""
   </div>
 
 <script>
+const PROFILE_QUESTIONS = %PROFILE_QUESTIONS_JSON%;
 const QUESTIONS = %QUESTIONS_JSON%;
 const LINKEDIN_URL = %LINKEDIN_URL_JSON%;
 
+let phase = "profile";
+let profileStep = 0;
 let step = 0;
+let profileAnswers = {};
 let answers = {};
 let locked = false;
 let currentQuestionRow = null;
 let finalData = null;
 let currentLeadId = null;
+
+const TOTAL_STEPS = PROFILE_QUESTIONS.length + QUESTIONS.length;
 
 const chat = document.getElementById("chat");
 const choices = document.getElementById("choices");
@@ -1267,7 +1383,8 @@ function sleep(ms){
 }
 
 function setProgress(){
-  const pct = Math.round((step / QUESTIONS.length) * 100);
+  const done = profileStep + step;
+  const pct = Math.round((done / TOTAL_STEPS) * 100);
   bar.style.width = pct + "%";
 }
 
@@ -1330,24 +1447,35 @@ function addBotMsg(html, typing=false, extraClass=""){
   return { row, bubble };
 }
 
-function renderChoices(q){
+function renderChoices(q, isProfile=false){
   choices.innerHTML = "";
   const opts = q.options;
+  const keys = Object.keys(opts);
 
-  for(const k of ["A","B","C","D"]){
+  for(const k of keys){
     const btn = document.createElement("button");
     btn.className = "btn";
-    btn.innerHTML = `<div class="key">${k}</div><div>${opts[k]}</div>`;
-    btn.onclick = (e) => choose(q.key, k, e.currentTarget);
+    const badge = isProfile ? "•" : k;
+    btn.innerHTML = `<div class="key">${badge}</div><div>${opts[k]}</div>`;
+    btn.onclick = (e) => choose(q.key, k, e.currentTarget, isProfile);
     choices.appendChild(btn);
   }
+}
+
+function currentQuestionIndex(){
+  return profileStep + step + 1;
+}
+
+function totalQuestions(){
+  return TOTAL_STEPS;
 }
 
 function botAsk(){
   locked = true;
   setProgress();
 
-  const q = QUESTIONS[step];
+  const q = phase === "profile" ? PROFILE_QUESTIONS[profileStep] : QUESTIONS[step];
+
   const reactions = [
     "Voyons ça ensemble 👀",
     "Intéressant 🤔",
@@ -1370,26 +1498,32 @@ function botAsk(){
 
     msg.bubble.classList.remove("bubbleTyping");
     msg.bubble.classList.add("bubbleQuestion");
+
     msg.bubble.innerHTML = `
-      <div class="questionTag">Question ${step+1} / ${QUESTIONS.length} • ${Math.round(((step+1)/QUESTIONS.length)*100)}%</div>
+      <div class="questionTag">Question ${currentQuestionIndex()} / ${totalQuestions()} • ${Math.round((currentQuestionIndex()/totalQuestions())*100)}%</div>
       <div style="margin-bottom:6px;color:#64748b;font-size:13px;">${r}</div>
       <div>${q.prompt}</div>
     `;
 
     currentQuestionRow = msg.row;
-    renderChoices(q);
+    renderChoices(q, phase === "profile");
     locked = false;
   }, 650);
 }
 
-function choose(key, letter, btn){
+function choose(key, value, btn, isProfile=false){
   if(locked) return;
 
   btn.classList.add("btnSelected");
   choices.style.pointerEvents = "none";
 
-  answers[key] = letter;
-  step += 1;
+  if(isProfile){
+    profileAnswers[key] = value;
+    profileStep += 1;
+  } else {
+    answers[key] = value;
+    step += 1;
+  }
 
   setTimeout(() => {
     if(currentQuestionRow){
@@ -1399,11 +1533,18 @@ function choose(key, letter, btn){
 
     choices.style.pointerEvents = "auto";
 
-    if(step >= QUESTIONS.length){
-      finish();
-    } else {
+    if(phase === "profile" && profileStep >= PROFILE_QUESTIONS.length){
+      phase = "quiz";
       botAsk();
+      return;
     }
+
+    if(phase === "quiz" && step >= QUESTIONS.length){
+      finish();
+      return;
+    }
+
+    botAsk();
   }, 180);
 }
 
@@ -1411,12 +1552,11 @@ function averageHours(baseData){
   return Math.round((baseData.estimated_min + baseData.estimated_max) / 2);
 }
 
-function humanLevelLabel(level){
-  if(level === "Niveau 1") return "encore très dépendant(e) de moi dans mon business";
-  if(level === "Niveau 2") return "encore trop au centre de mon business";
-  if(level === "Niveau 3") return "déjà assez structuré(e), mais avec encore des optimisations à faire";
-  if(level === "Niveau 4") return "déjà bien structuré(e), avec encore un peu d’optimisation possible";
-  return "encore trop au centre de mon business";
+function humanLevelLabel(dependencyPct){
+  if(dependencyPct < 25) return "déjà assez structuré(e), mais encore un peu trop présent(e) sur certains points";
+  if(dependencyPct < 50) return "encore trop au centre de certaines zones de mon business";
+  if(dependencyPct < 75) return "encore fortement au centre de mon business";
+  return "encore le système principal de mon business";
 }
 
 function buildDmText(baseData){
@@ -1431,7 +1571,7 @@ function buildDmText(baseData){
   }
 
   if(repetitive){
-    extra += `\n\nLes tâches qui me prennent du temps aujourd’hui : ${repetitive}`;
+    extra += `\n\nLes tâches qui me prennent le plus de temps aujourd’hui : ${repetitive}`;
   }
 
   if(tools){
@@ -1442,9 +1582,9 @@ function buildDmText(baseData){
 
 Je viens de faire ton diagnostic AURA.
 
-Je suis ${humanLevelLabel(baseData.level)}.
+Mon business dépend encore de moi à ${baseData.dependency_pct}%.
 
-Ça a surtout pointé :
+Les plus grosses zones de friction qui sont ressorties :
 - ${baseData.top3[0]}
 - ${baseData.top3[1]}
 - ${baseData.top3[2]}
@@ -1545,7 +1685,7 @@ function renderFinalCTA(baseData){
 
     try{
       await navigator.clipboard.writeText(dmText);
-      showCopyPreview("✅ Message copié. LinkedIn s’ouvre dans un nouvel onglet. Collez-le avec Ctrl+V / Cmd+V.", true);
+      showCopyPreview("✅ Message copié. LinkedIn s’ouvre dans un nouvel onglet. Colle-le avec Ctrl+V / Cmd+V.", true);
     }catch(e){
       showCopyPreview(dmText, false);
     }
@@ -1618,6 +1758,29 @@ async function addBotMsgTyped(html, extraClass="", speed=16){
   return msg;
 }
 
+function renderDimensions(dimensions){
+  return `
+    <div class="dimensionGrid">
+      <div class="dimensionItem">
+        <div class="dimensionLabel">Acquisition</div>
+        <div class="dimensionValue">${dimensions.ACQ}%</div>
+      </div>
+      <div class="dimensionItem">
+        <div class="dimensionLabel">Onboarding</div>
+        <div class="dimensionValue">${dimensions.ONB}%</div>
+      </div>
+      <div class="dimensionItem">
+        <div class="dimensionLabel">Exécution</div>
+        <div class="dimensionValue">${dimensions.DEL}%</div>
+      </div>
+      <div class="dimensionItem">
+        <div class="dimensionLabel">Structuration</div>
+        <div class="dimensionValue">${dimensions.STR}%</div>
+      </div>
+    </div>
+  `;
+}
+
 async function finish(){
   locked = true;
   choices.innerHTML = "";
@@ -1631,7 +1794,7 @@ async function finish(){
   const loadingMsg = addBotMsg(
     `<div class="loaderWrap">
        <div class="loader"></div>
-       <div id="loaderText">Analyse de vos réponses…</div>
+       <div id="loaderText">Analyse de tes réponses…</div>
      </div>`
   );
 
@@ -1640,9 +1803,9 @@ async function finish(){
   const loaderText = loadingMsg.bubble.querySelector("#loaderText");
 
   const steps = [
-    "Analyse de vos réponses…",
+    "Analyse de tes réponses…",
     "Détection des priorités…",
-    "Préparation de votre résultat…"
+    "Préparation de ton résultat…"
   ];
 
   let stepIndex = 0;
@@ -1655,7 +1818,10 @@ async function finish(){
   const res = await fetch("/result", {
     method: "POST",
     headers: {"Content-Type":"application/json"},
-    body: JSON.stringify({answers})
+    body: JSON.stringify({
+      answers,
+      profile: profileAnswers
+    })
   });
 
   const data = await res.json();
@@ -1671,15 +1837,30 @@ async function finish(){
     14
   );
 
-  await sleep(700);
+  await sleep(650);
 
   await addBotMsgTyped(
-    `<b>Score estimé de structure :</b> ${data.score_display_30}/30`,
+    `
+    <div class="scoreHero">
+      <div style="font-weight:900;font-size:16px;">Ton business dépend encore de toi à :</div>
+      <div class="scorePercent">${data.dependency_pct}%</div>
+      <div class="scoreSecondary">Indice secondaire : ${data.dependency_pct}/100 • Autonomie actuelle estimée : ${data.autonomy_pct}%</div>
+      <div class="micro" style="margin-top:10px;"><b>${data.level}</b> — ${data.subtitle}</div>
+    </div>
+    `,
     "",
     14
   );
 
-  await sleep(700);
+  await sleep(650);
+
+  await addBotMsgTyped(
+    `<b>Répartition de la dépendance par zone :</b>${renderDimensions(data.dimension_scores)}`,
+    "",
+    14
+  );
+
+  await sleep(650);
 
   await addBotMsgTyped(
     `<b>Ton principal blocage aujourd’hui :</b><br>${data.profile_title}<br><br>${data.profile_text}`,
@@ -1687,7 +1868,7 @@ async function finish(){
     14
   );
 
-  await sleep(700);
+  await sleep(650);
 
   await addBotMsgTyped(
     `Tu pourrais probablement récupérer entre <b>${data.estimated_min} et ${data.estimated_max} heures par semaine</b> avec les bons systèmes.`,
@@ -1695,7 +1876,7 @@ async function finish(){
     14
   );
 
-  await sleep(700);
+  await sleep(650);
 
   await addBotMsgTyped(
     `<b>Les 3 zones à traiter en priorité :</b><br>
@@ -1706,15 +1887,7 @@ async function finish(){
     14
   );
 
-  await sleep(700);
-
-  await addBotMsgTyped(
-    `Les profils dans cette situation récupèrent souvent plusieurs heures par semaine après mise en place des bons systèmes.`,
-    "",
-    14
-  );
-
-  await sleep(700);
+  await sleep(650);
 
   await addBotMsgTyped(
     `${data.tension}<br><br>${data.closing}<br><br>👉 Je peux te dire précisément par quoi commencer et te préparer un plan clair en 5 actions.`,
@@ -1729,7 +1902,10 @@ async function finish(){
 }
 
 function reset(){
+  phase = "profile";
+  profileStep = 0;
   step = 0;
+  profileAnswers = {};
   answers = {};
   locked = false;
   currentQuestionRow = null;
@@ -1763,6 +1939,7 @@ def on_startup():
 def home():
     return (
         HTML
+        .replace("%PROFILE_QUESTIONS_JSON%", profile_questions_as_json())
         .replace("%QUESTIONS_JSON%", questions_as_json())
         .replace("%LINKEDIN_URL_JSON%", json.dumps(LINKEDIN_URL))
     )
@@ -1772,22 +1949,25 @@ def home():
 async def result(request: Request):
     body = await request.json()
     answers = body.get("answers", {})
+    profile = body.get("profile", {})
 
-    score_pct = friction_percentage(answers)
-    score_30 = display_score_30(score_pct)
-    level, subtitle = level_from_percentage(score_pct)
-    cats = category_scores(answers)
-    profile_title, profile_text = dominant_profile(cats)
-    top3 = priorities_by_level(answers, level)
-    estimated_min, estimated_max = estimate_time_gain(answers)
-    summary, tension, closing = level_messages(level)
+    dimension_scores = compute_dimension_scores(answers, profile)
+    dependency_pct = compute_dependency_pct(dimension_scores)
+    autonomy_pct = compute_autonomy_pct(dependency_pct)
+    score_30 = display_score_30(dependency_pct)
+    level, subtitle = level_from_dependency_pct(dependency_pct)
+    profile_title, profile_text = dominant_profile(dimension_scores)
+    top3 = priorities_from_dimensions(dimension_scores, profile)
+    estimated_min, estimated_max = estimate_time_gain(answers, dependency_pct, dimension_scores)
+    summary = summary_message(level, dependency_pct, profile)
+    tension, closing = level_messages(dependency_pct)
 
     avg_hours = round((estimated_min + estimated_max) / 2)
     dm_copy = (
         f"Hello Audrey,\n\n"
         f"Je viens de faire ton diagnostic AURA.\n\n"
-        f"Je suis {human_level_label(level)}.\n\n"
-        f"Ça a surtout pointé :\n"
+        f"Mon business dépend encore de moi à {dependency_pct}%.\n\n"
+        f"Les plus grosses zones de friction qui sont ressorties :\n"
         f"- {top3[0]}\n"
         f"- {top3[1]}\n"
         f"- {top3[2]}\n\n"
@@ -1796,13 +1976,15 @@ async def result(request: Request):
     )
 
     result_data = {
-        "score_pct": score_pct,
-        "score_display_30": score_30,
+        "dependency_pct": dependency_pct,
+        "autonomy_pct": autonomy_pct,
+        "score_pct": dependency_pct,      # compat
+        "score_display_30": score_30,     # compat / admin
         "level": level,
         "subtitle": subtitle,
         "profile_title": profile_title,
         "profile_text": profile_text,
-        "category_scores": cats,
+        "dimension_scores": dimension_scores,
         "top3": top3,
         "estimated_min": estimated_min,
         "estimated_max": estimated_max,
@@ -1812,7 +1994,7 @@ async def result(request: Request):
         "dm_copy": dm_copy,
     }
 
-    lead_id = create_lead_record(answers, result_data)
+    lead_id = create_lead_record(answers, profile, result_data)
     result_data["lead_id"] = lead_id
 
     return JSONResponse(result_data)
@@ -1843,9 +2025,9 @@ def admin_leads():
     with get_conn() as conn:
         rows = conn.execute(
             """
-            SELECT id, created_at, score_display_30, level, profile_title,
-                   estimated_min, estimated_max, activity, repetitive_tasks,
-                   tools, linkedin_clicked, top3_json
+            SELECT id, created_at, dependency_pct, autonomy_pct, level, profile_title,
+                   estimated_min, estimated_max, business_type, revenue_band, team_size,
+                   activity, repetitive_tasks, tools, linkedin_clicked, top3_json
             FROM leads
             ORDER BY id DESC
             """
@@ -1856,17 +2038,21 @@ def admin_leads():
         top3 = json.loads(row["top3_json"]) if row["top3_json"] else []
         cards.append(f"""
         <div style="background:white;border:1px solid #e5e7eb;border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 4px 16px rgba(15,23,42,.05);">
-            <div style="font-weight:900;font-size:18px;">Lead #{row["id"]} — {row["score_display_30"]}/30</div>
+            <div style="font-weight:900;font-size:18px;">Lead #{row["id"]} — Dépendance {row["dependency_pct"] or 0}%</div>
             <div style="color:#64748b;margin-top:4px;">{row["created_at"]}</div>
 
             <div style="margin-top:10px;"><b>Niveau :</b> {row["level"]}</div>
-            <div><b>Profil :</b> {row["profile_title"]}</div>
+            <div><b>Profil diagnostic :</b> {row["profile_title"]}</div>
+            <div><b>Autonomie estimée :</b> {row["autonomy_pct"] or 0}%</div>
             <div><b>Temps estimé :</b> {row["estimated_min"]} à {row["estimated_max"]} h/semaine</div>
+            <div><b>Type de business :</b> {row["business_type"] or "-"}</div>
+            <div><b>CA mensuel :</b> {row["revenue_band"] or "-"}</div>
+            <div><b>Structure :</b> {row["team_size"] or "-"}</div>
             <div><b>LinkedIn cliqué :</b> {"Oui" if row["linkedin_clicked"] else "Non"}</div>
 
             <div style="margin-top:10px;"><b>Top 3 :</b><br>{"<br>".join(top3) if top3 else "-"}</div>
 
-            <div style="margin-top:10px;"><b>Activité :</b> {row["activity"] or "-"}</div>
+            <div style="margin-top:10px;"><b>Activité libre :</b> {row["activity"] or "-"}</div>
             <div><b>Tâches répétitives :</b> {row["repetitive_tasks"] or "-"}</div>
             <div><b>Outils :</b> {row["tools"] or "-"}</div>
         </div>
