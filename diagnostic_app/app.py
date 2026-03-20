@@ -1930,22 +1930,12 @@ function averageHours(baseData){
 }
 
 function buildDmText(baseData){
-  const activity = (document.getElementById("activityInput")?.value || "").trim();
   const repetitive = (document.getElementById("repetitiveInput")?.value || "").trim();
-  const tools = (document.getElementById("toolsInput")?.value || "").trim();
 
   let extra = "";
 
-  if(activity){
-    extra += `\n\nMon activité : ${activity}`;
-  }
-
   if(repetitive){
-    extra += `\n\nLes tâches qui me prennent le plus de temps aujourd’hui : ${repetitive}`;
-  }
-
-  if(tools){
-    extra += `\n\nLes outils que j’utilise déjà : ${tools}`;
+    extra += `\n\nCe qui me fait perdre le plus de temps : ${repetitive}`;
   }
 
   return `Hello Audrey,
@@ -2001,42 +1991,50 @@ function renderFinalCTA(baseData){
   const card = document.createElement("div");
   card.className = "resultCard messageAppear";
   card.innerHTML = `
-    <div style="font-weight:900;font-size:18px;">Voir quoi automatiser en priorité (plan personnalisé en 5 actions)</div>
-    <div class="micro">Je vais analyser ton cas et te montrer exactement :</div>
-    <div class="micro">• quoi automatiser en priorité</div>
-    <div class="micro">• quels outils utiliser</div>
-    <div class="micro">• dans quel ordre le mettre en place</div>
-    <div class="micro" style="margin-top:10px;">👉 pour que tu récupères du temps rapidement</div>
+    <div style="font-weight:900;font-size:18px;">
+      👉 Voir exactement quoi automatiser en priorité
+    </div>
+
+    <div class="micro" style="margin-top:6px;">
+      Je vais analyser ton cas et te donner un plan clair en 5 actions :
+    </div>
+
+    <div class="micro">• quoi automatiser en premier</div>
+    <div class="micro">• avec quels outils</div>
+    <div class="micro">• dans quel ordre le faire</div>
+
+    <div class="micro" style="margin-top:10px;">
+      ⏱️ Réponse personnalisée directement sur LinkedIn
+    </div>
 
     <div class="leadForm">
-      <div>
-        <label for="activityInput">Ton activité</label>
-        <input id="activityInput" class="leadInput" type="text" placeholder="Ex : coach business, freelance, agence, e-commerce...">
-      </div>
 
       <div>
-        <label for="repetitiveInput">Quelles tâches te prennent le plus de temps aujourd’hui ?</label>
-        <textarea id="repetitiveInput" class="leadTextarea" placeholder="Ex : relances, onboarding, suivi client, organisation, copier-coller..."></textarea>
+        <label for="repetitiveInput">
+          Qu’est-ce qui te fait perdre le plus de temps aujourd’hui ?
+        </label>
+        <textarea id="repetitiveInput" class="leadTextarea"
+          placeholder="Ex : relances, onboarding, suivi client, organisation, copier-coller..."
+        ></textarea>
       </div>
 
-      <div>
-        <label for="toolsInput">Quels outils utilises-tu actuellement pour gérer ton business ?</label>
-        <input id="toolsInput" class="leadInput" type="text" placeholder="Ex : Notion, Calendly, Stripe, Gmail, Make, Airtable...">
+      <div style="font-size:12px;color:#64748b;">
+        (Optionnel — plus tu es précis, plus le plan sera utile)
       </div>
+
     </div>
-
-    <div class="micro">Je t’envoie un plan clair avec 5 actions concrètes adaptées à ton business.</div>
 
     <div class="resultActions">
-      <a class="dmBtn" id="linkedinBtn" href="${LINKEDIN_URL}" target="_blank" rel="noopener noreferrer">Voir mes 5 actions prioritaires</a>
+      <a class="dmBtn" id="linkedinBtn" href="${LINKEDIN_URL}" target="_blank" rel="noopener noreferrer">
+        👉 Recevoir mon plan en 5 actions
+      </a>
     </div>
   `;
+
   chat.appendChild(card);
   chat.scrollTop = chat.scrollHeight;
 
-  const activityInput = document.getElementById("activityInput");
   const repetitiveInput = document.getElementById("repetitiveInput");
-  const toolsInput = document.getElementById("toolsInput");
   const linkedinBtn = document.getElementById("linkedinBtn");
 
   const syncPreview = async () => {
@@ -2044,9 +2042,7 @@ function renderFinalCTA(baseData){
     await saveLeadDetails(false);
   };
 
-  activityInput.addEventListener("input", syncPreview);
   repetitiveInput.addEventListener("input", syncPreview);
-  toolsInput.addEventListener("input", syncPreview);
 
   linkedinBtn.onclick = async (e) => {
     e.preventDefault();
@@ -2055,7 +2051,7 @@ function renderFinalCTA(baseData){
 
     try{
       await navigator.clipboard.writeText(dmText);
-      showCopyPreview("✅ Message copié. LinkedIn s’ouvre dans un nouvel onglet. Colle-le avec Ctrl+V / Cmd+V.", true);
+      showCopyPreview("✅ Message copié. LinkedIn s’ouvre — colle-le avec Ctrl+V / Cmd+V.", true);
     }catch(e){
       showCopyPreview(dmText, false);
     }
