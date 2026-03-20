@@ -1575,6 +1575,14 @@ HTML = r"""
   line-height:1.3;
   }
 
+  .dimensionValue.warning{
+  color:#b45309;
+  }
+
+.dimensionValue.danger{
+  color:#dc2626;
+}
+
   @media (max-width: 980px){
     .grid{ grid-template-columns:1fr; }
     .right{ min-height:620px; }
@@ -2102,6 +2110,12 @@ async function addBotMsgTyped(html, extraClass="", speed=16){
   const msg = addBotMsg("", false, extraClass);
   await typeHtmlInto(msg.bubble, html, speed);
   return msg;
+}
+
+function getDimensionClass(value){
+  if (value >= 70) return "danger";
+  if (value >= 50) return "warning";
+  return "";
 }
 
 function renderDimensions(dimensions){
