@@ -1568,6 +1568,13 @@ HTML = r"""
     margin-top:4px;
   }
 
+  .dimensionHint{
+  font-size:12px;
+  color:#64748b;
+  margin-top:4px;
+  line-height:1.3;
+  }
+
   @media (max-width: 980px){
     .grid{ grid-template-columns:1fr; }
     .right{ min-height:620px; }
@@ -2103,18 +2110,22 @@ function renderDimensions(dimensions){
       <div class="dimensionItem">
         <div class="dimensionLabel">Acquisition</div>
         <div class="dimensionValue">${dimensions.ACQ}%</div>
+        <div class="dimensionHint">Génération & suivi des prospects</div>
       </div>
       <div class="dimensionItem">
         <div class="dimensionLabel">Onboarding</div>
         <div class="dimensionValue">${dimensions.ONB}%</div>
+        <div class="dimensionHint">Mise en route des clients</div>
       </div>
       <div class="dimensionItem">
         <div class="dimensionLabel">Exécution</div>
         <div class="dimensionValue">${dimensions.DEL}%</div>
+        <div class="dimensionHint">Production & tâches quotidiennes</div>
       </div>
       <div class="dimensionItem">
         <div class="dimensionLabel">Structuration</div>
         <div class="dimensionValue">${dimensions.STR}%</div>
+        <div class="dimensionHint">Process & organisation interne</div>
       </div>
     </div>
   `;
