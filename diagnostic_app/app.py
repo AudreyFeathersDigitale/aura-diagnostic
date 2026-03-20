@@ -326,22 +326,22 @@ def compute_autonomy_pct(dependency_pct: int) -> int:
 def level_from_dependency_pct(dependency_pct: int) -> tuple[str, str]:
     if dependency_pct < 25:
         return (
-            "Dépendance faible",
-            "Base déjà saine, mais certaines zones restent encore trop manuelles ou trop dépendantes de toi.",
+            "Dépendance faible — Ton business est déjà bien structuré, avec une base solide.",
+            "Mais certaines zones restent encore manuelles ou pourraient gagner en autonomie.",
         )
     if dependency_pct < 50:
         return (
-            "Dépendance modérée",
-            "Ton activité tient, mais plusieurs frictions t’obligent encore à rester trop au centre.",
+            "Dépendance modérée — Ton activité tient, mais plusieurs frictions te ramènent encore régulièrement au centre.",
+            "Tu as une base, mais tu dois encore intervenir trop souvent pour que tout fonctionne.",
         )
     if dependency_pct < 75:
         return (
-            "Dépendance forte",
-            "Aujourd’hui, ton business dépend clairement de toi sur plusieurs points clés.",
+            "Dépendance forte — Ton business repose encore largement sur toi sur plusieurs points clés.",
+            "Certaines choses fonctionnent, mais dès que tu lèves le pied, des blocages apparaissent.",
         )
     return (
-        "Dépendance critique",
-        "Tu es encore le système principal de ton business. Si tu ralentis, plusieurs choses ralentissent aussi.",
+        "Dépendance critique — Ton business fonctionne principalement parce que tu es là.",
+        "Si tu ralentis, certaines parties ralentissent immédiatement. <br>Et si tu t’arrêtes, une partie de ton activité s’arrête avec toi.",
     )
 
 
@@ -2092,7 +2092,7 @@ async function finish(){
     <div class="scoreHero">
       <div style="font-weight:900;font-size:16px;">Ton business dépend encore de toi à :</div>
       <div class="scorePercent">${data.dependency_pct}%</div>
-      <div class="scoreSecondary">Indice secondaire : ${data.dependency_pct}/100 • Autonomie actuelle estimée : ${data.autonomy_pct}%</div>
+      <div class="scoreSecondary">Autonomie actuelle estimée : ${data.autonomy_pct}%</div>
       <div class="micro" style="margin-top:10px;"><b>${data.level}</b> — ${data.subtitle}</div>
     </div>
     `,
