@@ -24,7 +24,7 @@ PROFILE_QUESTIONS = [
         "business_type",
         "Avant de commencer, je personnalise ton diagnostic en 3 questions rapides.<br><br><b>Ton activité principale aujourd’hui ?</b>",
         {
-            "freelance": "Freelance / Coach / Consultant",
+            "freelance": "Solopreneur (freelance, coach, consultant)",
             "agency": "Agence",
             "info": "Formation / Infoprenariat",
             "saas": "SaaS / Produit digital",
@@ -271,7 +271,7 @@ def profile_questions_as_json() -> str:
 def profile_label(profile: dict) -> str:
     business_type = profile.get("business_type", "")
     mapping = {
-        "freelance": "freelance / coach / consultant",
+        "freelance": "solopreneur",
         "agency": "agence",
         "info": "infopreneur / formateur",
         "saas": "SaaS / produit digital",
