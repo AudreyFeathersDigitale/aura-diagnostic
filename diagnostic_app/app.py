@@ -580,8 +580,8 @@ def dominant_profile(dimension_scores: dict, profile: dict) -> tuple[str, str]:
                 "Résultat : chaque nouvelle vente recrée une charge au lieu d’alimenter un système déjà fluide."
             ),
             "ACQ": (
-                "Ton acquisition manque encore de structure",
-                "Tes opportunités existent, mais leur suivi dépend encore trop de toi. "
+                "Ton acquisition te fait perdre des opportunités chaque semaine",
+                "Tu perds du temps… et parfois des prospects. "
                 "Quand les relances, le tri ou l’organisation ne sont pas assez systématisés, tu perds du temps… et parfois des prospects."
             ),
         },
@@ -2020,13 +2020,14 @@ function renderFinalCTA(baseData){
 
       <div style="font-size:12px;color:#64748b;">
         (Optionnel — plus tu es précis, plus le plan sera utile)
+        <br>⚡ <b>Réponse personnalisée (pas automatique)</b>
       </div>
 
     </div>
 
     <div class="resultActions">
       <a class="dmBtn" id="linkedinBtn" href="${LINKEDIN_URL}" target="_blank" rel="noopener noreferrer">
-        👉 Recevoir mon plan en 5 actions
+        👉 Voir comment automatiser ça (plan perso)
       </a>
     </div>
   `;
