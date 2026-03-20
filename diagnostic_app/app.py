@@ -1520,6 +1520,12 @@ HTML = r"""
   .scoreHero{
     background: linear-gradient(180deg, #ffffff, #f8fbff);
     border:1px solid rgba(47,107,255,.14);
+    padding:18px 20px; /* ✅ AJOUT IMPORTANT */
+    border-radius:16px; /* optionnel mais plus clean */
+  }
+
+  .scoreHero div:first-child{
+  margin-bottom:6px;
   }
 
   .scorePercent{
@@ -1964,7 +1970,7 @@ function renderFinalCTA(baseData){
   const card = document.createElement("div");
   card.className = "resultCard messageAppear";
   card.innerHTML = `
-    <div style="font-weight:900;font-size:18px;">👉 Voir quoi automatiser en priorité (plan personnalisé en 5 actions)</div>
+    <div style="font-weight:900;font-size:18px;">Voir quoi automatiser en priorité (plan personnalisé en 5 actions)</div>
     <div class="micro">Je vais analyser ton cas et te montrer exactement :</div>
     <div class="micro">• quoi automatiser en priorité</div>
     <div class="micro">• quels outils utiliser</div>
