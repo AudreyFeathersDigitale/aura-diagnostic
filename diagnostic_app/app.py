@@ -1631,6 +1631,30 @@ HTML = r"""
       auraCute .35s ease-in-out 1 !important;
   }
 
+  .scorePercent.good{
+  color:#16a34a !important; /* vert */
+}
+
+.scorePercent.warning{
+  color:#b45309 !important; /* orange */
+}
+
+.scorePercent.danger{
+  color:#dc2626 !important; /* rouge */
+}
+
+.dimensionValue.good{
+  color:#16a34a;
+}
+
+.dimensionValue.warning{
+  color:#b45309;
+}
+
+.dimensionValue.danger{
+  color:#dc2626;
+}
+
   @keyframes popIn {
     0%{ transform: scale(.85); opacity:.0; }
     100%{ transform: scale(1); opacity:1; }
@@ -2118,12 +2142,14 @@ async function addBotMsgTyped(html, extraClass="", speed=16){
 
 function getDimensionClass(value){
   if (value >= 70) return "danger";
-  if (value >= 50) return "warning";
-  return "";
+  if (value >= 40) return "warning";
+  return "good";
 }
 
 function getScoreClass(value){
-  return value >= 70 ? "danger" : "";
+  return value >= 70 ? "danger";
+  if (value >= 40) return "warning";
+  return "good";
 }
 
 function renderDimensions(dimensions){
