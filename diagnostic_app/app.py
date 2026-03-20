@@ -490,8 +490,8 @@ def summary_message(dependency_pct: int, profile: dict) -> str:
             )
         return (
             f"{intro}, tu restes encore le centre de gravité opérationnel de la structure.<br><br>"
-            f"👉 Si tu ralentis, une partie du suivi, des validations et de la fluidité interne ralentit avec toi."
-        )
+                f"👉 Si tu ralentis, une partie du suivi, des validations et de la fluidité interne ralentit avec toi."
+            )
 
     if business_type == "info":
         if dependency_pct < 25:
@@ -1520,12 +1520,12 @@ HTML = r"""
   .scoreHero{
     background: linear-gradient(180deg, #ffffff, #f8fbff);
     border:1px solid rgba(47,107,255,.14);
-    padding:18px 20px; /* ✅ AJOUT IMPORTANT */
-    border-radius:16px; /* optionnel mais plus clean */
+    padding:18px 20px;
+    border-radius:16px;
   }
 
   .scoreHero div:first-child{
-  margin-bottom:6px;
+    margin-bottom:6px;
   }
 
   .scorePercent{
@@ -1533,6 +1533,10 @@ HTML = r"""
     font-weight:950;
     line-height:1;
     margin-top:6px;
+  }
+
+  .scorePercent.danger{
+    color:#dc2626;
   }
 
   .scoreSecondary{
@@ -1569,19 +1573,19 @@ HTML = r"""
   }
 
   .dimensionHint{
-  font-size:12px;
-  color:#64748b;
-  margin-top:4px;
-  line-height:1.3;
+    font-size:12px;
+    color:#64748b;
+    margin-top:4px;
+    line-height:1.3;
   }
 
   .dimensionValue.warning{
-  color:#b45309;
+    color:#b45309;
   }
 
-.dimensionValue.danger{
-  color:#dc2626;
-}
+  .dimensionValue.danger{
+    color:#dc2626;
+  }
 
   @media (max-width: 980px){
     .grid{ grid-template-columns:1fr; }
@@ -2118,27 +2122,31 @@ function getDimensionClass(value){
   return "";
 }
 
+function getScoreClass(value){
+  return value >= 70 ? "danger" : "";
+}
+
 function renderDimensions(dimensions){
   return `
     <div class="dimensionGrid">
       <div class="dimensionItem">
         <div class="dimensionLabel">Acquisition</div>
-        <div class="dimensionValue">${dimensions.ACQ}%</div>
+        <div class="dimensionValue ${getDimensionClass(dimensions.ACQ)}">${dimensions.ACQ}%</div>
         <div class="dimensionHint">Génération & suivi des prospects</div>
       </div>
       <div class="dimensionItem">
         <div class="dimensionLabel">Onboarding</div>
-        <div class="dimensionValue">${dimensions.ONB}%</div>
+        <div class="dimensionValue ${getDimensionClass(dimensions.ONB)}">${dimensions.ONB}%</div>
         <div class="dimensionHint">Mise en route des clients</div>
       </div>
       <div class="dimensionItem">
         <div class="dimensionLabel">Exécution</div>
-        <div class="dimensionValue">${dimensions.DEL}%</div>
+        <div class="dimensionValue ${getDimensionClass(dimensions.DEL)}">${dimensions.DEL}%</div>
         <div class="dimensionHint">Production & tâches quotidiennes</div>
       </div>
       <div class="dimensionItem">
         <div class="dimensionLabel">Structuration</div>
-        <div class="dimensionValue">${dimensions.STR}%</div>
+        <div class="dimensionValue ${getDimensionClass(dimensions.STR)}">${dimensions.STR}%</div>
         <div class="dimensionHint">Process & organisation interne</div>
       </div>
     </div>
@@ -2207,7 +2215,7 @@ async function finish(){
     `
     <div class="scoreHero">
       <div style="font-weight:900;font-size:16px;">Ton business dépend encore de toi à :</div>
-      <div class="scorePercent">${data.dependency_pct}%</div>
+      <div class="scorePercent ${getScoreClass(data.dependency_pct)}">${data.dependency_pct}%</div>
       <div class="scoreSecondary">Autonomie actuelle estimée : ${data.autonomy_pct}%</div>
       <div class="micro" style="margin-top:10px;"><b>${data.level}</b> — ${data.subtitle}</div>
     </div>
