@@ -323,26 +323,111 @@ def compute_autonomy_pct(dependency_pct: int) -> int:
     return max(0, 100 - dependency_pct)
 
 
-def level_from_dependency_pct(dependency_pct: int) -> tuple[str, str]:
+def level_from_dependency_pct(dependency_pct: int, profile: dict) -> tuple[str, str]:
+    business_type = profile.get("business_type", "freelance")
+
+    LEVEL_COPY = {
+        "freelance": {
+            "low": (
+                "Dépendance faible",
+                "Ton business est déjà bien structuré, avec une base solide. Mais certaines zones reposent encore sur toi alors qu’elles pourraient déjà tourner sans intervention."
+            ),
+            "mid": (
+                "Dépendance modérée",
+                "Ton activité tient, mais plusieurs frictions te ramènent encore régulièrement au centre. Tu as une base, mais tu dois encore intervenir trop souvent pour que tout fonctionne."
+            ),
+            "high": (
+                "Dépendance forte",
+                "Ton business repose encore largement sur toi sur plusieurs points clés. Certaines choses fonctionnent, mais dès que tu lèves le pied, des blocages apparaissent."
+            ),
+            "critical": (
+                "Dépendance critique",
+                "Ton business fonctionne principalement parce que tu es là. Si tu ralentis, certaines parties ralentissent immédiatement. Et si tu t’arrêtes, une partie de ton activité s’arrête avec toi."
+            ),
+        },
+        "agency": {
+            "low": (
+                "Dépendance faible",
+                "Ton agence a déjà une base saine, mais certaines zones clés remontent encore vers toi alors qu’elles devraient déjà être mieux absorbées par le système ou l’équipe."
+            ),
+            "mid": (
+                "Dépendance modérée",
+                "Ton agence tient, mais tu restes encore trop au centre de la coordination, du suivi ou des validations. La structure avance, mais avec encore trop d’aller-retours vers toi."
+            ),
+            "high": (
+                "Dépendance forte",
+                "Ton agence repose encore beaucoup sur toi sur des points clés. Dès que la charge monte, une partie de la complexité revient directement sur toi."
+            ),
+            "critical": (
+                "Dépendance critique",
+                "Ton agence dépend encore fortement de toi pour tenir la charge, arbitrer et garder la fluidité. Si tu ralentis, une partie du système ralentit immédiatement avec toi."
+            ),
+        },
+        "info": {
+            "low": (
+                "Dépendance faible",
+                "Ton activité de formation est déjà bien posée, mais certaines étapes entre acquisition, vente et delivery dépendent encore trop de toi."
+            ),
+            "mid": (
+                "Dépendance modérée",
+                "Ton activité fonctionne, mais plusieurs briques te ramènent encore dans l’opérationnel. Tu as une base, sans encore avoir un système vraiment fluide."
+            ),
+            "high": (
+                "Dépendance forte",
+                "Ton business repose encore beaucoup sur toi entre acquisition, vente et exécution. Dès que tu lèves le pied, certaines zones perdent en fluidité."
+            ),
+            "critical": (
+                "Dépendance critique",
+                "Ton activité repose encore trop directement sur toi pour fonctionner proprement. Tant que le système n’absorbe pas mieux la charge, tu restes le point de passage obligé."
+            ),
+        },
+        "saas": {
+            "low": (
+                "Dépendance faible",
+                "Ton business SaaS est déjà plutôt robuste, mais certaines frictions opérationnelles continuent encore de dépendre de toi ou d’ajustements manuels."
+            ),
+            "mid": (
+                "Dépendance modérée",
+                "Ton système tient, mais plusieurs zones te ramènent encore dans le support, la coordination ou l’exécution. Tu avances, mais avec encore trop de dépendances humaines."
+            ),
+            "high": (
+                "Dépendance forte",
+                "Ton business garde encore trop de dépendances opérationnelles sur des zones qui devraient déjà être plus robustes. Dès que tu ralentis, certaines failles deviennent plus visibles."
+            ),
+            "critical": (
+                "Dépendance critique",
+                "Ton business dépend encore fortement de ta capacité à compenser les failles du système. Si tu ralentis, plusieurs zones critiques perdent immédiatement en fiabilité."
+            ),
+        },
+        "ecommerce": {
+            "low": (
+                "Dépendance faible",
+                "Ton activité e-commerce est déjà assez saine, mais certaines frictions d’exécution, de suivi ou de coordination reposent encore trop sur toi."
+            ),
+            "mid": (
+                "Dépendance modérée",
+                "Les ventes tournent, mais plusieurs opérations te ramènent encore au centre. Tu avances, mais avec une charge évitable qui reste trop présente."
+            ),
+            "high": (
+                "Dépendance forte",
+                "Ton e-commerce repose encore beaucoup sur toi sur plusieurs points clés. Certaines choses avancent, mais trop d’actions dépendent encore de ton attention directe."
+            ),
+            "critical": (
+                "Dépendance critique",
+                "Ton activité e-commerce reste trop sensible à ta présence dans l’exécution, le suivi et les points de friction quotidiens. Si tu ralentis, plusieurs zones deviennent vite fragiles."
+            ),
+        },
+    }
+
+    copy = LEVEL_COPY.get(business_type, LEVEL_COPY["freelance"])
+
     if dependency_pct < 25:
-        return (
-            "Dépendance faible — Ton business est déjà bien structuré, avec une base solide.",
-            "Mais certaines zones restent encore manuelles ou pourraient gagner en autonomie.",
-        )
+        return copy["low"]
     if dependency_pct < 50:
-        return (
-            "Dépendance modérée — Ton activité tient, mais plusieurs frictions te ramènent encore régulièrement au centre.",
-            "Tu as une base, mais tu dois encore intervenir trop souvent pour que tout fonctionne.",
-        )
+        return copy["mid"]
     if dependency_pct < 75:
-        return (
-            "Dépendance forte — Ton business repose encore largement sur toi sur plusieurs points clés.",
-            "Certaines choses fonctionnent, mais dès que tu lèves le pied, des blocages apparaissent.",
-        )
-    return (
-        "Dépendance critique — Ton business fonctionne principalement parce que tu es là.",
-        "Si tu ralentis, certaines parties ralentissent immédiatement. <br>Et si tu t’arrêtes, une partie de ton activité s’arrête avec toi.",
-    )
+        return copy["high"]
+    return copy["critical"]
 
 
 def display_score_30(dependency_pct: int) -> int:
@@ -369,22 +454,22 @@ def summary_message(dependency_pct: int, profile: dict) -> str:
     if business_type == "freelance":
         if dependency_pct < 25:
             return (
-                f"{intro}, la base est déjà plutôt saine.<br><br>"
-                f"👉 Mais ton activité avance encore partiellement grâce à ta présence directe, là où ton système devrait déjà prendre davantage le relais."
+                f"{intro}, la base est déjà saine.<br><br>"
+                f"👉 Mais ton activité avance encore partiellement grâce à toi, là où ton système devrait déjà prendre le relais."
             )
         if dependency_pct < 50:
             return (
-                f"{intro}, ton business fonctionne… mais il reste encore trop soutenu par toi.<br><br>"
-                f"👉 Tu compenses encore plusieurs zones à la main, ce qui crée une charge invisible qui te suit chaque semaine."
+                f"{intro}, ton business fonctionne… mais il repose encore beaucoup sur toi.<br><br>"
+                f"👉 Tu compenses encore plusieurs zones à la main, ce qui crée une charge invisible qui revient chaque semaine."
             )
         if dependency_pct < 75:
             return (
-                f"{intro}, ton business repose encore fortement sur toi pour avancer de façon fluide.<br><br>"
-                f"👉 Tu restes la personne qui relance, organise, débloque et fait tenir le système plus souvent que tu ne devrais."
+                f"{intro}, ton business avance encore principalement grâce à toi.<br><br>"
+                f"👉 Tu es la personne qui relance, organise, débloque et fait tourner le système au quotidien."
             )
         return (
             f"{intro}, tu es encore le système principal de ton business.<br><br>"
-            f"👉 Sans toi, plusieurs zones critiques ralentissent, se bloquent ou deviennent vite fragiles."
+            f"👉 Sans toi, plusieurs zones critiques ralentissent immédiatement, se bloquent… ou deviennent instables très vite."
         )
 
     if business_type == "agency":
@@ -395,7 +480,7 @@ def summary_message(dependency_pct: int, profile: dict) -> str:
             )
         if dependency_pct < 50:
             return (
-                f"{intro}, ton business tient… mais il repose encore trop sur ta supervision directe.<br><br>"
+                f"{intro}, ton activité tient… mais elle repose encore trop sur ta supervision directe.<br><br>"
                 f"👉 Validation, arbitrage, suivi, organisation : trop de choses passent encore par toi."
             )
         if dependency_pct < 75:
@@ -2081,7 +2166,7 @@ async function finish(){
 
   await typeHtmlInto(
     loadingMsg.bubble,
-    `Voici ce que ton diagnostic montre aujourd’hui :<br><br>${data.summary}`,
+    `Voilà ce qui te ralentit aujourd’hui :<br><br>${data.summary}`,
     14
   );
 
@@ -2119,7 +2204,7 @@ async function finish(){
   await sleep(650);
 
   await addBotMsgTyped(
-    `Tu pourrais probablement récupérer entre <b>${data.estimated_min} et ${data.estimated_max} heures par semaine</b> avec les bons systèmes.`,
+    `Aujourd’hui, tu pourrais récupérer entre <b>${data.estimated_min} et ${data.estimated_max} heures par semaine</b> avec les bons systèmes.`,
     "estimateBox",
     14
   );
@@ -2203,7 +2288,7 @@ async def result(request: Request):
     dependency_pct = compute_dependency_pct(dimension_scores)
     autonomy_pct = compute_autonomy_pct(dependency_pct)
     score_30 = display_score_30(dependency_pct)
-    level, subtitle = level_from_dependency_pct(dependency_pct)
+    level, subtitle = level_from_dependency_pct(dependency_pct, profile)
     profile_title, profile_text = dominant_profile(dimension_scores, profile)
     top3 = priorities_from_dimensions(dimension_scores, profile)
     estimated_min, estimated_max = estimate_time_gain(answers, dependency_pct, dimension_scores)
