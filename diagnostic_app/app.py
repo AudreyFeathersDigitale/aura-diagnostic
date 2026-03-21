@@ -2086,9 +2086,9 @@ function openChannelModal(baseData){
     <div class="channelModal">
       <div class="channelTitle">Choisis où m’envoyer ton message 👇</div>
       <div class="channelText">
-        Ton message est déjà prêt et copié.<br>
-        Choisis simplement le réseau sur lequel tu préfères m’écrire.
-      </div>
+        Ton message est copié 👇<br>
+        Clique sur le réseau où tu veux me l’envoyer.
+         </div>
 
       <div class="channelGrid">
         <button class="channelBtn" data-channel="linkedin">
