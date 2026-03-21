@@ -2093,17 +2093,14 @@ function openChannelModal(baseData){
       <div class="channelGrid">
         <button class="channelBtn" data-channel="linkedin">
           <div class="channelBtnTitle">LinkedIn</div>
-          <div class="channelBtnSub">Copier le message + ouvrir LinkedIn</div>
-        </button>
+           </button>
 
         <button class="channelBtn" data-channel="facebook">
           <div class="channelBtnTitle">Facebook</div>
-          <div class="channelBtnSub">Copier le message + ouvrir Facebook</div>
         </button>
 
         <button class="channelBtn" data-channel="instagram">
           <div class="channelBtnTitle">Instagram</div>
-          <div class="channelBtnSub">Copier le message + ouvrir Instagram</div>
         </button>
       </div>
 
