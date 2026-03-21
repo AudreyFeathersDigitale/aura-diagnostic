@@ -14,6 +14,8 @@ BASE_DIR = Path(__file__).resolve().parent
 DB_PATH = BASE_DIR / "aura_leads.db"
 
 LINKEDIN_URL = "https://www.linkedin.com/in/audrey-mouton-80b902217/?skipRedirect=true"
+FACEBOOK_URL = "https://www.facebook.com/profile.php?id=61578569620081"
+INSTAGRAM_URL = "https://www.instagram.com/business.auto.feathersdigital/"
 
 # =========================
 # 1) SEGMENTATION EN AMONT
@@ -250,6 +252,7 @@ def init_db() -> None:
         ensure_column(conn, "leads", "dependency_pct", "INTEGER DEFAULT 0")
         ensure_column(conn, "leads", "autonomy_pct", "INTEGER DEFAULT 0")
         ensure_column(conn, "leads", "dimension_scores_json", "TEXT")
+        ensure_column(conn, "leads", "contact_channel", "TEXT")
 
 
 def questions_as_json() -> str:
@@ -907,6 +910,7 @@ def update_lead_details(
     tools: str | None,
     linkedin_clicked: bool,
     dm_text: str | None,
+    contact_channel: str | None = None,
 ) -> None:
     now = utcnow_iso()
     with get_conn() as conn:
@@ -918,7 +922,8 @@ def update_lead_details(
                 repetitive_tasks = ?,
                 tools = ?,
                 linkedin_clicked = ?,
-                dm_text = COALESCE(?, dm_text)
+                dm_text = COALESCE(?, dm_text),
+                contact_channel = COALESCE(?, contact_channel)
             WHERE id = ?
             """,
             (
@@ -928,6 +933,7 @@ def update_lead_details(
                 tools,
                 1 if linkedin_clicked else 0,
                 dm_text,
+                contact_channel,
                 lead_id,
             ),
         )
@@ -1599,6 +1605,84 @@ HTML = r"""
     color:#ef4444;
   }
 
+  .channelOverlay{
+    position:fixed;
+    inset:0;
+    background:rgba(15,23,42,.45);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    z-index:9999;
+  }
+
+  .channelModal{
+    width:min(560px, 96vw);
+    background:#fff;
+    border:1px solid rgba(15,23,42,.08);
+    border-radius:22px;
+    padding:22px;
+    box-shadow:0 30px 90px rgba(15,23,42,.20);
+  }
+
+  .channelTitle{
+    font-size:22px;
+    font-weight:950;
+    margin-bottom:8px;
+  }
+
+  .channelText{
+    color:#64748b;
+    font-size:14px;
+    line-height:1.45;
+  }
+
+  .channelGrid{
+    display:grid;
+    gap:12px;
+    margin-top:18px;
+  }
+
+  .channelBtn{
+    width:100%;
+    border:1px solid rgba(15,23,42,.08);
+    background:#f8fafc;
+    border-radius:16px;
+    padding:16px;
+    cursor:pointer;
+    text-align:left;
+    transition:.18s ease;
+  }
+
+  .channelBtn:hover{
+    border-color:rgba(47,107,255,.30);
+    box-shadow:0 12px 24px rgba(47,107,255,.10);
+    background:#fff;
+  }
+
+  .channelBtnTitle{
+    font-weight:900;
+    font-size:15px;
+  }
+
+  .channelBtnSub{
+    color:#64748b;
+    font-size:13px;
+    margin-top:4px;
+  }
+
+  .channelClose{
+    margin-top:14px;
+    width:100%;
+    border:none;
+    background:#e2e8f0;
+    color:#0f172a;
+    font-weight:900;
+    border-radius:14px;
+    padding:12px 14px;
+    cursor:pointer;
+  }
+
   @media (max-width: 980px){
     .grid{ grid-template-columns:1fr; }
     .right{ min-height:620px; }
@@ -1730,6 +1814,8 @@ HTML = r"""
 const PROFILE_QUESTIONS = %PROFILE_QUESTIONS_JSON%;
 const QUESTIONS = %QUESTIONS_JSON%;
 const LINKEDIN_URL = %LINKEDIN_URL_JSON%;
+const FACEBOOK_URL = %FACEBOOK_URL_JSON%;
+const INSTAGRAM_URL = %INSTAGRAM_URL_JSON%;
 
 let phase = "profile";
 let profileStep = 0;
@@ -1965,7 +2051,7 @@ function updateCopyBox(){
   showCopyPreview(buildDmText(finalData), false);
 }
 
-async function saveLeadDetails(linkedinClicked=false){
+async function saveLeadDetails(contactChannel=null){
   if(!currentLeadId || !finalData) return;
 
   const activity = (document.getElementById("activityInput")?.value || "").trim();
@@ -1981,10 +2067,84 @@ async function saveLeadDetails(linkedinClicked=false){
       activity,
       repetitive_tasks,
       tools,
-      linkedin_clicked: linkedinClicked,
-      dm_text
+      linkedin_clicked: contactChannel === "linkedin",
+      dm_text,
+      contact_channel: contactChannel
     })
   });
+}
+
+function openChannelModal(baseData){
+  const existing = document.getElementById("channelOverlay");
+  if(existing) existing.remove();
+
+  const overlay = document.createElement("div");
+  overlay.className = "channelOverlay";
+  overlay.id = "channelOverlay";
+
+  overlay.innerHTML = `
+    <div class="channelModal">
+      <div class="channelTitle">Choisis où m’envoyer ton message 👇</div>
+      <div class="channelText">
+        Ton message est déjà prêt et copié.<br>
+        Choisis simplement le réseau sur lequel tu préfères m’écrire.
+      </div>
+
+      <div class="channelGrid">
+        <button class="channelBtn" data-channel="linkedin">
+          <div class="channelBtnTitle">LinkedIn</div>
+          <div class="channelBtnSub">Copier le message + ouvrir LinkedIn</div>
+        </button>
+
+        <button class="channelBtn" data-channel="facebook">
+          <div class="channelBtnTitle">Facebook</div>
+          <div class="channelBtnSub">Copier le message + ouvrir Facebook</div>
+        </button>
+
+        <button class="channelBtn" data-channel="instagram">
+          <div class="channelBtnTitle">Instagram</div>
+          <div class="channelBtnSub">Copier le message + ouvrir Instagram</div>
+        </button>
+      </div>
+
+      <button class="channelClose" id="channelCloseBtn">Annuler</button>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  document.getElementById("channelCloseBtn").onclick = () => {
+    overlay.remove();
+  };
+
+  overlay.querySelectorAll(".channelBtn").forEach(btn => {
+    btn.onclick = async () => {
+      const channel = btn.dataset.channel;
+      const dmText = buildDmText(baseData);
+
+      try{
+        await navigator.clipboard.writeText(dmText);
+        showCopyPreview("✅ Message copié. Colle-le avec Ctrl+V / Cmd+V sur le réseau choisi.", true);
+      }catch(e){
+        showCopyPreview(dmText, false);
+      }
+
+      await saveLeadDetails(channel);
+
+      let url = LINKEDIN_URL;
+      if(channel === "facebook") url = FACEBOOK_URL;
+      if(channel === "instagram") url = INSTAGRAM_URL;
+
+      window.open(url, "_blank", "noopener,noreferrer");
+      overlay.remove();
+    };
+  });
+
+  overlay.onclick = (e) => {
+    if(e.target === overlay){
+      overlay.remove();
+    }
+  };
 }
 
 function renderFinalCTA(baseData){
@@ -2004,11 +2164,10 @@ function renderFinalCTA(baseData){
     <div class="micro">• dans quel ordre le faire</div>
 
     <div class="micro" style="margin-top:10px;">
-      ⏱️ Réponse personnalisée directement sur LinkedIn
+      ⏱️ Réponse personnalisée directement sur le réseau de ton choix
     </div>
 
     <div class="leadForm">
-
       <div>
         <label for="repetitiveInput">
           Qu’est-ce qui te fait perdre le plus de temps aujourd’hui ?
@@ -2022,13 +2181,12 @@ function renderFinalCTA(baseData){
         (Optionnel — plus tu es précis, plus le plan sera utile)
         <br>⚡ <b>Réponse personnalisée (pas automatique)</b>
       </div>
-
     </div>
 
     <div class="resultActions">
-      <a class="dmBtn" id="linkedinBtn" href="${LINKEDIN_URL}" target="_blank" rel="noopener noreferrer">
-        👉 Voir comment automatiser ça (plan perso)
-      </a>
+      <button class="dmBtn" id="openChannelsBtn" type="button">
+        👉 Recevoir mon plan personnalisé
+      </button>
     </div>
   `;
 
@@ -2036,29 +2194,26 @@ function renderFinalCTA(baseData){
   chat.scrollTop = chat.scrollHeight;
 
   const repetitiveInput = document.getElementById("repetitiveInput");
-  const linkedinBtn = document.getElementById("linkedinBtn");
+  const openChannelsBtn = document.getElementById("openChannelsBtn");
 
   const syncPreview = async () => {
     updateCopyBox();
-    await saveLeadDetails(false);
+    await saveLeadDetails(null);
   };
 
   repetitiveInput.addEventListener("input", syncPreview);
 
-  linkedinBtn.onclick = async (e) => {
-    e.preventDefault();
-
+  openChannelsBtn.onclick = async () => {
     const dmText = buildDmText(baseData);
 
     try{
       await navigator.clipboard.writeText(dmText);
-      showCopyPreview("✅ Message copié. LinkedIn s’ouvre — colle-le avec Ctrl+V / Cmd+V.", true);
+      showCopyPreview("✅ Message copié. Choisis maintenant où me l’envoyer.", true);
     }catch(e){
       showCopyPreview(dmText, false);
     }
 
-    await saveLeadDetails(true);
-    window.open(LINKEDIN_URL, "_blank", "noopener,noreferrer");
+    openChannelModal(baseData);
   };
 
   updateCopyBox();
@@ -2273,7 +2428,7 @@ async function finish(){
   await sleep(650);
 
   await addBotMsgTyped(
-    `${data.tension}<br><br>${data.closing}<br><br>👉 Je peux te dire précisément par quoi commencer et te préparer un plan clair en 5 actions.`,
+    `${data.tension}<br><br>${data.closing}<br><br>👉 Concrètement :<br><br>si tu règles ces 3 points,<br>ton business peut commencer à tourner sans toi sur plusieurs zones.<br><br>Et surtout :<br>tu récupères du temps…<br>sans ralentir ta croissance.`,
     "",
     14
   );
@@ -2325,6 +2480,8 @@ def home():
         .replace("%PROFILE_QUESTIONS_JSON%", profile_questions_as_json())
         .replace("%QUESTIONS_JSON%", questions_as_json())
         .replace("%LINKEDIN_URL_JSON%", json.dumps(LINKEDIN_URL))
+        .replace("%FACEBOOK_URL_JSON%", json.dumps(FACEBOOK_URL))
+        .replace("%INSTAGRAM_URL_JSON%", json.dumps(INSTAGRAM_URL))
     )
 
 
@@ -2398,6 +2555,7 @@ async def save_lead(request: Request):
         tools=body.get("tools"),
         linkedin_clicked=bool(body.get("linkedin_clicked")),
         dm_text=body.get("dm_text"),
+        contact_channel=body.get("contact_channel"),
     )
 
     return JSONResponse({"ok": True})
@@ -2410,7 +2568,8 @@ def admin_leads():
             """
             SELECT id, created_at, dependency_pct, autonomy_pct, level, profile_title,
                    estimated_min, estimated_max, business_type, revenue_band, team_size,
-                   activity, repetitive_tasks, tools, linkedin_clicked, top3_json
+                   activity, repetitive_tasks, tools, linkedin_clicked, top3_json,
+                   contact_channel
             FROM leads
             ORDER BY id DESC
             """
@@ -2432,6 +2591,7 @@ def admin_leads():
             <div><b>CA mensuel :</b> {row["revenue_band"] or "-"}</div>
             <div><b>Structure :</b> {row["team_size"] or "-"}</div>
             <div><b>LinkedIn cliqué :</b> {"Oui" if row["linkedin_clicked"] else "Non"}</div>
+            <div><b>Canal choisi :</b> {row["contact_channel"] or "-"}</div>
 
             <div style="margin-top:10px;"><b>Top 3 :</b><br>{"<br>".join(top3) if top3 else "-"}</div>
 
