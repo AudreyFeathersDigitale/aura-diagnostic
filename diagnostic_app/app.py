@@ -2092,15 +2092,15 @@ function openChannelModal(baseData){
 
       <div class="channelGrid">
         <button class="channelBtn" data-channel="linkedin">
-          <div class="channelBtnTitle">LinkedIn</div>
+          <div class="channelBtnTitle">M'écrir sur LinkedIn</div>
            </button>
 
         <button class="channelBtn" data-channel="facebook">
-          <div class="channelBtnTitle">Facebook</div>
+          <div class="channelBtnTitle">M'écrir sur Facebook</div>
         </button>
 
         <button class="channelBtn" data-channel="instagram">
-          <div class="channelBtnTitle">Instagram</div>
+          <div class="channelBtnTitle">M'écrir sur Instagram</div>
         </button>
       </div>
 
@@ -2182,7 +2182,7 @@ function renderFinalCTA(baseData){
 
     <div class="resultActions">
       <button class="dmBtn" id="openChannelsBtn" type="button">
-        👉 Recevoir mon plan personnalisé
+        👉 M'envoyer mon plan personnalisé
       </button>
     </div>
   `;
