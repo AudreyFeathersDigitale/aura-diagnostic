@@ -314,13 +314,9 @@ def compute_dimension_scores(answers: dict, profile: dict) -> dict:
             raw_scores[sec_dim] += score * weight * sec_ratio
             raw_max[sec_dim] += 3 * weight * sec_ratio
 
-    profile_weights = get_profile_dimension_weights(profile)
-
     final_scores = {}
     for dim in raw_scores:
-        weighted_score = raw_scores[dim] * profile_weights.get(dim, 1.0)
-        weighted_max = raw_max[dim] * profile_weights.get(dim, 1.0)
-        final_scores[dim] = 0 if weighted_max <= 0 else round((weighted_score / weighted_max) * 100)
+        final_scores[dim] = 0 if raw_max[dim] <= 0 else round((raw_scores[dim] / raw_max[dim]) * 100)
 
     return final_scores
 
@@ -347,15 +343,12 @@ def compute_dependency_pct(dimension_scores: dict, profile: dict) -> int:
         dimension_scores["STR"] * weights["STR"]
     )
 
-    # Bonus de criticité si la structuration est faible avec équipe
     if team_size in ("small", "team") and dimension_scores["STR"] >= 60:
         score += 5
 
-    # Bonus léger si gros CA + exécution fragile
     if revenue_band in ("10to30", "30plus") and dimension_scores["DEL"] >= 60:
         score += 3
 
-    # Bonus léger si acquisition fragile sur business très dépendant de l'acquisition
     if business_type in ("freelance", "info") and dimension_scores["ACQ"] >= 70:
         score += 2
 
@@ -543,15 +536,28 @@ def summary_message(dependency_pct: int, profile: dict) -> str:
             "Plus tu vends → plus ça devient lourd à gérer.<br><br>"
         )
 
-    # 👉 Adaptation selon le niveau de dépendance
     if dependency_pct < 25:
-        ending = "Tu es encore en contrôle… mais ça ne tiendra pas en montant en charge."
+        ending = (
+            "Aujourd’hui ça tient…<br>"
+            "mais dès que tu vas monter en charge,<br>"
+            "ce modèle va commencer à te freiner."
+        )
     elif dependency_pct < 50:
-        ending = "Tu avances… mais avec une charge invisible qui revient chaque semaine."
+        ending = (
+            "Aujourd’hui, tu avances…<br>"
+            "mais tu traînes déjà une charge invisible.<br><br>"
+            "Et elle revient chaque semaine."
+        )
     elif dependency_pct < 75:
-        ending = "Tu es déjà un point de passage central dans ton business."
+        ending = (
+            "Aujourd’hui, tu es déjà le point de passage central.<br><br>"
+            "Sans toi : <b>ça ralentit. ça bloque.</b>"
+        )
     else:
-        ending = "Aujourd’hui, ton business dépend directement de toi pour fonctionner."
+        ending = (
+            "Aujourd’hui, ton business tient parce que tu es là.<br><br>"
+            "Sans toi : <b>ça ralentit. ça bloque.</b>"
+        )
 
     return base + ending
 
@@ -588,7 +594,6 @@ def dominant_profile(dimension_scores: dict, profile: dict) -> tuple[str, str]:
                 "Sans système : <b>ça se disperse. ça se perd.</b>"
             ),
         },
-
         "agency": {
             "STR": (
                 "Ton agence dépend encore de toi",
@@ -616,7 +621,6 @@ def dominant_profile(dimension_scores: dict, profile: dict) -> tuple[str, str]:
                 "Sans toi : <b>ça ralentit. ça se perd.</b>"
             ),
         },
-
         "info": {
             "STR": (
                 "Ton système ne porte pas encore ton activité",
@@ -643,7 +647,6 @@ def dominant_profile(dimension_scores: dict, profile: dict) -> tuple[str, str]:
                 "Sans système : <b>ça ralentit. ça se perd.</b>"
             ),
         },
-
         "saas": {
             "STR": (
                 "Ton système n’est pas encore assez robuste",
@@ -670,7 +673,6 @@ def dominant_profile(dimension_scores: dict, profile: dict) -> tuple[str, str]:
                 "Sans toi : <b>ça ralentit. ça se perd.</b>"
             ),
         },
-
         "ecommerce": {
             "STR": (
                 "Ton activité dépend encore de toi",
@@ -712,7 +714,6 @@ def estimate_time_gain(
     revenue_band = profile.get("revenue_band", "lt3")
     team_size = profile.get("team_size", "solo")
 
-    # Base selon niveau global de dépendance
     if dependency_pct < 25:
         estimate_min, estimate_max = 2, 5
     elif dependency_pct < 50:
@@ -722,7 +723,6 @@ def estimate_time_gain(
     else:
         estimate_min, estimate_max = 10, 18
 
-    # Impact par dimensions critiques
     if dimension_scores["DEL"] >= 70:
         estimate_min += 2
         estimate_max += 3
@@ -745,7 +745,6 @@ def estimate_time_gain(
         estimate_min += 1
         estimate_max += 2
 
-    # Ajustement par type de business
     if business_type == "agency":
         estimate_min += 1
         estimate_max += 2
@@ -753,13 +752,11 @@ def estimate_time_gain(
         estimate_min += 1
         estimate_max += 3
     elif business_type == "saas":
-        estimate_min += 0
         estimate_max += 2
     elif business_type == "info":
         estimate_min += 1
         estimate_max += 1
 
-    # Ajustement par taille d'équipe
     if team_size == "small":
         estimate_min += 1
         estimate_max += 2
@@ -767,7 +764,6 @@ def estimate_time_gain(
         estimate_min += 2
         estimate_max += 4
 
-    # Ajustement par niveau de CA
     if revenue_band == "3to10":
         estimate_max += 1
     elif revenue_band == "10to30":
@@ -777,7 +773,6 @@ def estimate_time_gain(
         estimate_min += 2
         estimate_max += 4
 
-    # Ajustement léger selon réponse explicite "temps perdu"
     temps_perdu_answer = answers.get("temps_perdu")
     if temps_perdu_answer == "A":
         estimate_max = min(estimate_max, max(estimate_min + 1, 4))
@@ -789,7 +784,6 @@ def estimate_time_gain(
         estimate_min = max(estimate_min, 10)
         estimate_max += 2
 
-    # Garde-fous
     estimate_min = max(1, estimate_min)
     estimate_max = max(estimate_min + 1, estimate_max)
     estimate_max = min(30, estimate_max)
@@ -1725,10 +1719,10 @@ HTML = r"""
   }
 
   .scorePercent{
-    font-size:40px;
+    font-size:52px;
     font-weight:950;
     line-height:1;
-    margin-top:6px;
+    margin-top:8px;
   }
 
   .scorePercent.good{
@@ -2560,9 +2554,13 @@ async function finish(){
     <div class="scoreHero">
       <div style="font-weight:900;font-size:16px;">Ton business dépend encore de toi à :</div>
       <div class="scorePercent ${getScoreClass(data.dependency_pct)}">${data.dependency_pct}%</div>
-      <div class="scoreSecondary">Autonomie actuelle estimée : ${data.autonomy_pct}%
-      (plus ce chiffre est élevé, plus ton business dépend de toi)</div>
-      <div class="micro" style="margin-top:10px;"><b>${data.level}</b> — ${data.subtitle}</div>
+      <div class="scoreSecondary">
+        Autonomie actuelle estimée : ${data.autonomy_pct}%<br>
+        (plus ce chiffre est élevé, plus ton business dépend de toi)
+      </div>
+      <div class="micro" style="margin-top:10px;">
+        <b>${data.level}</b> — ${data.subtitle}
+      </div>
     </div>
     `,
     14
@@ -2571,7 +2569,7 @@ async function finish(){
   await sleep(650);
 
   await addBotMsgTyped(
-    `Voilà ce que ton diagnostic révèle :<br><br>${data.summary}`,
+    `${data.summary}`,
     "",
     14
   );
@@ -2587,7 +2585,7 @@ async function finish(){
   await sleep(650);
 
   await addBotMsgTyped(
-    `<b>👉 Pourquoi ça bloque vraiment :</b>`<br>${data.profile_title}<br><br>${data.profile_text}`,
+    `<b>👉 Pourquoi ça bloque vraiment :</b><br>${data.profile_title}<br><br>${data.profile_text}`,
     "",
     14
   );
@@ -2595,15 +2593,15 @@ async function finish(){
   await sleep(650);
 
   await addBotMsgTyped(
-  `Aujourd’hui, tu perds encore entre <b>${data.estimated_min} et ${data.estimated_max} heures par semaine</b> sur des choses que ton système pourrait déjà gérer à ta place.`,
-  "estimateBox",
-  14
-);
+    `Aujourd’hui, tu perds encore entre <b>${data.estimated_min} et ${data.estimated_max} heures par semaine</b><br><br>sur des choses que ton système pourrait déjà gérer à ta place.`,
+    "estimateBox",
+    14
+  );
 
   await sleep(650);
 
   await addBotMsgTyped(
-    `<b>Les 3 zones à traiter en priorité :</b><br>
+    `<b>Les 3 zones à traiter en priorité :</b><br><br>
      1) ${data.top3[0]}<br>
      2) ${data.top3[1]}<br>
      3) ${data.top3[2]}`,
