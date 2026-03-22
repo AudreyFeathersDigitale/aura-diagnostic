@@ -541,7 +541,7 @@ def summary_message(dependency_pct: int, profile: dict) -> str:
 
     # 👉 Adaptation selon le niveau de dépendance
     if dependency_pct < 25:
-        ending =  "Aujourd’hui ça tient…<br>mais dès que tu vas monter en charge,<br>ce modèle va commencer à te freiner."
+        ending = "Tu es encore en contrôle… mais ça ne tiendra pas en montant en charge."
     elif dependency_pct < 50:
         ending = "Tu avances… mais avec une charge invisible qui revient chaque semaine."
     elif dependency_pct < 75:
