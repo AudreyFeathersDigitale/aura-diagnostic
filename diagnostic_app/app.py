@@ -540,31 +540,14 @@ def summary_message(dependency_pct: int, profile: dict) -> str:
         )
 
     # 👉 Adaptation selon le niveau de dépendance
-        if dependency_pct < 25:
-        ending = (
-            "Aujourd’hui ça tient…<br>"
-            "mais dès que tu vas monter en charge,<br>"
-            "ce modèle va commencer à te freiner."
-        )
-
+    if dependency_pct < 25:
+        ending =  "Aujourd’hui ça tient…<br>mais dès que tu vas monter en charge,<br>ce modèle va commencer à te freiner."
     elif dependency_pct < 50:
-        ending = (
-            "Aujourd’hui, tu avances…<br>"
-            "mais tu traînes déjà une charge invisible.<br><br>"
-            "Et elle revient chaque semaine."
-        )
-
+        ending = "Tu avances… mais avec une charge invisible qui revient chaque semaine."
     elif dependency_pct < 75:
-        ending = (
-            "Aujourd’hui, tu es déjà le point de passage central.<br><br>"
-            "Sans toi : <b>ça ralentit. ça bloque.</b>"
-        )
-
+        ending = "Tu es déjà un point de passage central dans ton business."
     else:
-        ending = (
-            "Aujourd’hui, ton business tient parce que tu es là.<br><br>"
-            "Sans toi : <b>ça ralentit. ça bloque.</b>"
-        )
+        ending = "Aujourd’hui, ton business dépend directement de toi pour fonctionner."
 
     return base + ending
 
