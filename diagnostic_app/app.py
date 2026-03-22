@@ -314,9 +314,13 @@ def compute_dimension_scores(answers: dict, profile: dict) -> dict:
             raw_scores[sec_dim] += score * weight * sec_ratio
             raw_max[sec_dim] += 3 * weight * sec_ratio
 
+    profile_weights = get_profile_dimension_weights(profile)
+
     final_scores = {}
     for dim in raw_scores:
-        final_scores[dim] = 0 if raw_max[dim] <= 0 else round((raw_scores[dim] / raw_max[dim]) * 100)
+        weighted_score = raw_scores[dim] * profile_weights.get(dim, 1.0)
+        weighted_max = raw_max[dim] * profile_weights.get(dim, 1.0)
+        final_scores[dim] = 0 if weighted_max <= 0 else round((weighted_score / weighted_max) * 100)
 
     return final_scores
 
@@ -2591,10 +2595,10 @@ async function finish(){
   await sleep(650);
 
   await addBotMsgTyped(
-    `Aujourd’hui, tu perds encore entre <b>${data.estimated_min} et ${data.estimated_max} heures par semaine sur des choses que ton système pourrait déjà gérer à ta place.</b> avec les bons systèmes.`,
-    "estimateBox",
-    14
-  );
+  `Aujourd’hui, tu perds encore entre <b>${data.estimated_min} et ${data.estimated_max} heures par semaine</b> sur des choses que ton système pourrait déjà gérer à ta place.`,
+  "estimateBox",
+  14
+);
 
   await sleep(650);
 
