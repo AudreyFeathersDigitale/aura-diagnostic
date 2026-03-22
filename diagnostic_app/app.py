@@ -602,112 +602,138 @@ def dominant_profile(dimension_scores: dict, profile: dict) -> tuple[str, str]:
     COPY = {
         "freelance": {
             "STR": (
-                "Ton business repose encore trop sur toi",
-                "En tant que solopreneur, le vrai problème n’est pas que ton business ne tourne pas. "
-                "C’est qu’il tourne encore trop parce que tu es là pour compenser, organiser, relancer ou débloquer. "
-                "Tant que cette dépendance reste forte, tu continues à porter une charge que ton système devrait déjà absorber à ta place."
+                "Ton système ne te remplace pas",
+                "Ton business tourne encore parce que tu es là.<br><br>"
+                "👉 Pas grâce à ton système.<br><br>"
+                "Sans toi : <b>ça ralentit. ça bloque.</b><br><br>"
+                "Et tu dois relancer la machine en permanence."
             ),
             "DEL": (
-                "Tu absorbes encore trop d’opérationnel à la main",
-                "Ton principal frein aujourd’hui, c’est le volume de tâches répétitives, de suivi et de micro-actions qui reposent encore sur toi. "
-                "Ça te fait avancer, mais au prix d’un temps et d’une énergie que tu ne récupères jamais vraiment."
+                "Tu gères encore trop à la main",
+                "Trop d’actions reposent encore sur toi.<br><br>"
+                "👉 Copier-coller. Relances. Organisation.<br><br>"
+                "Sans toi : <b>ça ralentit. ça s’accumule.</b>"
             ),
             "ONB": (
-                "Ton onboarding crée encore trop de friction",
-                "Dès qu’un client arrive, tu dois encore trop intervenir pour faire avancer les étapes. "
-                "Résultat : chaque nouvelle vente recrée une charge au lieu d’alimenter un système déjà fluide."
+                "Ton onboarding dépend encore de toi",
+                "Chaque nouveau client recrée de la charge.<br><br>"
+                "👉 Tu dois intervenir à chaque étape.<br><br>"
+                "Sans toi : <b>ça ralentit. ça devient flou.</b>"
             ),
             "ACQ": (
-                "Ton acquisition te fait perdre des opportunités chaque semaine",
-                "Tu perds du temps… et parfois des prospects. "
-                "Quand les relances, le tri ou l’organisation ne sont pas assez systématisés, tu perds du temps… et parfois des prospects."
+                "Tu perds des opportunités",
+                "Tes leads ne sont pas assez suivis.<br><br>"
+                "👉 Certaines opportunités passent à la trappe.<br><br>"
+                "Sans système : <b>ça se perd. ça se disperse.</b>"
             ),
         },
+
         "agency": {
             "STR": (
-                "Ton agence dépend encore trop de toi pour rester fluide",
-                "Trop de choses remontent encore jusqu’à toi : validation, suivi, arbitrage, organisation. "
-                "Tant que tu restes ce point de passage central, ta structure peut avancer, mais elle ne peut pas vraiment se fluidifier ni grandir sans te charger davantage."
+                "Ton agence dépend encore de toi",
+                "Ton agence tourne encore parce que tu es là.<br><br>"
+                "👉 Pas grâce à ton système.<br><br>"
+                "Sans toi : <b>ça ralentit. ça bloque.</b><br><br>"
+                "Et tu redeviens le point de passage obligé."
             ),
             "DEL": (
-                "L’exécution crée encore trop de charge dans ton agence",
-                "Ton principal frein aujourd’hui, c’est que l’opérationnel n’absorbe pas encore assez la complexité. "
-                "Quand trop de suivi, de coordination ou de micro-décisions restent manuels, la charge revient mécaniquement sur toi."
+                "L’opérationnel remonte vers toi",
+                "Trop de suivi et de décisions reviennent sur toi.<br><br>"
+                "👉 L’équipe n’absorbe pas encore la charge.<br><br>"
+                "Sans toi : <b>ça ralentit. ça se désorganise.</b>"
             ),
             "ONB": (
-                "Ton onboarding client manque encore de système",
-                "Le démarrage client devrait poser du cadre et créer de la fluidité. "
-                "Quand ce n’est pas assez structuré, ça génère du flou, des allers-retours et une dépendance inutile à ton intervention."
+                "Ton onboarding manque de structure",
+                "Le démarrage client n’est pas assez cadré.<br><br>"
+                "👉 Ça crée des allers-retours inutiles.<br><br>"
+                "Sans cadre : <b>ça ralentit. ça devient instable.</b>"
             ),
             "ACQ": (
-                "Ton pipeline commercial manque encore de système",
-                "Les opportunités existent, mais leur traitement n’est pas encore assez robuste. "
-                "Quand le suivi commercial dépend trop de vérifications humaines, tu crées de la friction là où tu devrais créer de la prévisibilité."
+                "Ton pipeline n’est pas assez structuré",
+                "Le suivi commercial dépend encore trop de toi.<br><br>"
+                "👉 Tu dois vérifier, relancer, organiser.<br><br>"
+                "Sans toi : <b>ça ralentit. ça se perd.</b>"
             ),
         },
+
         "info": {
             "STR": (
-                "Ton activité repose encore trop sur toi",
-                "Même si certaines briques existent déjà, trop d’étapes entre acquisition, vente et delivery demandent encore ton intervention directe. "
-                "Tant que le système n’absorbe pas mieux cette charge, tu restes le moteur là où tu devrais être davantage en surplomb."
+                "Ton système ne porte pas encore ton business",
+                "Ton activité tourne encore parce que tu es là.<br><br>"
+                "👉 Pas grâce à ton système.<br><br>"
+                "Sans toi : <b>ça ralentit. ça bloque.</b>"
             ),
             "DEL": (
                 "Tu gères encore trop de delivery à la main",
-                "Le vrai problème n’est pas seulement le volume de tâches. "
-                "C’est que des étapes répétitives ou prévisibles demandent encore de ton temps alors qu’elles devraient déjà être mieux cadrées ou automatisées."
+                "Des étapes devraient déjà être automatisées.<br><br>"
+                "👉 Tu interviens trop souvent.<br><br>"
+                "Sans toi : <b>ça ralentit. ça s’accumule.</b>"
             ),
             "ONB": (
-                "Ton onboarding n’est pas encore assez fluide",
-                "Le passage entre vente et mise en route devrait être presque évident. "
-                "Quand il dépend encore trop de toi, chaque nouveau client ou membre recrée de la charge au lieu d’entrer dans un système propre."
+                "Ton onboarding n’est pas fluide",
+                "Chaque client demande encore ton intervention.<br><br>"
+                "👉 Le système n’absorbe pas la charge.<br><br>"
+                "Sans toi : <b>ça ralentit. ça bloque.</b>"
             ),
             "ACQ": (
-                "Ton acquisition manque encore de fluidité",
-                "Tes entrées existent, mais le suivi de ces opportunités repose encore trop sur des actions humaines dispersées. "
-                "Ça ralentit ton système et t’oblige à rester plus présent(e) que nécessaire."
+                "Ton acquisition manque de structure",
+                "Tes leads ne sont pas assez suivis.<br><br>"
+                "👉 Tu dois rester présent pour que ça avance.<br><br>"
+                "Sans système : <b>ça ralentit. ça se perd.</b>"
             ),
         },
+
         "saas": {
             "STR": (
-                "Ton business manque encore de robustesse opérationnelle",
-                "Même avec un produit digital, certaines zones critiques reposent encore trop sur toi ou sur des ajustements manuels. "
-                "Tant que cette dépendance reste là, ton effet de levier reste inférieur à ce qu’il devrait être."
+                "Ton système n’est pas encore assez robuste",
+                "Ton business dépend encore trop de toi.<br><br>"
+                "👉 Certaines zones ne sont pas fiables seules.<br><br>"
+                "Sans toi : <b>ça ralentit. ça casse.</b>"
             ),
             "DEL": (
-                "Trop de frictions opérationnelles restent encore manuelles",
-                "Support, suivi, exécution, coordination : trop d’éléments ne sont pas encore assez absorbés par le système. "
-                "Le risque, ce n’est pas seulement la perte de temps : c’est un manque de robustesse qui freine ta scalabilité."
+                "Trop de frictions restent manuelles",
+                "Support, suivi, coordination…<br><br>"
+                "👉 trop d’actions reposent encore sur toi.<br><br>"
+                "Sans toi : <b>ça ralentit. ça s’accumule.</b>"
             ),
             "ONB": (
-                "Ton onboarding n’est pas encore assez robuste",
-                "L’entrée utilisateur ou client devrait être fluide et fiable. "
-                "Quand elle dépend encore trop d’interventions ou de corrections humaines, tu perds de l’effet de levier là où le système devrait déjà être stable."
+                "Ton onboarding n’est pas fiable",
+                "L’expérience n’est pas encore stable.<br><br>"
+                "👉 Tu dois corriger trop souvent.<br><br>"
+                "Sans toi : <b>ça ralentit. ça bug.</b>"
             ),
             "ACQ": (
-                "Ton acquisition manque encore de système",
-                "Le traitement des opportunités n’est pas encore assez fluide ou assez structuré. "
-                "Quand le suivi repose trop sur de l’humain, tu limites la vitesse et la prévisibilité de ton moteur commercial."
+                "Ton acquisition manque de système",
+                "Le suivi n’est pas assez structuré.<br><br>"
+                "👉 Tu compenses à la main.<br><br>"
+                "Sans toi : <b>ça ralentit. ça se perd.</b>"
             ),
         },
+
         "ecommerce": {
             "STR": (
-                "Ton activité e-commerce dépend encore trop de toi",
-                "Même si les ventes tournent, trop de points de suivi, de coordination ou de contrôle remontent encore jusqu’à toi. "
-                "Tant que ça fonctionne comme ça, tu restes plus opérateur que pilote."
+                "Ton activité dépend encore de toi",
+                "Ton business tourne encore grâce à toi.<br><br>"
+                "👉 Pas grâce à ton système.<br><br>"
+                "Sans toi : <b>ça ralentit. ça bloque.</b>"
             ),
             "DEL": (
-                "Tu absorbes encore trop de tâches manuelles dans l’exécution",
-                "Ton principal frein aujourd’hui, c’est le volume d’opérations évitables dans l’exécution et le suivi. "
-                "Tu laisses du temps, de la marge et de la sérénité sur la table à cause de frictions qui devraient déjà être mieux absorbées."
+                "Tu absorbes encore trop d’opérations",
+                "Trop de tâches restent manuelles.<br><br>"
+                "👉 Tu compenses en permanence.<br><br>"
+                "Sans toi : <b>ça ralentit. ça sature.</b>"
             ),
             "ONB": (
-                "Tes flux de mise en route et de traitement manquent encore de fluidité",
-                "Quand les entrées, le traitement ou certaines étapes amont demandent encore trop de vérifications ou d’actions humaines, tu crées une dépendance inutile à ton attention."
+                "Tes flux manquent de fluidité",
+                "Le traitement n’est pas assez structuré.<br><br>"
+                "👉 Trop de vérifications humaines.<br><br>"
+                "Sans toi : <b>ça ralentit. ça se dérègle.</b>"
             ),
             "ACQ": (
-                "Ton acquisition n’est pas encore assez cadrée",
-                "Les opportunités existent, mais leur organisation et leur suivi ne sont pas encore assez fiables. "
-                "Quand le système n’absorbe pas bien la captation et le suivi, tu perds à la fois du temps et de la visibilité."
+                "Ton acquisition n’est pas cadrée",
+                "Le suivi des leads n’est pas fiable.<br><br>"
+                "👉 Tu dois intervenir trop souvent.<br><br>"
+                "Sans système : <b>ça ralentit. ça se perd.</b>"
             ),
         },
     }
@@ -2599,7 +2625,7 @@ async function finish(){
   await sleep(650);
 
   await addBotMsgTyped(
-    `<b>Ton principal blocage aujourd’hui :</b><br>${data.profile_title}<br><br>${data.profile_text}`,
+    `<b>`<b>👉 Pourquoi ça bloque vraiment :</b>`<br>${data.profile_title}<br><br>${data.profile_text}`,
     "",
     14
   );
@@ -2607,7 +2633,7 @@ async function finish(){
   await sleep(650);
 
   await addBotMsgTyped(
-    `Aujourd’hui, tu pourrais récupérer entre <b>${data.estimated_min} et ${data.estimated_max} heures par semaine</b> avec les bons systèmes.`,
+    `Aujourd’hui, tu perds encore entre <b>${data.estimated_min} et ${data.estimated_max} heures par semaine sur des choses que ton système pourrait déjà gérer à ta place.</b> avec les bons systèmes.`,
     "estimateBox",
     14
   );
