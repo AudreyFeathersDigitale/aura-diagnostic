@@ -492,7 +492,7 @@ def summary_message(dependency_pct: int, profile: dict) -> str:
             "→ Ton agence ne manque pas de clients.<br>"
             "→ Elle manque d’un système solide.<br><br>"
             "Aujourd’hui, tu compenses encore trop de choses.<br><br>"
-            "Résultat :<br><br>"
+            "Résultat :<br>"
             "Plus tu grossis → plus la complexité revient à toi.<br><br>"
         )
 
@@ -502,7 +502,7 @@ def summary_message(dependency_pct: int, profile: dict) -> str:
             "→ Ton business avance.<br>"
             "→ Mais il avance encore grâce à toi.<br><br>"
             "Aujourd’hui, tu compenses trop de choses.<br><br>"
-            "Résultat :<br><br>"
+            "Résultat :<br>"
             "Plus tu avances → plus tout repose sur toi.<br><br>"
         )
 
@@ -512,7 +512,7 @@ def summary_message(dependency_pct: int, profile: dict) -> str:
             "→ Ton business a du potentiel.<br>"
             "→ Mais ton système n’absorbe pas encore la charge.<br><br>"
             "Aujourd’hui, tu restes présent à chaque étape.<br><br>"
-            "Résultat :<br><br>"
+            "Résultat :<br>"
             "Plus tu vends → plus tu dois intervenir.<br><br>"
         )
 
@@ -522,7 +522,7 @@ def summary_message(dependency_pct: int, profile: dict) -> str:
             "→ Ton produit fonctionne.<br>"
             "→ Mais ton système n’est pas encore assez robuste.<br><br>"
             "Aujourd’hui, tu compenses encore des failles.<br><br>"
-            "Résultat :<br><br>"
+            "Résultat :<br>"
             "Plus tu scales → plus les problèmes remontent.<br><br>"
         )
 
@@ -532,7 +532,7 @@ def summary_message(dependency_pct: int, profile: dict) -> str:
             "→ Les ventes sont là.<br>"
             "→ Mais ton système n’absorbe pas encore les opérations.<br><br>"
             "Aujourd’hui, tu compenses trop de choses.<br><br>"
-            "Résultat :<br><br>"
+            "Résultat :<br>"
             "Plus tu vends → plus ça devient lourd à gérer.<br><br>"
         )
 
@@ -572,24 +572,24 @@ def dominant_profile(dimension_scores: dict, profile: dict) -> tuple[str, str]:
                 "Ton système ne te remplace pas",
                 "Ton business tourne encore parce que tu es là.<br><br>"
                 "Pas grâce à ton système.<br><br>"
-                "Sans toi : <b>ça ralentit. ça bloque.</b><br><br>"
+                "Sans toi : <b>ça ralentit. ça bloque.</b><br>"
                 "Et tu dois relancer la machine en permanence."
             ),
             "DEL": (
                 "Tu gères encore trop de choses à la main",
                 "Relances. Organisation. Suivi.<br><br>"
-                "Trop d’actions reposent encore sur toi.<br><br>"
+                "Trop d’actions reposent encore sur toi.<br>"
                 "Sans toi : <b>ça ralentit. ça s’accumule.</b>"
             ),
             "ONB": (
                 "Chaque nouveau client recrée de la charge",
-                "Ton onboarding n’absorbe pas encore assez la mise en route.<br><br>"
+                "Ton onboarding n’absorbe pas encore assez la mise en route.<br>"
                 "Tu dois encore intervenir trop souvent.<br><br>"
                 "Sans toi : <b>ça ralentit. ça devient flou.</b>"
             ),
             "ACQ": (
                 "Tu perds encore des opportunités",
-                "Tes leads ne sont pas assez suivis.<br><br>"
+                "Tes leads ne sont pas assez suivis.<br>"
                 "Tu dois encore vérifier, relancer, organiser.<br><br>"
                 "Sans système : <b>ça se disperse. ça se perd.</b>"
             ),
@@ -597,26 +597,26 @@ def dominant_profile(dimension_scores: dict, profile: dict) -> tuple[str, str]:
         "agency": {
             "STR": (
                 "Ton agence dépend encore de toi",
-                "Ton agence tourne encore parce que tu es là.<br><br>"
+                "Ton agence tourne encore parce que tu es là.<br>"
                 "Pas grâce à ton système.<br><br>"
-                "Sans toi : <b>ça ralentit. ça bloque.</b><br><br>"
+                "Sans toi : <b>ça ralentit. ça bloque.</b><br>"
                 "Et tu redeviens le point de passage obligé."
             ),
             "DEL": (
                 "L’opérationnel revient encore sur toi",
-                "Suivi. Arbitrage. Coordination.<br><br>"
+                "Suivi. Arbitrage. Coordination.<br>"
                 "L’équipe n’absorbe pas encore assez la charge.<br><br>"
                 "Sans toi : <b>ça ralentit. ça se désorganise.</b>"
             ),
             "ONB": (
                 "Ton onboarding manque de cadre",
-                "Le démarrage client n’est pas encore assez structuré.<br><br>"
+                "Le démarrage client n’est pas encore assez structuré.<br>"
                 "Ça crée des allers-retours inutiles.<br><br>"
                 "Sans cadre : <b>ça ralentit. ça devient instable.</b>"
             ),
             "ACQ": (
                 "Ton pipeline dépend encore trop de toi",
-                "Le suivi commercial n’est pas assez structuré.<br><br>"
+                "Le suivi commercial n’est pas assez structuré.<br>"
                 "Tu dois encore vérifier, relancer, organiser.<br><br>"
                 "Sans toi : <b>ça ralentit. ça se perd.</b>"
             ),
@@ -624,25 +624,25 @@ def dominant_profile(dimension_scores: dict, profile: dict) -> tuple[str, str]:
         "info": {
             "STR": (
                 "Ton système ne porte pas encore ton activité",
-                "Ton business tourne encore parce que tu es là.<br><br>"
+                "Ton business tourne encore parce que tu es là.<br>"
                 "Pas grâce à ton système.<br><br>"
                 "Sans toi : <b>ça ralentit. ça bloque.</b>"
             ),
             "DEL": (
                 "Tu gères encore trop de delivery à la main",
-                "Trop d’étapes devraient déjà être absorbées.<br><br>"
+                "Trop d’étapes devraient déjà être absorbées.<br>"
                 "Mais elles reposent encore sur toi.<br><br>"
                 "Sans toi : <b>ça ralentit. ça s’accumule.</b>"
             ),
             "ONB": (
                 "Ton onboarding dépend encore de toi",
-                "Chaque nouvelle vente recrée de la charge.<br><br>"
+                "Chaque nouvelle vente recrée de la charge.<br>"
                 "Le système ne prend pas encore assez le relais.<br><br>"
                 "Sans toi : <b>ça ralentit. ça bloque.</b>"
             ),
             "ACQ": (
                 "Ton acquisition manque encore de structure",
-                "Tes opportunités ne sont pas assez suivies.<br><br>"
+                "Tes opportunités ne sont pas assez suivies.<br>"
                 "Tu dois rester présent pour que ça avance.<br><br>"
                 "Sans système : <b>ça ralentit. ça se perd.</b>"
             ),
@@ -650,25 +650,25 @@ def dominant_profile(dimension_scores: dict, profile: dict) -> tuple[str, str]:
         "saas": {
             "STR": (
                 "Ton système n’est pas encore assez robuste",
-                "Ton business dépend encore trop de toi.<br><br>"
+                "Ton business dépend encore trop de toi.<br>"
                 "Certaines zones ne tiennent pas seules.<br><br>"
                 "Sans toi : <b>ça ralentit. ça casse.</b>"
             ),
             "DEL": (
                 "Trop de frictions restent encore manuelles",
-                "Support. Suivi. Coordination.<br><br>"
+                "Support. Suivi. Coordination.<br>"
                 "Trop d’actions reposent encore sur toi.<br><br>"
                 "Sans toi : <b>ça ralentit. ça s’accumule.</b>"
             ),
             "ONB": (
                 "Ton onboarding n’est pas encore fiable",
-                "L’expérience n’est pas encore assez stable seule.<br><br>"
+                "L’expérience n’est pas encore assez stable seule.<br>"
                 "Tu corriges encore trop souvent.<br><br>"
                 "Sans toi : <b>ça ralentit. ça bug.</b>"
             ),
             "ACQ": (
                 "Ton acquisition manque encore de système",
-                "Le suivi n’est pas assez structuré.<br><br>"
+                "Le suivi n’est pas assez structuré.<br>"
                 "Tu compenses encore à la main.<br><br>"
                 "Sans toi : <b>ça ralentit. ça se perd.</b>"
             ),
@@ -676,25 +676,25 @@ def dominant_profile(dimension_scores: dict, profile: dict) -> tuple[str, str]:
         "ecommerce": {
             "STR": (
                 "Ton activité dépend encore de toi",
-                "Ton business tourne encore grâce à toi.<br><br>"
+                "Ton business tourne encore grâce à toi.<br>"
                 "Pas grâce à ton système.<br><br>"
                 "Sans toi : <b>ça ralentit. ça bloque.</b>"
             ),
             "DEL": (
                 "Tu absorbes encore trop d’opérations",
-                "Trop de tâches restent manuelles.<br><br>"
+                "Trop de tâches restent manuelles.<br>"
                 "Tu compenses encore en permanence.<br><br>"
                 "Sans toi : <b>ça ralentit. ça sature.</b>"
             ),
             "ONB": (
                 "Tes flux manquent encore de fluidité",
-                "Le traitement n’est pas assez structuré.<br><br>"
+                "Le traitement n’est pas assez structuré.<br>"
                 "Trop de vérifications restent humaines.<br><br>"
                 "Sans toi : <b>ça ralentit. ça se dérègle.</b>"
             ),
             "ACQ": (
                 "Ton acquisition n’est pas assez cadrée",
-                "Le suivi des leads n’est pas assez fiable.<br><br>"
+                "Le suivi des leads n’est pas assez fiable.<br>"
                 "Tu dois encore intervenir trop souvent.<br><br>"
                 "Sans système : <b>ça ralentit. ça se perd.</b>"
             ),
@@ -2556,7 +2556,7 @@ async function finish(){
       <div class="scorePercent ${getScoreClass(data.dependency_pct)}">${data.dependency_pct}%</div>
       <div class="scoreSecondary">
         Autonomie actuelle estimée : ${data.autonomy_pct}%<br>
-        (plus ce chiffre est élevé, plus ton business dépend de toi)
+        (plus ce chiffre est bas, plus ton business dépend de toi)
       </div>
       <div class="micro" style="margin-top:10px;">
         <b>${data.level}</b> — ${data.subtitle}
@@ -2585,7 +2585,7 @@ async function finish(){
   await sleep(650);
 
   await addBotMsgTyped(
-    `<b>👉 Pourquoi ça bloque vraiment :</b><br>${data.profile_title}<br><br>${data.profile_text}`,
+    `<b>Pourquoi ça bloque vraiment :</b><br>${data.profile_title}<br><br>${data.profile_text}`,
     "",
     14
   );
