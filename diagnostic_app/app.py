@@ -7,9 +7,10 @@ import sqlite3
 from pathlib import Path
 from datetime import datetime, timezone
 import html
+import os
 
 BASE_DIR = Path(__file__).resolve().parent
-DB_PATH = BASE_DIR / "aura_leads.db"
+DB_PATH = Path(os.getenv("DB_PATH", "/data/aura_leads.db"))
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
@@ -282,18 +283,6 @@ def profile_questions_as_json() -> str:
     for key, prompt, opts in PROFILE_QUESTIONS:
         out.append({"key": key, "prompt": prompt, "options": opts})
     return json.dumps(out, ensure_ascii=False)
-
-
-def profile_label(profile: dict) -> str:
-    business_type = profile.get("business_type", "")
-    mapping = {
-        "freelance": "solopreneur",
-        "agency": "agence",
-        "info": "infopreneur",
-        "saas": "business SaaS",
-        "ecommerce": "business e-commerce",
-    }
-    return mapping.get(business_type, "business")
 
 
 def get_profile_dimension_weights(profile: dict) -> dict:
@@ -851,16 +840,6 @@ def level_messages(dependency_pct: int, profile: dict) -> tuple[str, str]:
     return profile_copy["critical"]
 
 
-def human_level_label(dependency_pct: int) -> str:
-    if dependency_pct < 25:
-        return "déjà assez structuré(e), mais encore un peu trop présent(e) sur certains points"
-    if dependency_pct < 50:
-        return "encore trop au centre de certaines zones de mon business"
-    if dependency_pct < 75:
-        return "encore fortement au centre de mon business"
-    return "encore le système principal de mon business"
-
-
 def create_lead_record(answers: dict, profile: dict, result_data: dict) -> int:
     now = utcnow_iso()
     with get_conn() as conn:
@@ -993,10 +972,18 @@ def render_profile_html(profile_json: str | None) -> str:
     }
 
     items = []
+    labels = {
+        "business_type": "Type de business",
+        "revenue_band": "CA mensuel",
+        "team_size": "Taille de l’équipe",
+    }
+
     for key in ["business_type", "revenue_band", "team_size"]:
         raw = data.get(key)
         display = label_maps.get(key, {}).get(raw, raw or "-")
-        items.append(f"<div style='margin-bottom:6px;'><b>{html.escape(key)} :</b> {html.escape(str(display))}</div>")
+        items.append(
+            f"<div style='margin-bottom:6px;'><b>{html.escape(labels[key])} :</b> {html.escape(str(display))}</div>"
+        )
 
     return "".join(items)
 
@@ -2667,6 +2654,20 @@ async def save_lead(request: Request):
     return JSONResponse({"ok": True})
 
 
+@app.post("/admin/delete-lead/{lead_id}")
+def delete_lead(lead_id: int):
+    with get_conn() as conn:
+        conn.execute("DELETE FROM leads WHERE id = ?", (lead_id,))
+    return JSONResponse({"ok": True})
+
+
+@app.post("/admin/delete-all-leads")
+def delete_all_leads():
+    with get_conn() as conn:
+        conn.execute("DELETE FROM leads")
+    return JSONResponse({"ok": True})
+
+
 @app.get("/admin/leads", response_class=HTMLResponse)
 def admin_leads():
     with get_conn() as conn:
@@ -2712,15 +2713,33 @@ def admin_leads():
                     </div>
                 </div>
 
-                <div style="
-                    background:#2563eb;
-                    color:white;
-                    font-weight:800;
-                    font-size:13px;
-                    padding:8px 12px;
-                    border-radius:999px;
-                ">
-                    completed
+                <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                    <div style="
+                        background:#2563eb;
+                        color:white;
+                        font-weight:800;
+                        font-size:13px;
+                        padding:8px 12px;
+                        border-radius:999px;
+                    ">
+                        completed
+                    </div>
+
+                    <button
+                        onclick="deleteLead({row['id']})"
+                        style="
+                            background:#dc2626;
+                            color:white;
+                            border:none;
+                            font-weight:800;
+                            font-size:13px;
+                            padding:10px 14px;
+                            border-radius:12px;
+                            cursor:pointer;
+                        "
+                    >
+                        Supprimer
+                    </button>
                 </div>
             </div>
 
@@ -2836,9 +2855,62 @@ def admin_leads():
     </head>
     <body style="font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto;background:#f3f4f6;padding:24px;color:#0f172a;">
       <div style="max-width:1200px;margin:0 auto;">
-        <h1 style="margin-bottom:20px;font-size:34px;">Leads AURA</h1>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:20px;">
+          <h1 style="margin:0;font-size:34px;">Leads AURA</h1>
+
+          <button
+            onclick="deleteAllLeads()"
+            style="
+              background:#991b1b;
+              color:white;
+              border:none;
+              font-weight:900;
+              font-size:14px;
+              padding:12px 16px;
+              border-radius:14px;
+              cursor:pointer;
+            "
+          >
+            Supprimer tous les leads
+          </button>
+        </div>
+
         {''.join(cards) if cards else '<p>Aucun lead pour le moment.</p>'}
       </div>
+
+      <script>
+        async function deleteLead(leadId) {{
+          const ok = confirm("Supprimer ce lead ?");
+          if (!ok) return;
+
+          const res = await fetch(`/admin/delete-lead/${{leadId}}`, {{
+            method: "POST"
+          }});
+
+          const data = await res.json();
+          if (data.ok) {{
+            window.location.reload();
+          }} else {{
+            alert("Erreur pendant la suppression.");
+          }}
+        }}
+
+        async function deleteAllLeads() {{
+          const ok = confirm("Supprimer TOUS les leads ? Cette action est irréversible.");
+          if (!ok) return;
+
+          const res = await fetch("/admin/delete-all-leads", {{
+            method: "POST"
+          }});
+
+          const data = await res.json();
+          if (data.ok) {{
+            window.location.reload();
+          }} else {{
+            alert("Erreur pendant la suppression.");
+          }}
+        }}
+      </script>
     </body>
     </html>
     """
