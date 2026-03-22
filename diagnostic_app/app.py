@@ -2583,7 +2583,7 @@ async function finish(){
   await sleep(650);
 
   await addBotMsgTyped(
-    `<b>`<b>👉 Pourquoi ça bloque vraiment :</b>`<br>${data.profile_title}<br><br>${data.profile_text}`,
+    `<b>👉 Pourquoi ça bloque vraiment :</b>`<br>${data.profile_title}<br><br>${data.profile_text}`,
     "",
     14
   );
