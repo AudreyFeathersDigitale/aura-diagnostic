@@ -295,7 +295,10 @@ def compute_dimension_scores(answers: dict, profile: dict) -> dict:
     raw_max = {"ACQ": 0.0, "ONB": 0.0, "DEL": 0.0, "STR": 0.0}
 
     for key, _, _ in QUESTIONS:
-        answer = answers.get(key, "A")
+        answer = answers.get(key)
+        if answer is None:
+            continue
+
         score = ANSWER_SCORES.get(answer, 0)
         meta = QUESTION_DIMENSIONS[key]
 
@@ -311,19 +314,48 @@ def compute_dimension_scores(answers: dict, profile: dict) -> dict:
             raw_scores[sec_dim] += score * weight * sec_ratio
             raw_max[sec_dim] += 3 * weight * sec_ratio
 
-    profile_weights = get_profile_dimension_weights(profile)
-
     final_scores = {}
     for dim in raw_scores:
-        weighted_score = raw_scores[dim] * profile_weights.get(dim, 1.0)
-        weighted_max = raw_max[dim] * profile_weights.get(dim, 1.0)
-        final_scores[dim] = 0 if weighted_max <= 0 else round((weighted_score / weighted_max) * 100)
+        final_scores[dim] = 0 if raw_max[dim] <= 0 else round((raw_scores[dim] / raw_max[dim]) * 100)
 
     return final_scores
 
 
-def compute_dependency_pct(dimension_scores: dict) -> int:
-    return round(sum(dimension_scores.values()) / len(dimension_scores))
+def compute_dependency_pct(dimension_scores: dict, profile: dict) -> int:
+    business_type = profile.get("business_type", "freelance")
+    revenue_band = profile.get("revenue_band", "lt3")
+    team_size = profile.get("team_size", "solo")
+
+    business_weights = {
+        "freelance": {"ACQ": 0.20, "ONB": 0.15, "DEL": 0.30, "STR": 0.35},
+        "agency": {"ACQ": 0.10, "ONB": 0.20, "DEL": 0.30, "STR": 0.40},
+        "info": {"ACQ": 0.25, "ONB": 0.15, "DEL": 0.25, "STR": 0.35},
+        "saas": {"ACQ": 0.25, "ONB": 0.15, "DEL": 0.30, "STR": 0.30},
+        "ecommerce": {"ACQ": 0.20, "ONB": 0.10, "DEL": 0.40, "STR": 0.30},
+    }
+
+    weights = business_weights.get(business_type, business_weights["freelance"])
+
+    score = (
+        dimension_scores["ACQ"] * weights["ACQ"] +
+        dimension_scores["ONB"] * weights["ONB"] +
+        dimension_scores["DEL"] * weights["DEL"] +
+        dimension_scores["STR"] * weights["STR"]
+    )
+
+    # Bonus de criticité si la structuration est faible avec équipe
+    if team_size in ("small", "team") and dimension_scores["STR"] >= 60:
+        score += 5
+
+    # Bonus léger si gros CA + exécution fragile
+    if revenue_band in ("10to30", "30plus") and dimension_scores["DEL"] >= 60:
+        score += 3
+
+    # Bonus léger si acquisition fragile sur business très dépendant de l'acquisition
+    if business_type in ("freelance", "info") and dimension_scores["ACQ"] >= 70:
+        score += 2
+
+    return min(round(score), 100)
 
 
 def compute_autonomy_pct(dependency_pct: int) -> int:
@@ -683,25 +715,98 @@ def dominant_profile(dimension_scores: dict, profile: dict) -> tuple[str, str]:
     return COPY.get(business_type, COPY["freelance"]).get(main_dim, COPY["freelance"]["STR"])
 
 
-def estimate_time_gain(answers: dict, dependency_pct: int, dimension_scores: dict) -> tuple[int, int]:
+def estimate_time_gain(
+    answers: dict,
+    dependency_pct: int,
+    dimension_scores: dict,
+    profile: dict,
+) -> tuple[int, int]:
+    business_type = profile.get("business_type", "freelance")
+    revenue_band = profile.get("revenue_band", "lt3")
+    team_size = profile.get("team_size", "solo")
+
+    # Base selon niveau global de dépendance
     if dependency_pct < 25:
         estimate_min, estimate_max = 2, 5
     elif dependency_pct < 50:
-        estimate_min, estimate_max = 5, 8
+        estimate_min, estimate_max = 4, 8
     elif dependency_pct < 75:
-        estimate_min, estimate_max = 8, 14
+        estimate_min, estimate_max = 7, 13
     else:
-        estimate_min, estimate_max = 12, 20
+        estimate_min, estimate_max = 10, 18
 
+    # Impact par dimensions critiques
     if dimension_scores["DEL"] >= 70:
+        estimate_min += 2
+        estimate_max += 3
+    elif dimension_scores["DEL"] >= 55:
         estimate_min += 1
         estimate_max += 2
 
     if dimension_scores["STR"] >= 70:
         estimate_min += 1
+        estimate_max += 3
+    elif dimension_scores["STR"] >= 55:
+        estimate_min += 1
+        estimate_max += 1
+
+    if dimension_scores["ACQ"] >= 70:
+        estimate_min += 1
         estimate_max += 2
 
-    estimate_max = min(20, estimate_max)
+    if dimension_scores["ONB"] >= 70:
+        estimate_min += 1
+        estimate_max += 2
+
+    # Ajustement par type de business
+    if business_type == "agency":
+        estimate_min += 1
+        estimate_max += 2
+    elif business_type == "ecommerce":
+        estimate_min += 1
+        estimate_max += 3
+    elif business_type == "saas":
+        estimate_min += 0
+        estimate_max += 2
+    elif business_type == "info":
+        estimate_min += 1
+        estimate_max += 1
+
+    # Ajustement par taille d'équipe
+    if team_size == "small":
+        estimate_min += 1
+        estimate_max += 2
+    elif team_size == "team":
+        estimate_min += 2
+        estimate_max += 4
+
+    # Ajustement par niveau de CA
+    if revenue_band == "3to10":
+        estimate_max += 1
+    elif revenue_band == "10to30":
+        estimate_min += 1
+        estimate_max += 3
+    elif revenue_band == "30plus":
+        estimate_min += 2
+        estimate_max += 4
+
+    # Ajustement léger selon réponse explicite "temps perdu"
+    temps_perdu_answer = answers.get("temps_perdu")
+    if temps_perdu_answer == "A":
+        estimate_max = min(estimate_max, max(estimate_min + 1, 4))
+    elif temps_perdu_answer == "B":
+        estimate_max = min(estimate_max, max(estimate_min + 2, 7))
+    elif temps_perdu_answer == "C":
+        estimate_min = max(estimate_min, 6)
+    elif temps_perdu_answer == "D":
+        estimate_min = max(estimate_min, 10)
+        estimate_max += 2
+
+    # Garde-fous
+    estimate_min = max(1, estimate_min)
+    estimate_max = max(estimate_min + 1, estimate_max)
+    estimate_max = min(30, estimate_max)
+
     return estimate_min, estimate_max
 
 
@@ -2585,13 +2690,13 @@ async def result(request: Request):
     profile = body.get("profile", {}) or {}
 
     dimension_scores = compute_dimension_scores(answers, profile)
-    dependency_pct = compute_dependency_pct(dimension_scores)
+    dependency_pct = compute_dependency_pct(dimension_scores, profile)
     autonomy_pct = compute_autonomy_pct(dependency_pct)
     score_30 = display_score_30(dependency_pct)
     level, subtitle = level_from_dependency_pct(dependency_pct, profile)
     profile_title, profile_text = dominant_profile(dimension_scores, profile)
     top3 = priorities_from_dimensions(dimension_scores, profile)
-    estimated_min, estimated_max = estimate_time_gain(answers, dependency_pct, dimension_scores)
+    estimated_min, estimated_max = estimate_time_gain(answers, dependency_pct, dimension_scores, profile)
     summary = summary_message(dependency_pct, profile)
     tension, closing = level_messages(dependency_pct, profile)
 
