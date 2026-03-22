@@ -2357,14 +2357,17 @@ function renderFinalCTA(baseData){
       </div>
 
       <div style="font-size:12px;color:#64748b;">
+        Plan personnalisé basé sur ton diagnostic.
         (Optionnel — plus tu es précis, plus le plan sera utile)
-        <br>⚡ <b>Réponse personnalisée (pas automatique)</b>
+        <br>
+        </div>
+      <div style="font-size:12px;color:#94a3b8;">⚡ <b>Réponse personnalisée — pas automatisée</b>
       </div>
     </div>
 
     <div class="resultActions">
       <button class="dmBtn" id="openChannelsBtn" type="button">
-        👉 M'envoyer mon plan personnalisé
+        👉 Me montrer comment enlever ces ${baseData.dependency_pct}%
       </button>
     </div>
   `;
