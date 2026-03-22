@@ -825,92 +825,96 @@ def level_messages(dependency_pct: int, profile: dict) -> tuple[str, str]:
     COPY = {
         "freelance": {
             "low": (
-                "👉 Si rien ne change, ton activité restera stable… mais tu continueras quand même à porter une partie de la charge que ton système pourrait déjà absorber.",
-                "La bonne nouvelle, c’est qu’avec quelques optimisations ciblées, tu peux te libérer encore plus sans alourdir ta structure."
+                "Si rien ne change,<br>tu vas continuer à porter une partie de la charge inutilement.",
+                "Bonne nouvelle :<br>ça se corrige vite avec les bons systèmes."
             ),
             "mid": (
-                "👉 Si rien ne change, tu risques de rester coincé(e) dans une zone intermédiaire : ton business tourne, mais encore trop grâce à ta présence directe.",
-                "La bonne nouvelle, c’est que quelques bons ajustements peuvent déjà te faire récupérer un vrai volume de temps."
+                "Si rien ne change,<br>tu vas continuer à compenser chaque semaine ce que ton système devrait déjà absorber.",
+                "Bonne nouvelle :<br>c’est exactement le type de problème qui se règle vite."
             ),
             "high": (
-                "👉 Si rien ne change, tu vas continuer à absorber chaque semaine des relances, de l’organisation et des micro-décisions qui ne devraient plus dépendre de toi.",
-                "La bonne nouvelle, c’est que c’est exactement le type de situation qui peut se débloquer rapidement avec les bons systèmes."
+                "Si rien ne change,<br>tu vas continuer à porter ton business à bout de bras chaque semaine.",
+                "Bonne nouvelle :<br>ça peut se corriger vite, à condition de traiter les bons points."
             ),
             "critical": (
-                "👉 Si rien ne change, ton business restera directement accroché à ton niveau de disponibilité. Dès que tu ralentis, plusieurs choses commencent à se tendre.",
-                "La bonne nouvelle, c’est qu’en traitant les bons points dans le bon ordre, tu peux reprendre le contrôle beaucoup plus vite que tu ne le penses."
+                "Si rien ne change,<br>ton business va rester directement accroché à ton niveau de disponibilité.",
+                "Bonne nouvelle :<br>c’est exactement le type de dépendance qui peut se réduire vite avec le bon système."
             ),
         },
+
         "agency": {
             "low": (
-                "👉 Si rien ne change, la structure continuera à avancer… mais une partie de la complexité reviendra encore inutilement sur toi.",
-                "La bonne nouvelle, c’est qu’avec quelques ajustements ciblés, tu peux alléger fortement la charge de supervision."
+                "Si rien ne change,<br>une partie de la complexité va continuer à revenir vers toi.",
+                "Bonne nouvelle :<br>ça se corrige vite avec une meilleure structuration."
             ),
             "mid": (
-                "👉 Si rien ne change, tu risques de rester l’arbitre permanent de trop de sujets : validation, suivi, coordination, organisation.",
-                "La bonne nouvelle, c’est qu’en renforçant les bons points, tu peux créer beaucoup plus de fluidité sans tout reconstruire."
+                "Si rien ne change,<br>tu vas rester le point de passage sur trop de validations, de suivis et d’arbitrages.",
+                "Bonne nouvelle :<br>ce type de friction se corrige vite quand les bons process sont posés."
             ),
             "high": (
-                "👉 Si rien ne change, chaque palier de croissance continuera à créer plus de complexité… et cette complexité reviendra encore trop souvent sur toi.",
-                "La bonne nouvelle, c’est qu’une meilleure structuration peut rapidement casser cette mécanique."
+                "Si rien ne change,<br>plus ton agence grossit, plus la complexité va revenir vers toi.",
+                "Bonne nouvelle :<br>c’est exactement le type de problème qui se règle vite avec les bons systèmes."
             ),
             "critical": (
-                "👉 Si rien ne change, ton agence continuera à dépendre trop fortement de toi pour tenir proprement la charge, les validations et la fluidité interne.",
-                "La bonne nouvelle, c’est qu’en traitant les bons goulots maintenant, tu peux éviter que la croissance te coûte encore plus cher en énergie."
+                "Si rien ne change,<br>ton agence va continuer à dépendre trop directement de toi pour rester fluide.",
+                "Bonne nouvelle :<br>ça peut se corriger vite si tu traites les bons goulots maintenant."
             ),
         },
+
         "info": {
             "low": (
-                "👉 Si rien ne change, ton activité restera stable, mais tu continueras quand même à intervenir sur des étapes qui devraient déjà être plus fluides.",
-                "La bonne nouvelle, c’est que quelques optimisations peuvent encore renforcer ton effet de levier."
+                "Si rien ne change,<br>tu vas continuer à intervenir sur des étapes qui devraient déjà être plus fluides.",
+                "Bonne nouvelle :<br>ça se corrige vite avec les bons automatismes."
             ),
             "mid": (
-                "👉 Si rien ne change, tu vas rester trop présent(e) entre acquisition, vente et delivery, là où ton système devrait déjà mieux relier les briques.",
-                "La bonne nouvelle, c’est que les gains ici sont souvent rapides dès qu’on traite les bons points."
+                "Si rien ne change,<br>tu vas rester trop présent entre acquisition, vente et delivery.",
+                "Bonne nouvelle :<br>ce type de dépendance se règle vite quand le système est mieux posé."
             ),
             "high": (
-                "👉 Si rien ne change, tu continueras à porter manuellement des étapes qui grignotent ton temps sans réelle valeur ajoutée.",
-                "La bonne nouvelle, c’est qu’un meilleur système peut vite transformer cette charge en fluidité."
+                "Si rien ne change,<br>chaque nouvelle vente va continuer à recréer de la charge au lieu d’en absorber.",
+                "Bonne nouvelle :<br>c’est exactement le type de problème qui se corrige vite."
             ),
             "critical": (
-                "👉 Si rien ne change, ton activité restera trop dépendante de toi pour absorber proprement l’acquisition, la vente et l’exécution.",
-                "La bonne nouvelle, c’est qu’une fois les bons points corrigés, ton système peut enfin commencer à respirer sans toi."
+                "Si rien ne change,<br>ton activité va rester trop dépendante de toi pour tourner proprement.",
+                "Bonne nouvelle :<br>ça peut se corriger vite si tu traites les bons points dans le bon ordre."
             ),
         },
+
         "saas": {
             "low": (
-                "👉 Si rien ne change, ton système restera globalement stable, mais tu laisseras encore du levier sur la table sur des zones qui pourraient être plus robustes.",
-                "La bonne nouvelle, c’est qu’avec quelques optimisations, tu peux encore renforcer la scalabilité réelle du business."
+                "Si rien ne change,<br>tu vas continuer à laisser du levier sur la table sur des zones encore trop fragiles.",
+                "Bonne nouvelle :<br>ça se corrige vite avec une structure plus robuste."
             ),
             "mid": (
-                "👉 Si rien ne change, tu risques de garder des dépendances humaines sur des points qui devraient déjà être plus robustes et plus prévisibles.",
-                "La bonne nouvelle, c’est que traiter ces zones améliore vite l’effet de levier global."
+                "Si rien ne change,<br>tu vas garder des dépendances humaines là où ton système devrait déjà absorber la charge.",
+                "Bonne nouvelle :<br>ce type de friction se règle vite quand les bons points sont renforcés."
             ),
             "high": (
-                "👉 Si rien ne change, certaines frictions opérationnelles continueront à limiter ta scalabilité bien plus que ton produit lui-même.",
-                "La bonne nouvelle, c’est qu’en renforçant la structure, tu peux récupérer à la fois du temps et de la robustesse."
+                "Si rien ne change,<br>certaines frictions vont continuer à freiner ta scalabilité bien plus que ton produit.",
+                "Bonne nouvelle :<br>c’est exactement le type de problème qui se corrige vite."
             ),
             "critical": (
-                "👉 Si rien ne change, ton business continuera à dépendre trop fortement de ta capacité à compenser les failles du système.",
-                "La bonne nouvelle, c’est qu’une fois ces points corrigés, ton effet de levier peut changer de niveau."
+                "Si rien ne change,<br>ton business va continuer à dépendre trop directement de toi pour compenser les failles du système.",
+                "Bonne nouvelle :<br>ça peut se corriger vite avec les bons ajustements structurels."
             ),
         },
+
         "ecommerce": {
             "low": (
-                "👉 Si rien ne change, l’activité restera globalement stable, mais certaines frictions de suivi ou d’exécution continueront à te consommer inutilement.",
-                "La bonne nouvelle, c’est qu’il y a encore des gains rapides à aller chercher sans tout remettre à plat."
+                "Si rien ne change,<br>certaines frictions d’exécution vont continuer à te consommer inutilement.",
+                "Bonne nouvelle :<br>ça se corrige vite avec les bons flux."
             ),
             "mid": (
-                "👉 Si rien ne change, tu vas continuer à compenser des zones d’exécution qui devraient déjà être plus fluides et mieux connectées.",
-                "La bonne nouvelle, c’est que les gains ici sont souvent très concrets dès qu’on traite les bons flux."
+                "Si rien ne change,<br>tu vas continuer à compenser des opérations qui devraient déjà être plus fluides.",
+                "Bonne nouvelle :<br>ce type de charge se réduit vite quand le système prend le relais."
             ),
             "high": (
-                "👉 Si rien ne change, tu continueras à perdre du temps, de la marge et de la sérénité sur des opérations qui ne devraient plus dépendre autant de toi.",
-                "La bonne nouvelle, c’est qu’un meilleur système peut rapidement alléger cette pression."
+                "Si rien ne change,<br>tu vas continuer à perdre du temps sur des opérations qui ne devraient plus dépendre autant de toi.",
+                "Bonne nouvelle :<br>c’est exactement le type de problème qui se règle vite."
             ),
             "critical": (
-                "👉 Si rien ne change, ton activité e-commerce restera trop sensible à ta présence sur l’exécution, le suivi et les points de friction quotidiens.",
-                "La bonne nouvelle, c’est qu’en corrigeant les bonnes zones, tu peux vite reprendre de l’air."
+                "Si rien ne change,<br>ton activité va rester trop sensible à ta présence dans l’exécution et le suivi.",
+                "Bonne nouvelle :<br>ça peut se corriger vite si tu traites les bons points de friction."
             ),
         },
     }
@@ -2358,10 +2362,8 @@ function renderFinalCTA(baseData){
 
       <div style="font-size:12px;color:#64748b;">
         Plan personnalisé basé sur ton diagnostic.
-        (Optionnel — plus tu es précis, plus le plan sera utile)
-        <br>
-        </div>
-      <div style="font-size:12px;color:#94a3b8;">⚡ <b>Réponse personnalisée — pas automatisée</b>
+        <br>(Optionnel — plus tu es précis, plus le plan sera utile)
+        <br><b>Réponse personnalisée — pas automatisée</b>
       </div>
     </div>
 
