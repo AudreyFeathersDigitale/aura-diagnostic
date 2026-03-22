@@ -487,112 +487,86 @@ def business_summary_intro(profile: dict) -> str:
 
 
 def summary_message(dependency_pct: int, profile: dict) -> str:
-    intro = business_summary_intro(profile)
     business_type = profile.get("business_type", "freelance")
 
-    if business_type == "freelance":
-        if dependency_pct < 25:
-            return (
-                f"{intro}, ton fonctionnement est déjà plus stable que la moyenne.<br><br>"
-                f"👉 Mais certaines tâches et décisions continuent encore de dépendre inutilement de toi."
-            )
-        if dependency_pct < 50:
-            return (
-                f"{intro}, ton business avance… mais il reste plus lourd à porter qu’il ne devrait.<br><br>"
-                f"👉 Tu gardes encore une charge mentale et opérationnelle qui revient chaque semaine."
-            )
-        if dependency_pct < 75:
-            return (
-                f"{intro}, ton activité te demande encore trop de présence au quotidien.<br><br>"
-                f"👉 Relances, organisation, suivi : trop de choses reposent encore sur ton attention directe."
-            )
-        return (
-            f"{intro}, ton business reste encore trop sensible à ton niveau de disponibilité.<br><br>"
-            f"👉 Dès que tu ralentis, plusieurs zones critiques commencent à se tendre très vite."
-        )
-
     if business_type == "agency":
-        if dependency_pct < 25:
-            return (
-                f"{intro}, la structure est déjà assez saine dans l’ensemble.<br><br>"
-                f"👉 Mais certaines validations et points de coordination remontent encore vers toi."
-            )
-        if dependency_pct < 50:
-            return (
-                f"{intro}, ton agence avance… mais elle reste plus lourde à piloter qu’elle ne devrait.<br><br>"
-                f"👉 Une partie du suivi, des validations et de l’organisation continue encore de reposer sur toi."
-            )
-        if dependency_pct < 75:
-            return (
-                f"{intro}, chaque nouveau client ou sujet ajoute encore de la charge au lieu d’en absorber.<br><br>"
-                f"👉 Décisions, validations, suivi : trop de choses remontent encore jusqu’à toi."
-            )
-        return (
-            f"{intro}, ta structure reste encore trop sensible à ta présence pour rester fluide.<br><br>"
-            f"👉 Si tu lèves le pied, une partie du suivi, des arbitrages et de la coordination ralentit immédiatement."
+        base = (
+            "Voilà ce que ton diagnostic révèle :<br><br>"
+            "→ Ton agence ne manque pas de clients.<br>"
+            "→ Elle manque d’un système solide.<br><br>"
+            "Aujourd’hui, tu compenses encore trop de choses.<br><br>"
+            "Résultat :<br><br>"
+            "Plus tu grossis → plus la complexité revient à toi.<br><br>"
         )
 
-    if business_type == "info":
-        if dependency_pct < 25:
-            return (
-                f"{intro}, les bases sont déjà mieux posées que la moyenne.<br><br>"
-                f"👉 Mais certaines étapes continuent encore de réclamer ton intervention directe."
-            )
-        if dependency_pct < 50:
-            return (
-                f"{intro}, ton activité fonctionne… mais elle reste plus chronophage qu’elle ne devrait.<br><br>"
-                f"👉 Tu interviens encore trop entre acquisition, vente et delivery."
-            )
-        if dependency_pct < 75:
-            return (
-                f"{intro}, ton système ne te libère pas encore assez de charge au quotidien.<br><br>"
-                f"👉 Trop d’étapes continuent encore d’être portées manuellement par toi."
-            )
-        return (
-            f"{intro}, trop de briques de ton activité restent encore accrochées à ta présence.<br><br>"
-            f"👉 Dès que tu ralentis, la fluidité globale commence vite à se dégrader."
+    elif business_type == "freelance":
+        base = (
+            "Voilà ce que ton diagnostic révèle :<br><br>"
+            "→ Ton business avance.<br>"
+            "→ Mais il avance encore grâce à toi.<br><br>"
+            "Aujourd’hui, tu compenses trop de choses.<br><br>"
+            "Résultat :<br><br>"
+            "Plus tu avances → plus tout repose sur toi.<br><br>"
         )
 
-    if business_type == "saas":
-        if dependency_pct < 25:
-            return (
-                f"{intro}, ton système paraît déjà assez robuste dans l’ensemble.<br><br>"
-                f"👉 Mais certaines frictions continuent encore de demander ton attention."
-            )
-        if dependency_pct < 50:
-            return (
-                f"{intro}, ton business tient… mais il reste plus dépendant de toi qu’il ne devrait.<br><br>"
-                f"👉 Certaines zones de support, d’exécution ou de coordination continuent encore de remonter jusqu’à toi."
-            )
-        if dependency_pct < 75:
-            return (
-                f"{intro}, ton effet de levier reste freiné par des frictions évitables.<br><br>"
-                f"👉 Trop de points opérationnels dépendent encore de traitements humains ou de ta présence."
-            )
-        return (
-            f"{intro}, ton système n’absorbe pas encore assez les points critiques sans toi.<br><br>"
-            f"👉 Si tu ralentis, plusieurs zones deviennent immédiatement moins fiables."
+    elif business_type == "info":
+        base = (
+            "Voilà ce que ton diagnostic révèle :<br><br>"
+            "→ Ton business a du potentiel.<br>"
+            "→ Mais ton système n’absorbe pas encore la charge.<br><br>"
+            "Aujourd’hui, tu restes présent à chaque étape.<br><br>"
+            "Résultat :<br><br>"
+            "Plus tu vends → plus tu dois intervenir.<br><br>"
         )
 
+    elif business_type == "saas":
+        base = (
+            "Voilà ce que ton diagnostic révèle :<br><br>"
+            "→ Ton produit fonctionne.<br>"
+            "→ Mais ton système n’est pas encore assez robuste.<br><br>"
+            "Aujourd’hui, tu compenses encore des failles.<br><br>"
+            "Résultat :<br><br>"
+            "Plus tu scales → plus les problèmes remontent.<br><br>"
+        )
+
+    else:
+        base = (
+            "Voilà ce que ton diagnostic révèle :<br><br>"
+            "→ Les ventes sont là.<br>"
+            "→ Mais ton système n’absorbe pas encore les opérations.<br><br>"
+            "Aujourd’hui, tu compenses trop de choses.<br><br>"
+            "Résultat :<br><br>"
+            "Plus tu vends → plus ça devient lourd à gérer.<br><br>"
+        )
+
+    # 👉 Adaptation selon le niveau de dépendance
     if dependency_pct < 25:
-        return (
-            f"{intro}, l’activité est déjà plus saine que la moyenne.<br><br>"
-            f"👉 Mais certaines frictions de suivi et d’exécution continuent encore de dépendre de toi."
-        )
-    if dependency_pct < 50:
-        return (
-            f"{intro}, les ventes tournent… mais l’ensemble reste plus lourd à gérer qu’il ne devrait.<br><br>"
-            f"👉 Trop d’opérations et de suivis reviennent encore directement sur toi."
-        )
-    if dependency_pct < 75:
-        return (
-            f"{intro}, ton activité te demande encore trop d’attention dans l’exécution quotidienne.<br><br>"
-            f"👉 Tu perds encore du temps sur des manipulations et des suivis évitables."
-        )
-    return (
-        f"{intro}, ton activité reste encore trop sensible à ta présence pour rester sereine.<br><br>"
-        f"👉 Si tu ralentis, plusieurs points de friction remontent immédiatement."
+    ending = (
+        "Aujourd’hui ça tient…<br>"
+        "mais dès que tu vas monter en charge,<br>"
+        "ce modèle va commencer à te freiner."
     )
+
+elif dependency_pct < 50:
+    ending = (
+        "Aujourd’hui, tu avances…<br>"
+        "mais tu traînes déjà une charge invisible.<br><br>"
+        "Et elle revient chaque semaine."
+    )
+
+elif dependency_pct < 75:
+    ending = (
+        "Aujourd’hui, tu es déjà le point de passage central.<br><br>"
+        "Sans toi : <b>ça ralentit. ça bloque.</b>"
+    )
+
+else:
+    ending = (
+        "Aujourd’hui, ton business tient parce que tu es là.<br><br>"
+        "Sans toi : <b>ça ralentit. ça bloque.</b>"
+    )
+
+    return base + ending
 
 
 def dominant_profile(dimension_scores: dict, profile: dict) -> tuple[str, str]:
@@ -604,27 +578,27 @@ def dominant_profile(dimension_scores: dict, profile: dict) -> tuple[str, str]:
             "STR": (
                 "Ton système ne te remplace pas",
                 "Ton business tourne encore parce que tu es là.<br><br>"
-                "👉 Pas grâce à ton système.<br><br>"
+                "Pas grâce à ton système.<br><br>"
                 "Sans toi : <b>ça ralentit. ça bloque.</b><br><br>"
                 "Et tu dois relancer la machine en permanence."
             ),
             "DEL": (
-                "Tu gères encore trop à la main",
+                "Tu gères encore trop de choses à la main",
+                "Relances. Organisation. Suivi.<br><br>"
                 "Trop d’actions reposent encore sur toi.<br><br>"
-                "👉 Copier-coller. Relances. Organisation.<br><br>"
                 "Sans toi : <b>ça ralentit. ça s’accumule.</b>"
             ),
             "ONB": (
-                "Ton onboarding dépend encore de toi",
-                "Chaque nouveau client recrée de la charge.<br><br>"
-                "👉 Tu dois intervenir à chaque étape.<br><br>"
+                "Chaque nouveau client recrée de la charge",
+                "Ton onboarding n’absorbe pas encore assez la mise en route.<br><br>"
+                "Tu dois encore intervenir trop souvent.<br><br>"
                 "Sans toi : <b>ça ralentit. ça devient flou.</b>"
             ),
             "ACQ": (
-                "Tu perds des opportunités",
+                "Tu perds encore des opportunités",
                 "Tes leads ne sont pas assez suivis.<br><br>"
-                "👉 Certaines opportunités passent à la trappe.<br><br>"
-                "Sans système : <b>ça se perd. ça se disperse.</b>"
+                "Tu dois encore vérifier, relancer, organiser.<br><br>"
+                "Sans système : <b>ça se disperse. ça se perd.</b>"
             ),
         },
 
@@ -632,53 +606,53 @@ def dominant_profile(dimension_scores: dict, profile: dict) -> tuple[str, str]:
             "STR": (
                 "Ton agence dépend encore de toi",
                 "Ton agence tourne encore parce que tu es là.<br><br>"
-                "👉 Pas grâce à ton système.<br><br>"
+                "Pas grâce à ton système.<br><br>"
                 "Sans toi : <b>ça ralentit. ça bloque.</b><br><br>"
                 "Et tu redeviens le point de passage obligé."
             ),
             "DEL": (
-                "L’opérationnel remonte vers toi",
-                "Trop de suivi et de décisions reviennent sur toi.<br><br>"
-                "👉 L’équipe n’absorbe pas encore la charge.<br><br>"
+                "L’opérationnel revient encore sur toi",
+                "Suivi. Arbitrage. Coordination.<br><br>"
+                "L’équipe n’absorbe pas encore assez la charge.<br><br>"
                 "Sans toi : <b>ça ralentit. ça se désorganise.</b>"
             ),
             "ONB": (
-                "Ton onboarding manque de structure",
-                "Le démarrage client n’est pas assez cadré.<br><br>"
-                "👉 Ça crée des allers-retours inutiles.<br><br>"
+                "Ton onboarding manque de cadre",
+                "Le démarrage client n’est pas encore assez structuré.<br><br>"
+                "Ça crée des allers-retours inutiles.<br><br>"
                 "Sans cadre : <b>ça ralentit. ça devient instable.</b>"
             ),
             "ACQ": (
-                "Ton pipeline n’est pas assez structuré",
-                "Le suivi commercial dépend encore trop de toi.<br><br>"
-                "👉 Tu dois vérifier, relancer, organiser.<br><br>"
+                "Ton pipeline dépend encore trop de toi",
+                "Le suivi commercial n’est pas assez structuré.<br><br>"
+                "Tu dois encore vérifier, relancer, organiser.<br><br>"
                 "Sans toi : <b>ça ralentit. ça se perd.</b>"
             ),
         },
 
         "info": {
             "STR": (
-                "Ton système ne porte pas encore ton business",
-                "Ton activité tourne encore parce que tu es là.<br><br>"
-                "👉 Pas grâce à ton système.<br><br>"
+                "Ton système ne porte pas encore ton activité",
+                "Ton business tourne encore parce que tu es là.<br><br>"
+                "Pas grâce à ton système.<br><br>"
                 "Sans toi : <b>ça ralentit. ça bloque.</b>"
             ),
             "DEL": (
                 "Tu gères encore trop de delivery à la main",
-                "Des étapes devraient déjà être automatisées.<br><br>"
-                "👉 Tu interviens trop souvent.<br><br>"
+                "Trop d’étapes devraient déjà être absorbées.<br><br>"
+                "Mais elles reposent encore sur toi.<br><br>"
                 "Sans toi : <b>ça ralentit. ça s’accumule.</b>"
             ),
             "ONB": (
-                "Ton onboarding n’est pas fluide",
-                "Chaque client demande encore ton intervention.<br><br>"
-                "👉 Le système n’absorbe pas la charge.<br><br>"
+                "Ton onboarding dépend encore de toi",
+                "Chaque nouvelle vente recrée de la charge.<br><br>"
+                "Le système ne prend pas encore assez le relais.<br><br>"
                 "Sans toi : <b>ça ralentit. ça bloque.</b>"
             ),
             "ACQ": (
-                "Ton acquisition manque de structure",
-                "Tes leads ne sont pas assez suivis.<br><br>"
-                "👉 Tu dois rester présent pour que ça avance.<br><br>"
+                "Ton acquisition manque encore de structure",
+                "Tes opportunités ne sont pas assez suivies.<br><br>"
+                "Tu dois rester présent pour que ça avance.<br><br>"
                 "Sans système : <b>ça ralentit. ça se perd.</b>"
             ),
         },
@@ -687,25 +661,25 @@ def dominant_profile(dimension_scores: dict, profile: dict) -> tuple[str, str]:
             "STR": (
                 "Ton système n’est pas encore assez robuste",
                 "Ton business dépend encore trop de toi.<br><br>"
-                "👉 Certaines zones ne sont pas fiables seules.<br><br>"
+                "Certaines zones ne tiennent pas seules.<br><br>"
                 "Sans toi : <b>ça ralentit. ça casse.</b>"
             ),
             "DEL": (
-                "Trop de frictions restent manuelles",
-                "Support, suivi, coordination…<br><br>"
-                "👉 trop d’actions reposent encore sur toi.<br><br>"
+                "Trop de frictions restent encore manuelles",
+                "Support. Suivi. Coordination.<br><br>"
+                "Trop d’actions reposent encore sur toi.<br><br>"
                 "Sans toi : <b>ça ralentit. ça s’accumule.</b>"
             ),
             "ONB": (
-                "Ton onboarding n’est pas fiable",
-                "L’expérience n’est pas encore stable.<br><br>"
-                "👉 Tu dois corriger trop souvent.<br><br>"
+                "Ton onboarding n’est pas encore fiable",
+                "L’expérience n’est pas encore assez stable seule.<br><br>"
+                "Tu corriges encore trop souvent.<br><br>"
                 "Sans toi : <b>ça ralentit. ça bug.</b>"
             ),
             "ACQ": (
-                "Ton acquisition manque de système",
+                "Ton acquisition manque encore de système",
                 "Le suivi n’est pas assez structuré.<br><br>"
-                "👉 Tu compenses à la main.<br><br>"
+                "Tu compenses encore à la main.<br><br>"
                 "Sans toi : <b>ça ralentit. ça se perd.</b>"
             ),
         },
@@ -714,25 +688,25 @@ def dominant_profile(dimension_scores: dict, profile: dict) -> tuple[str, str]:
             "STR": (
                 "Ton activité dépend encore de toi",
                 "Ton business tourne encore grâce à toi.<br><br>"
-                "👉 Pas grâce à ton système.<br><br>"
+                "Pas grâce à ton système.<br><br>"
                 "Sans toi : <b>ça ralentit. ça bloque.</b>"
             ),
             "DEL": (
                 "Tu absorbes encore trop d’opérations",
                 "Trop de tâches restent manuelles.<br><br>"
-                "👉 Tu compenses en permanence.<br><br>"
+                "Tu compenses encore en permanence.<br><br>"
                 "Sans toi : <b>ça ralentit. ça sature.</b>"
             ),
             "ONB": (
-                "Tes flux manquent de fluidité",
+                "Tes flux manquent encore de fluidité",
                 "Le traitement n’est pas assez structuré.<br><br>"
-                "👉 Trop de vérifications humaines.<br><br>"
+                "Trop de vérifications restent humaines.<br><br>"
                 "Sans toi : <b>ça ralentit. ça se dérègle.</b>"
             ),
             "ACQ": (
-                "Ton acquisition n’est pas cadrée",
-                "Le suivi des leads n’est pas fiable.<br><br>"
-                "👉 Tu dois intervenir trop souvent.<br><br>"
+                "Ton acquisition n’est pas assez cadrée",
+                "Le suivi des leads n’est pas assez fiable.<br><br>"
+                "Tu dois encore intervenir trop souvent.<br><br>"
                 "Sans système : <b>ça ralentit. ça se perd.</b>"
             ),
         },
@@ -2599,7 +2573,8 @@ async function finish(){
     <div class="scoreHero">
       <div style="font-weight:900;font-size:16px;">Ton business dépend encore de toi à :</div>
       <div class="scorePercent ${getScoreClass(data.dependency_pct)}">${data.dependency_pct}%</div>
-      <div class="scoreSecondary">Autonomie actuelle estimée : ${data.autonomy_pct}%</div>
+      <div class="scoreSecondary">Autonomie actuelle estimée : ${data.autonomy_pct}%
+      (plus ce chiffre est élevé, plus ton business dépend de toi)</div>
       <div class="micro" style="margin-top:10px;"><b>${data.level}</b> — ${data.subtitle}</div>
     </div>
     `,
