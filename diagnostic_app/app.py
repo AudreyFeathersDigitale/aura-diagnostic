@@ -6,12 +6,13 @@ import json
 import sqlite3
 from pathlib import Path
 from datetime import datetime, timezone
-
-app = FastAPI()
-app.mount("/static", StaticFiles(directory="static"), name="static")
+import html
 
 BASE_DIR = Path(__file__).resolve().parent
 DB_PATH = BASE_DIR / "aura_leads.db"
+
+app = FastAPI()
+app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
 
 LINKEDIN_URL = "https://www.linkedin.com/in/audrey-mouton-80b902217/?skipRedirect=true"
 FACEBOOK_URL = "https://www.facebook.com/profile.php?id=61578569620081"
@@ -245,6 +246,7 @@ def init_db() -> None:
             )
             """
         )
+
         ensure_column(conn, "leads", "profile_json", "TEXT")
         ensure_column(conn, "leads", "business_type", "TEXT")
         ensure_column(conn, "leads", "revenue_band", "TEXT")
@@ -253,6 +255,19 @@ def init_db() -> None:
         ensure_column(conn, "leads", "autonomy_pct", "INTEGER DEFAULT 0")
         ensure_column(conn, "leads", "dimension_scores_json", "TEXT")
         ensure_column(conn, "leads", "contact_channel", "TEXT")
+
+
+def safe_json_loads(value):
+    if value is None:
+        return None
+    if isinstance(value, (dict, list)):
+        return value
+    if not isinstance(value, str):
+        return None
+    try:
+        return json.loads(value)
+    except Exception:
+        return None
 
 
 def questions_as_json() -> str:
@@ -538,7 +553,6 @@ def summary_message(dependency_pct: int, profile: dict) -> str:
             f"👉 Tant que certaines zones critiques ne sont pas mieux structurées, ton effet de levier reste artificiellement limité."
         )
 
-    # ecommerce
     if dependency_pct < 25:
         return (
             f"{intro}, la machine tourne déjà mieux que la moyenne.<br><br>"
@@ -884,7 +898,7 @@ def create_lead_record(answers: dict, profile: dict, result_data: dict) -> int:
                 profile.get("business_type"),
                 profile.get("revenue_band"),
                 profile.get("team_size"),
-                result_data["dependency_pct"],
+                result_data["score_pct"],
                 result_data["dependency_pct"],
                 result_data["autonomy_pct"],
                 result_data["score_display_30"],
@@ -937,6 +951,103 @@ def update_lead_details(
                 lead_id,
             ),
         )
+
+
+def render_answers_html(answers_json: str | None) -> str:
+    data = safe_json_loads(answers_json) or {}
+    if not data:
+        return "-"
+
+    question_map = {key: {"prompt": prompt, "options": opts} for key, prompt, opts in QUESTIONS}
+    items = []
+
+    for key, value in data.items():
+        question = question_map.get(key)
+        if question:
+            prompt = question["prompt"]
+            answer_label = question["options"].get(value, value)
+        else:
+            prompt = key
+            answer_label = value
+
+        items.append(
+            f"""
+            <div style="margin-bottom:12px;">
+                <div style="font-weight:800;color:#0f172a;">{prompt}</div>
+                <div style="color:#475569;margin-top:4px;">{html.escape(str(answer_label))}</div>
+            </div>
+            """
+        )
+    return "".join(items)
+
+
+def render_profile_html(profile_json: str | None) -> str:
+    data = safe_json_loads(profile_json) or {}
+    if not data:
+        return "-"
+
+    label_maps = {
+        "business_type": dict(PROFILE_QUESTIONS[0][2]),
+        "revenue_band": dict(PROFILE_QUESTIONS[1][2]),
+        "team_size": dict(PROFILE_QUESTIONS[2][2]),
+    }
+
+    items = []
+    for key in ["business_type", "revenue_band", "team_size"]:
+        raw = data.get(key)
+        display = label_maps.get(key, {}).get(raw, raw or "-")
+        items.append(f"<div style='margin-bottom:6px;'><b>{html.escape(key)} :</b> {html.escape(str(display))}</div>")
+
+    return "".join(items)
+
+
+def render_dimension_scores_html(dimension_scores_json: str | None) -> str:
+    dimensions = safe_json_loads(dimension_scores_json)
+
+    if not dimensions:
+        return "-"
+
+    def score_color(value: int) -> str:
+        if value >= 70:
+            return "#ef4444"
+        if value >= 40:
+            return "#f59e0b"
+        return "#16a34a"
+
+    items = []
+    ordered = [
+        ("ACQ", "Acquisition", "Génération & suivi des prospects"),
+        ("ONB", "Onboarding", "Mise en route des clients"),
+        ("DEL", "Exécution", "Production & tâches quotidiennes"),
+        ("STR", "Structuration", "Process & organisation interne"),
+    ]
+
+    for key, label, hint in ordered:
+        value = int(dimensions.get(key, 0))
+        color = score_color(value)
+        items.append(f"""
+        <div style="
+            background:#f8fafc;
+            border:1px solid #e5e7eb;
+            border-radius:14px;
+            padding:12px;
+        ">
+            <div style="font-size:12px;color:#64748b;font-weight:700;">{label}</div>
+            <div style="font-size:24px;font-weight:900;color:{color};margin-top:4px;">{value}%</div>
+            <div style="font-size:12px;color:#64748b;margin-top:4px;line-height:1.35;">{hint}</div>
+        </div>
+        """)
+
+    return f"""
+    <div style="
+        display:grid;
+        grid-template-columns:repeat(2,minmax(0,1fr));
+        gap:10px;
+        margin-top:8px;
+    ">
+        {''.join(items)}
+    </div>
+    """
 
 
 HTML = r"""
@@ -2054,9 +2165,7 @@ function updateCopyBox(){
 async function saveLeadDetails(contactChannel=null){
   if(!currentLeadId || !finalData) return;
 
-  const activity = (document.getElementById("activityInput")?.value || "").trim();
   const repetitive_tasks = (document.getElementById("repetitiveInput")?.value || "").trim();
-  const tools = (document.getElementById("toolsInput")?.value || "").trim();
   const dm_text = buildDmText(finalData);
 
   await fetch("/save-lead", {
@@ -2064,9 +2173,9 @@ async function saveLeadDetails(contactChannel=null){
     headers: {"Content-Type":"application/json"},
     body: JSON.stringify({
       lead_id: currentLeadId,
-      activity,
+      activity: null,
       repetitive_tasks,
-      tools,
+      tools: null,
       linkedin_clicked: contactChannel === "linkedin",
       dm_text,
       contact_channel: contactChannel
@@ -2088,19 +2197,19 @@ function openChannelModal(baseData){
       <div class="channelText">
         Ton message est copié 👇<br>
         Clique sur le réseau où tu veux me l’envoyer.
-         </div>
+      </div>
 
       <div class="channelGrid">
         <button class="channelBtn" data-channel="linkedin">
-          <div class="channelBtnTitle">M'écrir sur LinkedIn</div>
-           </button>
+          <div class="channelBtnTitle">M'écrire sur LinkedIn</div>
+        </button>
 
         <button class="channelBtn" data-channel="facebook">
-          <div class="channelBtnTitle">M'écrir sur Facebook</div>
+          <div class="channelBtnTitle">M'écrire sur Facebook</div>
         </button>
 
         <button class="channelBtn" data-channel="instagram">
-          <div class="channelBtnTitle">M'écrir sur Instagram</div>
+          <div class="channelBtnTitle">M'écrire sur Instagram</div>
         </button>
       </div>
 
@@ -2485,8 +2594,8 @@ def home():
 @app.post("/result")
 async def result(request: Request):
     body = await request.json()
-    answers = body.get("answers", {})
-    profile = body.get("profile", {})
+    answers = body.get("answers", {}) or {}
+    profile = body.get("profile", {}) or {}
 
     dimension_scores = compute_dimension_scores(answers, profile)
     dependency_pct = compute_dependency_pct(dimension_scores)
@@ -2558,58 +2667,6 @@ async def save_lead(request: Request):
     return JSONResponse({"ok": True})
 
 
-def render_dimension_scores_html(result_json: str | None, dimension_scores_json: str | None) -> str:
-    result_data = safe_json_loads(result_json)
-    dimensions = result_data.get("dimension_scores") if result_data else None
-
-    if not dimensions and dimension_scores_json:
-        dimensions = safe_json_loads(dimension_scores_json)
-
-    if not dimensions:
-        return "-"
-
-    def score_color(value: int) -> str:
-        if value >= 70:
-            return "#ef4444"
-        if value >= 40:
-            return "#f59e0b"
-        return "#16a34a"
-
-    items = []
-    ordered = [
-        ("ACQ", "Acquisition", "Génération & suivi des prospects"),
-        ("ONB", "Onboarding", "Mise en route des clients"),
-        ("DEL", "Exécution", "Production & tâches quotidiennes"),
-        ("STR", "Structuration", "Process & organisation interne"),
-    ]
-
-    for key, label, hint in ordered:
-        value = int(dimensions.get(key, 0))
-        color = score_color(value)
-        items.append(f"""
-        <div style="
-            background:#f8fafc;
-            border:1px solid #e5e7eb;
-            border-radius:14px;
-            padding:12px;
-        ">
-            <div style="font-size:12px;color:#64748b;font-weight:700;">{label}</div>
-            <div style="font-size:24px;font-weight:900;color:{color};margin-top:4px;">{value}%</div>
-            <div style="font-size:12px;color:#64748b;margin-top:4px;line-height:1.35;">{hint}</div>
-        </div>
-        """)
-
-    return f"""
-    <div style="
-        display:grid;
-        grid-template-columns:repeat(2,minmax(0,1fr));
-        gap:10px;
-        margin-top:8px;
-    ">
-        {''.join(items)}
-    </div>
-    """
-
 @app.get("/admin/leads", response_class=HTMLResponse)
 def admin_leads():
     with get_conn() as conn:
@@ -2618,11 +2675,9 @@ def admin_leads():
             SELECT id, created_at, updated_at, dependency_pct, autonomy_pct, level, subtitle,
                    profile_title, profile_text, estimated_min, estimated_max,
                    business_type, revenue_band, team_size,
-                   activity, repetitive_tasks, free_text, tools,
+                   activity, repetitive_tasks, tools,
                    linkedin_clicked, top3_json, contact_channel,
-                   answers_json, profile_json, result_json, status,
-                   contact_opened_at, contact_clicked_at,
-                   dimension_scores_json
+                   answers_json, profile_json, dimension_scores_json
             FROM leads
             ORDER BY id DESC
             """
@@ -2630,21 +2685,10 @@ def admin_leads():
 
     cards = []
     for row in rows:
-        top3 = json.loads(row["top3_json"]) if row["top3_json"] else []
+        top3 = safe_json_loads(row["top3_json"]) or []
         answers_html = render_answers_html(row["answers_json"])
         profile_html = render_profile_html(row["profile_json"])
-        dimensions_html = render_dimension_scores_html(
-            row["result_json"],
-            row["dimension_scores_json"]
-        )
-
-        status_color = "#2563eb"
-        if row["status"] == "contact_clicked":
-            status_color = "#16a34a"
-        elif row["status"] == "cta_opened":
-            status_color = "#f59e0b"
-        elif row["status"] == "completed":
-            status_color = "#64748b"
+        dimensions_html = render_dimension_scores_html(row["dimension_scores_json"])
 
         cards.append(f"""
         <div style="
@@ -2669,14 +2713,14 @@ def admin_leads():
                 </div>
 
                 <div style="
-                    background:{status_color};
+                    background:#2563eb;
                     color:white;
                     font-weight:800;
                     font-size:13px;
                     padding:8px 12px;
                     border-radius:999px;
                 ">
-                    {row["status"] or "completed"}
+                    completed
                 </div>
             </div>
 
@@ -2722,7 +2766,7 @@ def admin_leads():
             <div style="margin-top:18px;padding-top:18px;border-top:1px solid #e5e7eb;">
                 <div style="font-weight:900;font-size:18px;margin-bottom:10px;">Top 3 priorités</div>
                 <div style="line-height:1.7;">
-                    {"<br>".join([f"{i+1}) {item}" for i, item in enumerate(top3)]) if top3 else "-"}
+                    {"<br>".join([f"{i+1}) {html.escape(str(item))}" for i, item in enumerate(top3)]) if top3 else "-"}
                 </div>
             </div>
 
@@ -2743,8 +2787,6 @@ def admin_leads():
                     <div style="font-weight:900;font-size:18px;margin-bottom:10px;">Intention de contact</div>
                     <div style="margin-bottom:6px;"><b>LinkedIn cliqué :</b> {"Oui" if row["linkedin_clicked"] else "Non"}</div>
                     <div style="margin-bottom:6px;"><b>Canal choisi :</b> {row["contact_channel"] or "-"}</div>
-                    <div style="margin-bottom:6px;"><b>Modale ouverte le :</b> {row["contact_opened_at"] or "-"}</div>
-                    <div><b>Canal cliqué le :</b> {row["contact_clicked_at"] or "-"}</div>
                 </div>
             </div>
 
@@ -2766,14 +2808,14 @@ def admin_leads():
                         min-height:90px;
                         white-space:pre-wrap;
                         line-height:1.5;
-                    ">{row["free_text"] or "-"}</div>
+                    ">{html.escape(row["repetitive_tasks"] or "-")}</div>
                 </div>
 
                 <div>
                     <div style="font-weight:900;font-size:18px;margin-bottom:10px;">Infos additionnelles</div>
-                    <div style="margin-bottom:6px;"><b>Activité libre :</b> {row["activity"] or "-"}</div>
-                    <div style="margin-bottom:6px;"><b>Tâches répétitives :</b> {row["repetitive_tasks"] or "-"}</div>
-                    <div><b>Outils :</b> {row["tools"] or "-"}</div>
+                    <div style="margin-bottom:6px;"><b>Activité libre :</b> {html.escape(row["activity"] or "-")}</div>
+                    <div style="margin-bottom:6px;"><b>Tâches répétitives :</b> {html.escape(row["repetitive_tasks"] or "-")}</div>
+                    <div><b>Outils :</b> {html.escape(row["tools"] or "-")}</div>
                 </div>
             </div>
 
@@ -2784,7 +2826,7 @@ def admin_leads():
         </div>
         """)
 
-    html = f"""
+    html_out = f"""
     <!doctype html>
     <html lang="fr">
     <head>
@@ -2800,7 +2842,7 @@ def admin_leads():
     </body>
     </html>
     """
-    return HTMLResponse(html)
+    return HTMLResponse(html_out)
 
 
 if __name__ == "__main__":
