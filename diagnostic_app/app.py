@@ -369,91 +369,91 @@ def level_from_dependency_pct(dependency_pct: int, profile: dict) -> tuple[str, 
         "freelance": {
             "low": (
                 "Dépendance faible",
-                "Ton business est déjà bien structuré, avec une base solide. Mais certaines zones reposent encore sur toi alors qu’elles pourraient déjà tourner sans intervention."
+                "Ton activité tourne déjà avec une bonne base d’autonomie."
             ),
             "mid": (
                 "Dépendance modérée",
-                "Ton activité tient, mais plusieurs frictions te ramènent encore régulièrement au centre. Tu as une base, mais tu dois encore intervenir trop souvent pour que tout fonctionne."
+                "Ton business fonctionne… mais il te ramène encore trop souvent au centre."
             ),
             "high": (
                 "Dépendance forte",
-                "Ton business repose encore largement sur toi sur plusieurs points clés. Certaines choses fonctionnent, mais dès que tu lèves le pied, des blocages apparaissent."
+                "Tu es encore le point de passage obligé de ton business."
             ),
             "critical": (
                 "Dépendance critique",
-                "Ton business fonctionne principalement parce que tu es là. Si tu ralentis, certaines parties ralentissent immédiatement. Et si tu t’arrêtes, une partie de ton activité s’arrête avec toi."
+                "Si tu ralentis, ton business ralentit immédiatement avec toi."
             ),
         },
         "agency": {
             "low": (
                 "Dépendance faible",
-                "Ton agence a déjà une base saine, mais certaines zones clés remontent encore vers toi alors qu’elles devraient déjà être mieux absorbées par le système ou l’équipe."
+                "Ton agence a une base saine, même si certaines validations reviennent encore vers toi."
             ),
             "mid": (
                 "Dépendance modérée",
-                "Ton agence tient, mais tu restes encore trop au centre de la coordination, du suivi ou des validations. La structure avance, mais avec encore trop d’aller-retours vers toi."
+                "Ton agence avance… mais elle dépend encore trop de ta supervision."
             ),
             "high": (
                 "Dépendance forte",
-                "Ton agence repose encore beaucoup sur toi sur des points clés. Dès que la charge monte, une partie de la complexité revient directement sur toi."
+                "Tu es encore le point de passage obligé de ton agence."
             ),
             "critical": (
                 "Dépendance critique",
-                "Ton agence dépend encore fortement de toi pour tenir la charge, arbitrer et garder la fluidité. Si tu ralentis, une partie du système ralentit immédiatement avec toi."
+                "Si tu ralentis, ton agence ralentit avec toi."
             ),
         },
         "info": {
             "low": (
                 "Dépendance faible",
-                "Ton activité de formation est déjà bien posée, mais certaines étapes entre acquisition, vente et delivery dépendent encore trop de toi."
+                "Ton activité est déjà mieux structurée que la moyenne."
             ),
             "mid": (
                 "Dépendance modérée",
-                "Ton activité fonctionne, mais plusieurs briques te ramènent encore dans l’opérationnel. Tu as une base, sans encore avoir un système vraiment fluide."
+                "Ton système existe… mais il dépend encore trop de ton intervention."
             ),
             "high": (
                 "Dépendance forte",
-                "Ton business repose encore beaucoup sur toi entre acquisition, vente et exécution. Dès que tu lèves le pied, certaines zones perdent en fluidité."
+                "Tu portes encore trop d’étapes à la main dans ton activité."
             ),
             "critical": (
                 "Dépendance critique",
-                "Ton activité repose encore trop directement sur toi pour fonctionner proprement. Tant que le système n’absorbe pas mieux la charge, tu restes le point de passage obligé."
+                "Sans toi, trop de briques de ton activité perdent en fluidité."
             ),
         },
         "saas": {
             "low": (
                 "Dépendance faible",
-                "Ton business SaaS est déjà plutôt robuste, mais certaines frictions opérationnelles continuent encore de dépendre de toi ou d’ajustements manuels."
+                "Ton business est déjà relativement robuste."
             ),
             "mid": (
                 "Dépendance modérée",
-                "Ton système tient, mais plusieurs zones te ramènent encore dans le support, la coordination ou l’exécution. Tu avances, mais avec encore trop de dépendances humaines."
+                "Ton système tient… mais trop de frictions remontent encore jusqu’à toi."
             ),
             "high": (
                 "Dépendance forte",
-                "Ton business garde encore trop de dépendances opérationnelles sur des zones qui devraient déjà être plus robustes. Dès que tu ralentis, certaines failles deviennent plus visibles."
+                "Tu compenses encore des failles que ton système devrait déjà absorber."
             ),
             "critical": (
                 "Dépendance critique",
-                "Ton business dépend encore fortement de ta capacité à compenser les failles du système. Si tu ralentis, plusieurs zones critiques perdent immédiatement en fiabilité."
+                "Ton effet de levier reste trop dépendant de ta présence directe."
             ),
         },
         "ecommerce": {
             "low": (
                 "Dépendance faible",
-                "Ton activité e-commerce est déjà assez saine, mais certaines frictions d’exécution, de suivi ou de coordination reposent encore trop sur toi."
+                "Ton activité est globalement saine, avec encore quelques frictions à lisser."
             ),
             "mid": (
                 "Dépendance modérée",
-                "Les ventes tournent, mais plusieurs opérations te ramènent encore au centre. Tu avances, mais avec une charge évitable qui reste trop présente."
+                "Ton e-commerce tourne… mais trop d’opérations reviennent encore sur toi."
             ),
             "high": (
                 "Dépendance forte",
-                "Ton e-commerce repose encore beaucoup sur toi sur plusieurs points clés. Certaines choses avancent, mais trop d’actions dépendent encore de ton attention directe."
+                "Tu restes encore trop central dans l’exécution de ton activité."
             ),
             "critical": (
                 "Dépendance critique",
-                "Ton activité e-commerce reste trop sensible à ta présence dans l’exécution, le suivi et les points de friction quotidiens. Si tu ralentis, plusieurs zones deviennent vite fragiles."
+                "Si tu ralentis, plusieurs points de friction remontent immédiatement."
             ),
         },
     }
@@ -493,105 +493,105 @@ def summary_message(dependency_pct: int, profile: dict) -> str:
     if business_type == "freelance":
         if dependency_pct < 25:
             return (
-                f"{intro}, la base est déjà saine.<br><br>"
-                f"👉 Mais ton activité avance encore partiellement grâce à toi, là où ton système devrait déjà prendre le relais."
+                f"{intro}, ton fonctionnement est déjà plus stable que la moyenne.<br><br>"
+                f"👉 Mais certaines tâches et décisions continuent encore de dépendre inutilement de toi."
             )
         if dependency_pct < 50:
             return (
-                f"{intro}, ton business fonctionne… mais il repose encore beaucoup sur toi.<br><br>"
-                f"👉 Tu compenses encore plusieurs zones à la main, ce qui crée une charge invisible qui revient chaque semaine."
+                f"{intro}, ton business avance… mais il reste plus lourd à porter qu’il ne devrait.<br><br>"
+                f"👉 Tu gardes encore une charge mentale et opérationnelle qui revient chaque semaine."
             )
         if dependency_pct < 75:
             return (
-                f"{intro}, ton business avance encore principalement grâce à toi.<br><br>"
-                f"👉 Tu es la personne qui relance, organise, débloque et fait tourner le système au quotidien."
+                f"{intro}, ton activité te demande encore trop de présence au quotidien.<br><br>"
+                f"👉 Relances, organisation, suivi : trop de choses reposent encore sur ton attention directe."
             )
         return (
-            f"{intro}, tu es encore le système principal de ton business.<br><br>"
-            f"👉 Sans toi, plusieurs zones critiques ralentissent immédiatement, se bloquent… ou deviennent instables très vite."
+            f"{intro}, ton business reste encore trop sensible à ton niveau de disponibilité.<br><br>"
+            f"👉 Dès que tu ralentis, plusieurs zones critiques commencent à se tendre très vite."
         )
 
     if business_type == "agency":
         if dependency_pct < 25:
             return (
-                f"{intro}, la structure est déjà plus saine que la moyenne.<br><br>"
-                f"👉 Mais certaines zones clés remontent encore jusqu’à toi alors qu’elles devraient être absorbées par le système ou l’équipe."
+                f"{intro}, la structure est déjà assez saine dans l’ensemble.<br><br>"
+                f"👉 Mais certaines validations et points de coordination remontent encore vers toi."
             )
         if dependency_pct < 50:
             return (
-                f"{intro}, ton activité tient… mais elle repose encore trop sur ta supervision directe.<br><br>"
-                f"👉 Validation, arbitrage, suivi, organisation : trop de choses passent encore par toi."
+                f"{intro}, ton agence avance… mais elle reste plus lourde à piloter qu’elle ne devrait.<br><br>"
+                f"👉 Une partie du suivi, des validations et de l’organisation continue encore de reposer sur toi."
             )
         if dependency_pct < 75:
             return (
-                f"{intro}, ta croissance continue de créer de la complexité… et cette complexité revient encore trop souvent sur toi.<br><br>"
-                f"👉 Tant que tu restes ce point de passage central, ton agence avance, mais elle ne se fluidifie pas vraiment."
+                f"{intro}, chaque nouveau client ou sujet ajoute encore de la charge au lieu d’en absorber.<br><br>"
+                f"👉 Décisions, validations, suivi : trop de choses remontent encore jusqu’à toi."
             )
         return (
-            f"{intro}, tu restes encore le centre de gravité opérationnel de la structure.<br><br>"
-            f"👉 Si tu ralentis, une partie du suivi, des validations et de la fluidité interne ralentit avec toi."
+            f"{intro}, ta structure reste encore trop sensible à ta présence pour rester fluide.<br><br>"
+            f"👉 Si tu lèves le pied, une partie du suivi, des arbitrages et de la coordination ralentit immédiatement."
         )
 
     if business_type == "info":
         if dependency_pct < 25:
             return (
-                f"{intro}, les bases existent déjà.<br><br>"
-                f"👉 Mais certaines étapes entre acquisition, vente et delivery reposent encore inutilement sur toi."
+                f"{intro}, les bases sont déjà mieux posées que la moyenne.<br><br>"
+                f"👉 Mais certaines étapes continuent encore de réclamer ton intervention directe."
             )
         if dependency_pct < 50:
             return (
-                f"{intro}, ton activité fonctionne, mais plusieurs briques demandent encore ton intervention directe.<br><br>"
-                f"👉 Résultat : tu restes encore trop présent(e) dans des étapes qui devraient déjà être fluides."
+                f"{intro}, ton activité fonctionne… mais elle reste plus chronophage qu’elle ne devrait.<br><br>"
+                f"👉 Tu interviens encore trop entre acquisition, vente et delivery."
             )
         if dependency_pct < 75:
             return (
-                f"{intro}, ton système n’absorbe pas encore assez la charge entre acquisition, vente et exécution.<br><br>"
-                f"👉 Tu continues à porter trop d’étapes manuellement, ce qui limite ton effet de levier."
+                f"{intro}, ton système ne te libère pas encore assez de charge au quotidien.<br><br>"
+                f"👉 Trop d’étapes continuent encore d’être portées manuellement par toi."
             )
         return (
-            f"{intro}, trop de choses reposent encore directement sur toi pour fonctionner proprement.<br><br>"
-            f"👉 Tant que ce système n’est pas plus robuste, tu restes le point de passage obligé sur plusieurs zones."
+            f"{intro}, trop de briques de ton activité restent encore accrochées à ta présence.<br><br>"
+            f"👉 Dès que tu ralentis, la fluidité globale commence vite à se dégrader."
         )
 
     if business_type == "saas":
         if dependency_pct < 25:
             return (
-                f"{intro}, le système semble déjà plus robuste que la moyenne.<br><br>"
-                f"👉 Mais certaines frictions opérationnelles continuent encore de dépendre de toi ou de traitements manuels."
+                f"{intro}, ton système paraît déjà assez robuste dans l’ensemble.<br><br>"
+                f"👉 Mais certaines frictions continuent encore de demander ton attention."
             )
         if dependency_pct < 50:
             return (
-                f"{intro}, ton produit existe, mais certaines zones de support, d’exécution ou de coordination restent encore trop humaines.<br><br>"
-                f"👉 Ça te fait perdre de l’effet de levier là où le système devrait déjà être plus solide."
+                f"{intro}, ton business tient… mais il reste plus dépendant de toi qu’il ne devrait.<br><br>"
+                f"👉 Certaines zones de support, d’exécution ou de coordination continuent encore de remonter jusqu’à toi."
             )
         if dependency_pct < 75:
             return (
-                f"{intro}, ton business garde encore trop de dépendances opérationnelles sur des points qui devraient déjà être fluides.<br><br>"
-                f"👉 Le risque n’est pas seulement la perte de temps : c’est un manque de robustesse qui limite ta scalabilité."
+                f"{intro}, ton effet de levier reste freiné par des frictions évitables.<br><br>"
+                f"👉 Trop de points opérationnels dépendent encore de traitements humains ou de ta présence."
             )
         return (
-            f"{intro}, tu restes encore un point de compensation majeur dans le fonctionnement global.<br><br>"
-            f"👉 Tant que certaines zones critiques ne sont pas mieux structurées, ton effet de levier reste artificiellement limité."
+            f"{intro}, ton système n’absorbe pas encore assez les points critiques sans toi.<br><br>"
+            f"👉 Si tu ralentis, plusieurs zones deviennent immédiatement moins fiables."
         )
 
     if dependency_pct < 25:
         return (
-            f"{intro}, la machine tourne déjà mieux que la moyenne.<br><br>"
-            f"👉 Mais certaines frictions d’exécution et de suivi dépendent encore trop de ton attention."
+            f"{intro}, l’activité est déjà plus saine que la moyenne.<br><br>"
+            f"👉 Mais certaines frictions de suivi et d’exécution continuent encore de dépendre de toi."
         )
     if dependency_pct < 50:
         return (
-            f"{intro}, les ventes tournent, mais plusieurs opérations restent encore trop manuelles.<br><br>"
-            f"👉 Tu compenses encore des zones qui devraient déjà être plus fluides, plus connectées et moins chronophages."
+            f"{intro}, les ventes tournent… mais l’ensemble reste plus lourd à gérer qu’il ne devrait.<br><br>"
+            f"👉 Trop d’opérations et de suivis reviennent encore directement sur toi."
         )
     if dependency_pct < 75:
         return (
-            f"{intro}, trop de tâches d’exécution, de suivi ou de coordination reposent encore sur des manipulations évitables.<br><br>"
-            f"👉 Tu laisses du temps, de la marge et de la sérénité sur la table."
+            f"{intro}, ton activité te demande encore trop d’attention dans l’exécution quotidienne.<br><br>"
+            f"👉 Tu perds encore du temps sur des manipulations et des suivis évitables."
         )
     return (
-        f"{intro}, ton activité absorbe encore trop d’opérations manuelles pour rester sereine sans toi.<br><br>"
-        f"👉 Si tu ralentis, plusieurs points de friction remontent immédiatement au lieu d’être absorbés par le système."
+        f"{intro}, ton activité reste encore trop sensible à ta présence pour rester sereine.<br><br>"
+        f"👉 Si tu ralentis, plusieurs points de friction remontent immédiatement."
     )
 
 
@@ -2569,13 +2569,6 @@ async function finish(){
 
   await typeHtmlInto(
     loadingMsg.bubble,
-    `Voilà ce qui te ralentit aujourd’hui :<br><br>${data.summary}`,
-    14
-  );
-
-  await sleep(650);
-
-  await addBotMsgTyped(
     `
     <div class="scoreHero">
       <div style="font-weight:900;font-size:16px;">Ton business dépend encore de toi à :</div>
@@ -2584,6 +2577,13 @@ async function finish(){
       <div class="micro" style="margin-top:10px;"><b>${data.level}</b> — ${data.subtitle}</div>
     </div>
     `,
+    14
+  );
+
+  await sleep(650);
+
+  await addBotMsgTyped(
+    `Voilà ce que ton diagnostic révèle :<br><br>${data.summary}`,
     "",
     14
   );
