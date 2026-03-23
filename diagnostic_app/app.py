@@ -2087,29 +2087,30 @@ function averageHours(baseData){
   return Math.round((baseData.estimated_min + baseData.estimated_max) / 2);
 }
 
-function buildDmText(baseData){
+function buildDmText(baseData):
   const repetitive = (document.getElementById("repetitiveInput")?.value || "").trim();
 
   let extra = "";
-
   if(repetitive){
-    extra += `\n\nCe qui me fait perdre le plus de temps : ${repetitive}`;
+    extra = `\n\nCe qui me fait perdre le plus de temps aujourd’hui : ${repetitive}`;
   }
 
   return `Hello Audrey,
 
-Je viens de faire ton diagnostic AURA.
+Je viens de faire le diagnostic AURA.
 
-Mon business dépend encore de moi à ${baseData.dependency_pct}%.
+Résultat : mon business dépend encore de moi à ${baseData.dependency_pct}%.
 
-Les plus grosses zones de friction qui sont ressorties :
+Les zones les plus critiques qui sont ressorties :
 - ${baseData.top3[0]}
 - ${baseData.top3[1]}
 - ${baseData.top3[2]}
 
-Et visiblement je pourrais récupérer ~${averageHours(baseData)}h/semaine là-dessus 😅${extra}
+Je vois clairement que je suis encore le goulot d’étranglement,
+et que ça me bloque pour scaler sans m’épuiser.${extra}
 
-Tu commencerais par quoi à ma place ?`;
+👉 Est-ce que c’est exactement le type de restructuration
+que tu aides à mettre en place ?`;
 }
 
 function showCopyPreview(text, isSuccess=false){
