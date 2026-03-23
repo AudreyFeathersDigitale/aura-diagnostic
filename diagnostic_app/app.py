@@ -293,6 +293,7 @@ def get_profile_dimension_weights(profile: dict) -> dict:
 def compute_dimension_scores(answers: dict, profile: dict) -> dict:
     raw_scores = {"ACQ": 0.0, "ONB": 0.0, "DEL": 0.0, "STR": 0.0}
     raw_max = {"ACQ": 0.0, "ONB": 0.0, "DEL": 0.0, "STR": 0.0}
+    profile_weights = get_profile_dimension_weights(profile)
 
     for key, _, _ in QUESTIONS:
         answer = answers.get(key)
@@ -303,7 +304,7 @@ def compute_dimension_scores(answers: dict, profile: dict) -> dict:
         meta = QUESTION_DIMENSIONS[key]
 
         main_dim = meta["main"]
-        weight = meta["weight"]
+        weight = meta["weight"] * profile_weights.get(main_dim, 1.0)
         secondary = meta["secondary"]
 
         raw_scores[main_dim] += score * weight
@@ -311,8 +312,9 @@ def compute_dimension_scores(answers: dict, profile: dict) -> dict:
 
         if secondary:
             sec_dim, sec_ratio = secondary
-            raw_scores[sec_dim] += score * weight * sec_ratio
-            raw_max[sec_dim] += 3 * weight * sec_ratio
+            sec_weight = meta["weight"] * sec_ratio * profile_weights.get(sec_dim, 1.0)
+            raw_scores[sec_dim] += score * sec_weight
+            raw_max[sec_dim] += 3 * sec_weight
 
     final_scores = {}
     for dim in raw_scores:
@@ -362,7 +364,7 @@ def compute_autonomy_pct(dependency_pct: int) -> int:
 def level_from_dependency_pct(dependency_pct: int, profile: dict) -> tuple[str, str]:
     business_type = profile.get("business_type", "freelance")
 
-    LEVEL_COPY = {
+    level_copy = {
         "freelance": {
             "low": (
                 "Dépendance faible",
@@ -455,7 +457,7 @@ def level_from_dependency_pct(dependency_pct: int, profile: dict) -> tuple[str, 
         },
     }
 
-    copy = LEVEL_COPY.get(business_type, LEVEL_COPY["freelance"])
+    copy = level_copy.get(business_type, level_copy["freelance"])
 
     if dependency_pct < 25:
         return copy["low"]
@@ -548,45 +550,112 @@ def summary_message(dependency_pct: int, profile: dict) -> str:
 
     return intros.get(business_type, intros["freelance"]) + ending
 
-def level_messages(dependency_pct: int, profile: dict) -> tuple[str, str]:
-    if dependency_pct < 25:
-        tension = (
-            "Si rien ne change,<br>"
-            "tu vas continuer à porter une charge que ton business devrait déjà absorber."
-        )
-        closing = (
-            "Le sujet n’est pas urgent parce que tout s’écroule.<br>"
-            "Le sujet est urgent parce que ta structure actuelle va devenir un frein dès que tu voudras monter."
-        )
-    elif dependency_pct < 50:
-        tension = (
-            "Si rien ne change,<br>"
-            "tu vas continuer à compenser chaque semaine ce que ton système devrait déjà gérer à ta place."
-        )
-        closing = (
-            "Le vrai problème n’est pas ton organisation.<br>"
-            "Le vrai problème, c’est que ton business dépend encore trop de toi pour rester fluide."
-        )
-    elif dependency_pct < 75:
-        tension = (
-            "Si rien ne change,<br>"
-            "tu vas continuer à porter ton business à bout de bras, semaine après semaine."
-        )
-        closing = (
-            "Et tant que cette structure ne change pas,<br>"
-            "tu ne pourras ni lever le pied sereinement, ni scaler proprement."
-        )
-    else:
-        tension = (
-            "Si rien ne change,<br>"
-            "ton business va rester directement accroché à ton niveau de disponibilité."
-        )
-        closing = (
-            "Autrement dit : aujourd’hui, tu es encore le système.<br>"
-            "Et ça ne se corrige pas avec plus de discipline ou 2 automatisations isolées."
-        )
 
-    return tension, closing
+def level_messages(dependency_pct: int, profile: dict) -> tuple[str, str]:
+    business_type = profile.get("business_type", "freelance")
+
+    copy = {
+        "freelance": {
+            "low": (
+                "Si rien ne change,<br>tu vas continuer à porter une partie de la charge inutilement.",
+                "Bonne nouvelle :<br>ça se corrige vite avec les bons systèmes."
+            ),
+            "mid": (
+                "Si rien ne change,<br>tu vas continuer à compenser chaque semaine ce que ton système devrait déjà absorber.",
+                "Bonne nouvelle :<br>c’est exactement le type de problème qui se règle vite."
+            ),
+            "high": (
+                "Si rien ne change,<br>tu vas continuer à porter ton business à bout de bras chaque semaine.",
+                "Bonne nouvelle :<br>ça peut se corriger vite, à condition de traiter les bons points."
+            ),
+            "critical": (
+                "Si rien ne change,<br>ton business va rester directement accroché à ton niveau de disponibilité.",
+                "Bonne nouvelle :<br>c’est exactement le type de dépendance qui peut se réduire vite avec le bon système."
+            ),
+        },
+        "agency": {
+            "low": (
+                "Si rien ne change,<br>une partie de la complexité va continuer à revenir vers toi.",
+                "Bonne nouvelle :<br>ça se corrige vite avec une meilleure structuration."
+            ),
+            "mid": (
+                "Si rien ne change,<br>tu vas rester le point de passage sur trop de validations, de suivis et d’arbitrages.",
+                "Bonne nouvelle :<br>ce type de friction se corrige vite quand les bons process sont posés."
+            ),
+            "high": (
+                "Si rien ne change,<br>plus ton agence grossit, plus la complexité va revenir vers toi.",
+                "Bonne nouvelle :<br>c’est exactement le type de problème qui se règle vite avec les bons systèmes."
+            ),
+            "critical": (
+                "Si rien ne change,<br>ton agence va continuer à dépendre trop directement de toi pour rester fluide.",
+                "Bonne nouvelle :<br>ça peut se corriger vite si tu traites les bons goulots maintenant."
+            ),
+        },
+        "info": {
+            "low": (
+                "Si rien ne change,<br>tu vas continuer à intervenir sur des étapes qui devraient déjà être plus fluides.",
+                "Bonne nouvelle :<br>ça se corrige vite avec les bons automatismes."
+            ),
+            "mid": (
+                "Si rien ne change,<br>tu vas rester trop présent entre acquisition, vente et delivery.",
+                "Bonne nouvelle :<br>ce type de dépendance se règle vite quand le système est mieux posé."
+            ),
+            "high": (
+                "Si rien ne change,<br>chaque nouvelle vente va continuer à recréer de la charge au lieu d’en absorber.",
+                "Bonne nouvelle :<br>c’est exactement le type de problème qui se corrige vite."
+            ),
+            "critical": (
+                "Si rien ne change,<br>ton activité va rester trop dépendante de toi pour tourner proprement.",
+                "Bonne nouvelle :<br>ça peut se corriger vite si tu traites les bons points dans le bon ordre."
+            ),
+        },
+        "saas": {
+            "low": (
+                "Si rien ne change,<br>tu vas continuer à laisser du levier sur la table sur des zones encore trop fragiles.",
+                "Bonne nouvelle :<br>ça se corrige vite avec une structure plus robuste."
+            ),
+            "mid": (
+                "Si rien ne change,<br>tu vas garder des dépendances humaines là où ton système devrait déjà absorber la charge.",
+                "Bonne nouvelle :<br>ce type de friction se règle vite quand les bons points sont renforcés."
+            ),
+            "high": (
+                "Si rien ne change,<br>certaines frictions vont continuer à freiner ta scalabilité bien plus que ton produit.",
+                "Bonne nouvelle :<br>c’est exactement le type de problème qui se corrige vite."
+            ),
+            "critical": (
+                "Si rien ne change,<br>ton business va continuer à dépendre trop directement de toi pour compenser les failles du système.",
+                "Bonne nouvelle :<br>ça peut se corriger vite avec les bons ajustements structurels."
+            ),
+        },
+        "ecommerce": {
+            "low": (
+                "Si rien ne change,<br>certaines frictions d’exécution vont continuer à te consommer inutilement.",
+                "Bonne nouvelle :<br>ça se corrige vite avec les bons flux."
+            ),
+            "mid": (
+                "Si rien ne change,<br>tu vas continuer à compenser des opérations qui devraient déjà être plus fluides.",
+                "Bonne nouvelle :<br>ce type de charge se réduit vite quand le système prend le relais."
+            ),
+            "high": (
+                "Si rien ne change,<br>tu vas continuer à perdre du temps sur des opérations qui ne devraient plus dépendre autant de toi.",
+                "Bonne nouvelle :<br>c’est exactement le type de problème qui se règle vite."
+            ),
+            "critical": (
+                "Si rien ne change,<br>ton activité va rester trop sensible à ta présence dans l’exécution et le suivi.",
+                "Bonne nouvelle :<br>ça peut se corriger vite si tu traites les bons points de friction."
+            ),
+        },
+    }
+
+    profile_copy = copy.get(business_type, copy["freelance"])
+
+    if dependency_pct < 25:
+        return profile_copy["low"]
+    if dependency_pct < 50:
+        return profile_copy["mid"]
+    if dependency_pct < 75:
+        return profile_copy["high"]
+    return profile_copy["critical"]
 
 
 def estimate_time_gain(
@@ -704,115 +773,33 @@ def priorities_from_dimensions(dimension_scores: dict, profile: dict) -> list[st
     return [dimension_priority_copy(dim, profile) for dim, _ in ordered[:3]]
 
 
-def level_messages(dependency_pct: int, profile: dict) -> tuple[str, str]:
+def dominant_profile(dimension_scores: dict, profile: dict) -> tuple[str, str]:
     business_type = profile.get("business_type", "freelance")
+    ordered = sorted(dimension_scores.items(), key=lambda x: x[1], reverse=True)
+    top_dim = ordered[0][0] if ordered else "STR"
 
-    COPY = {
-        "freelance": {
-            "low": (
-                "Si rien ne change,<br>tu vas continuer à porter une partie de la charge inutilement.",
-                "Bonne nouvelle :<br>ça se corrige vite avec les bons systèmes."
-            ),
-            "mid": (
-                "Si rien ne change,<br>tu vas continuer à compenser chaque semaine ce que ton système devrait déjà absorber.",
-                "Bonne nouvelle :<br>c’est exactement le type de problème qui se règle vite."
-            ),
-            "high": (
-                "Si rien ne change,<br>tu vas continuer à porter ton business à bout de bras chaque semaine.",
-                "Bonne nouvelle :<br>ça peut se corriger vite, à condition de traiter les bons points."
-            ),
-            "critical": (
-                "Si rien ne change,<br>ton business va rester directement accroché à ton niveau de disponibilité.",
-                "Bonne nouvelle :<br>c’est exactement le type de dépendance qui peut se réduire vite avec le bon système."
-            ),
-        },
+    if top_dim == "STR":
+        title = "Ton principal frein aujourd’hui vient de la structuration"
+        if business_type == "agency":
+            text = "Ton agence repose encore trop sur ta supervision, tes validations et des process qui ne sont pas assez solides sans toi."
+        elif business_type == "saas":
+            text = "Ton système n’absorbe pas encore assez les frictions. Trop de sujets critiques remontent encore jusqu’à toi."
+        else:
+            text = "Tes process, ton organisation et la circulation de l’info dépendent encore trop de toi pour rester fluides."
+    elif top_dim == "DEL":
+        title = "Ton principal frein aujourd’hui vient de l’exécution"
+        if business_type == "ecommerce":
+            text = "Trop d’actions opérationnelles, de suivis et de manipulations restent encore manuels dans ton activité."
+        else:
+            text = "Une partie trop importante de la production et des tâches répétitives repose encore sur toi ou sur des actions manuelles."
+    elif top_dim == "ONB":
+        title = "Ton principal frein aujourd’hui vient de l’onboarding"
+        text = "L’entrée de nouveaux clients n’est pas encore assez fluide. Tu interviens encore trop souvent là où le système devrait prendre le relais."
+    else:
+        title = "Ton principal frein aujourd’hui vient de l’acquisition"
+        text = "Le suivi des leads, des relances et la conversion dépendent encore trop d’un pilotage manuel."
 
-        "agency": {
-            "low": (
-                "Si rien ne change,<br>une partie de la complexité va continuer à revenir vers toi.",
-                "Bonne nouvelle :<br>ça se corrige vite avec une meilleure structuration."
-            ),
-            "mid": (
-                "Si rien ne change,<br>tu vas rester le point de passage sur trop de validations, de suivis et d’arbitrages.",
-                "Bonne nouvelle :<br>ce type de friction se corrige vite quand les bons process sont posés."
-            ),
-            "high": (
-                "Si rien ne change,<br>plus ton agence grossit, plus la complexité va revenir vers toi.",
-                "Bonne nouvelle :<br>c’est exactement le type de problème qui se règle vite avec les bons systèmes."
-            ),
-            "critical": (
-                "Si rien ne change,<br>ton agence va continuer à dépendre trop directement de toi pour rester fluide.",
-                "Bonne nouvelle :<br>ça peut se corriger vite si tu traites les bons goulots maintenant."
-            ),
-        },
-
-        "info": {
-            "low": (
-                "Si rien ne change,<br>tu vas continuer à intervenir sur des étapes qui devraient déjà être plus fluides.",
-                "Bonne nouvelle :<br>ça se corrige vite avec les bons automatismes."
-            ),
-            "mid": (
-                "Si rien ne change,<br>tu vas rester trop présent entre acquisition, vente et delivery.",
-                "Bonne nouvelle :<br>ce type de dépendance se règle vite quand le système est mieux posé."
-            ),
-            "high": (
-                "Si rien ne change,<br>chaque nouvelle vente va continuer à recréer de la charge au lieu d’en absorber.",
-                "Bonne nouvelle :<br>c’est exactement le type de problème qui se corrige vite."
-            ),
-            "critical": (
-                "Si rien ne change,<br>ton activité va rester trop dépendante de toi pour tourner proprement.",
-                "Bonne nouvelle :<br>ça peut se corriger vite si tu traites les bons points dans le bon ordre."
-            ),
-        },
-
-        "saas": {
-            "low": (
-                "Si rien ne change,<br>tu vas continuer à laisser du levier sur la table sur des zones encore trop fragiles.",
-                "Bonne nouvelle :<br>ça se corrige vite avec une structure plus robuste."
-            ),
-            "mid": (
-                "Si rien ne change,<br>tu vas garder des dépendances humaines là où ton système devrait déjà absorber la charge.",
-                "Bonne nouvelle :<br>ce type de friction se règle vite quand les bons points sont renforcés."
-            ),
-            "high": (
-                "Si rien ne change,<br>certaines frictions vont continuer à freiner ta scalabilité bien plus que ton produit.",
-                "Bonne nouvelle :<br>c’est exactement le type de problème qui se corrige vite."
-            ),
-            "critical": (
-                "Si rien ne change,<br>ton business va continuer à dépendre trop directement de toi pour compenser les failles du système.",
-                "Bonne nouvelle :<br>ça peut se corriger vite avec les bons ajustements structurels."
-            ),
-        },
-
-        "ecommerce": {
-            "low": (
-                "Si rien ne change,<br>certaines frictions d’exécution vont continuer à te consommer inutilement.",
-                "Bonne nouvelle :<br>ça se corrige vite avec les bons flux."
-            ),
-            "mid": (
-                "Si rien ne change,<br>tu vas continuer à compenser des opérations qui devraient déjà être plus fluides.",
-                "Bonne nouvelle :<br>ce type de charge se réduit vite quand le système prend le relais."
-            ),
-            "high": (
-                "Si rien ne change,<br>tu vas continuer à perdre du temps sur des opérations qui ne devraient plus dépendre autant de toi.",
-                "Bonne nouvelle :<br>c’est exactement le type de problème qui se règle vite."
-            ),
-            "critical": (
-                "Si rien ne change,<br>ton activité va rester trop sensible à ta présence dans l’exécution et le suivi.",
-                "Bonne nouvelle :<br>ça peut se corriger vite si tu traites les bons points de friction."
-            ),
-        },
-    }
-
-    profile_copy = COPY.get(business_type, COPY["freelance"])
-
-    if dependency_pct < 25:
-        return profile_copy["low"]
-    if dependency_pct < 50:
-        return profile_copy["mid"]
-    if dependency_pct < 75:
-        return profile_copy["high"]
-    return profile_copy["critical"]
+    return title, text
 
 
 def create_lead_record(answers: dict, profile: dict, result_data: dict) -> int:
@@ -1843,7 +1830,8 @@ HTML = r"""
               <li>où ton business dépend encore trop de toi</li>
               <li>où tu perds du temps chaque semaine</li>
               <li>quelles zones te rendent encore indispensable</li>
-<div class="promiseHighlight">+ tu peux voir si ton business est prêt à être restructuré pour tourner davantage sans toi</div>
+            </ul>
+            <div class="promiseHighlight">+ tu peux voir si ton business est prêt à être restructuré pour tourner davantage sans toi</div>
           </div>
 
           <div class="progress"><div id="bar" class="bar"></div></div>
@@ -2087,7 +2075,7 @@ function averageHours(baseData){
   return Math.round((baseData.estimated_min + baseData.estimated_max) / 2);
 }
 
-function buildDmText(baseData):
+function buildDmText(baseData){
   const repetitive = (document.getElementById("repetitiveInput")?.value || "").trim();
 
   let extra = "";
@@ -2218,7 +2206,7 @@ function openChannelModal(baseData){
 function renderFinalCTA(baseData){
   const card = document.createElement("div");
   card.className = "resultCard messageAppear";
-    card.innerHTML = `
+  card.innerHTML = `
     <div style="font-weight:900;font-size:18px;">
       👉 Voir comment sortir de ce business dépendant
     </div>
@@ -2589,8 +2577,7 @@ async def result(request: Request):
     summary = summary_message(dependency_pct, profile)
     tension, closing = level_messages(dependency_pct, profile)
 
-    avg_hours = round((estimated_min + estimated_max) / 2)
-      dm_copy = (
+    dm_copy = (
         f"Hello Audrey,\n\n"
         f"Je viens de faire le diagnostic AURA.\n\n"
         f"Résultat : mon business dépend encore de moi à {dependency_pct}%.\n\n"
