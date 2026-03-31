@@ -1752,9 +1752,9 @@ HTML = r"""
               <li>où ton business dépend encore trop de toi</li>
               <li>combien d’heures tu perds chaque semaine à cause de ça</li>
               <li>quelles zones te rendent encore indispensable (acquisition, onboarding, exécution, structuration)</li>
-              Et surtout : <br><br>
+            <div class="promiseTitle">Et surtout : <br><br>
 
-à quel point cette dépendance est en train de ralentir ta croissance.
+à quel point cette dépendance est en train de ralentir ta croissance.</div>
             </ul>
             <div class="promiseHighlight">+ tu peux voir si ton business est prêt à être restructuré pour tourner davantage sans toi</div>
           </div>
