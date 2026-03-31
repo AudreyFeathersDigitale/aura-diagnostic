@@ -1750,8 +1750,11 @@ HTML = r"""
             <div class="promiseTitle">En 2 minutes, AURA te montre :</div>
             <ul class="promiseList">
               <li>où ton business dépend encore trop de toi</li>
-              <li>où tu perds du temps chaque semaine</li>
-              <li>quelles zones te rendent encore indispensable</li>
+              <li>combien d’heures tu perds chaque semaine à cause de ça</li>
+              <li>quelles zones te rendent encore indispensable (acquisition, onboarding, exécution, structuration)</li>
+              Et surtout : <br><br>
+
+à quel point cette dépendance est en train de ralentir ta croissance.
             </ul>
             <div class="promiseHighlight">+ tu peux voir si ton business est prêt à être restructuré pour tourner davantage sans toi</div>
           </div>
