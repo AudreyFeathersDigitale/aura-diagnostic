@@ -256,6 +256,10 @@ def init_db() -> None:
         ensure_column(conn, "leads", "autonomy_pct", "INTEGER DEFAULT 0")
         ensure_column(conn, "leads", "dimension_scores_json", "TEXT")
         ensure_column(conn, "leads", "contact_channel", "TEXT")
+        ensure_column(conn, "leads", "monthly_loss_min", "INTEGER DEFAULT 0")
+        ensure_column(conn, "leads", "monthly_loss_max", "INTEGER DEFAULT 0")
+        ensure_column(conn, "leads", "lost_clients_min", "INTEGER DEFAULT 0")
+        ensure_column(conn, "leads", "lost_clients_max", "INTEGER DEFAULT 0")
 
 
 def safe_json_loads(value):
@@ -368,15 +372,15 @@ def level_from_dependency_pct(dependency_pct: int, profile: dict) -> tuple[str, 
         "freelance": {
             "low": (
                 "Dépendance faible",
-                "Ton activité tourne déjà avec une bonne base d’autonomie."
+                "Ton activité a déjà une bonne base, mais certaines zones peuvent encore mieux tourner sans toi."
             ),
             "mid": (
                 "Dépendance modérée",
-                "Ton business fonctionne… mais il te ramène encore trop souvent au centre."
+                "Ton business avance, mais il te ramène encore trop souvent au centre."
             ),
             "high": (
                 "Dépendance forte",
-                "Tu es encore le point de passage obligé de ton business."
+                "Tu es encore le point de passage obligé sur plusieurs zones critiques."
             ),
             "critical": (
                 "Dépendance critique",
@@ -390,11 +394,11 @@ def level_from_dependency_pct(dependency_pct: int, profile: dict) -> tuple[str, 
             ),
             "mid": (
                 "Dépendance modérée",
-                "Ton agence avance… mais elle dépend encore trop de ta supervision."
+                "Ton agence avance, mais elle dépend encore trop de ta supervision."
             ),
             "high": (
                 "Dépendance forte",
-                "Tu es encore le point de passage obligé de ton agence."
+                "Tu restes le point de passage obligé de ton agence."
             ),
             "critical": (
                 "Dépendance critique",
@@ -408,7 +412,7 @@ def level_from_dependency_pct(dependency_pct: int, profile: dict) -> tuple[str, 
             ),
             "mid": (
                 "Dépendance modérée",
-                "Ton système existe… mais il dépend encore trop de ton intervention."
+                "Ton système existe, mais il dépend encore trop de ton intervention."
             ),
             "high": (
                 "Dépendance forte",
@@ -422,11 +426,11 @@ def level_from_dependency_pct(dependency_pct: int, profile: dict) -> tuple[str, 
         "saas": {
             "low": (
                 "Dépendance faible",
-                "Ton business est déjà relativement robuste."
+                "Ton business est déjà relativement robuste, mais certaines zones reposent encore sur toi."
             ),
             "mid": (
                 "Dépendance modérée",
-                "Ton système tient… mais trop de frictions remontent encore jusqu’à toi."
+                "Ton système tient, mais trop de frictions remontent encore jusqu’à toi."
             ),
             "high": (
                 "Dépendance forte",
@@ -444,11 +448,11 @@ def level_from_dependency_pct(dependency_pct: int, profile: dict) -> tuple[str, 
             ),
             "mid": (
                 "Dépendance modérée",
-                "Ton e-commerce tourne… mais trop d’opérations reviennent encore sur toi."
+                "Ton e-commerce tourne, mais trop d’opérations reviennent encore sur toi."
             ),
             "high": (
                 "Dépendance forte",
-                "Tu restes encore trop central dans l’exécution de ton activité."
+                "Tu restes encore trop central(e) dans l’exécution de ton activité."
             ),
             "critical": (
                 "Dépendance critique",
@@ -473,69 +477,64 @@ def display_score_30(dependency_pct: int) -> int:
     return round((autonomy / 100) * 30)
 
 
-def business_summary_intro(profile: dict) -> str:
-    business_type = profile.get("business_type", "freelance")
-    mapping = {
-        "freelance": "Pour un solopreneur comme toi",
-        "agency": "Pour une agence comme la tienne",
-        "info": "Pour un business de formation comme le tien",
-        "saas": "Pour un business SaaS comme le tien",
-        "ecommerce": "Pour un business e-commerce comme le tien",
-    }
-    return mapping.get(business_type, "Pour ton business")
-
-
 def summary_message(dependency_pct: int, profile: dict) -> str:
     business_type = profile.get("business_type", "freelance")
 
     intros = {
         "freelance": (
-            "Ton business fonctionne.<br>"
-            "Mais il fonctionne encore parce que tu compenses.<br><br>"
-            "👉 Aujourd’hui, tu es encore le système."
+            "Ton business fonctionne.<br><br>"
+            "Mais il fonctionne parce que tu compenses encore là où ton système devrait déjà prendre le relais.<br><br>"
+            "👉 Aujourd’hui, tu es encore le point de passage obligé."
         ),
         "agency": (
-            "Ton agence avance.<br>"
-            "Mais elle dépend encore trop de ta supervision.<br><br>"
-            "👉 Aujourd’hui, tu restes un point de passage central."
+            "Ton agence avance.<br><br>"
+            "Mais elle avance encore parce que trop de validations et de décisions remontent jusqu’à toi.<br><br>"
+            "👉 Aujourd’hui, tu restes le point de passage obligé."
         ),
         "info": (
-            "Ton activité a du potentiel.<br>"
-            "Mais ton système n’absorbe pas encore assez la charge.<br><br>"
-            "👉 Aujourd’hui, trop d’étapes reposent encore sur toi."
+            "Ton activité fonctionne.<br><br>"
+            "Mais trop d’étapes reposent encore sur toi au lieu d’être absorbées par un système plus robuste.<br><br>"
+            "👉 Aujourd’hui, tu restes encore au centre."
         ),
         "saas": (
-            "Ton business peut scaler.<br>"
-            "Mais certaines frictions remontent encore jusqu’à toi.<br><br>"
-            "👉 Aujourd’hui, ton système n’absorbe pas encore assez seul."
+            "Ton business peut scaler.<br><br>"
+            "Mais certaines frictions remontent encore jusqu’à toi au lieu d’être absorbées naturellement par le système.<br><br>"
+            "👉 Aujourd’hui, tu restes encore un point de passage critique."
         ),
         "ecommerce": (
-            "Ton activité tourne.<br>"
-            "Mais trop d’opérations reviennent encore sur toi.<br><br>"
-            "👉 Aujourd’hui, tu restes trop centrale dans l’exécution."
+            "Ton activité tourne.<br><br>"
+            "Mais elle tourne encore avec trop de dépendance à ton intervention sur l’opérationnel.<br><br>"
+            "👉 Aujourd’hui, tu es encore trop central(e)."
+        ),
+    }
+
+    endings = {
+        "low": (
+            "<br><br>Pour l’instant, ça tient.<br>"
+            "Mais dès que la charge augmente, ce modèle commence déjà à limiter ton levier."
+        ),
+        "mid": (
+            "<br><br>Tu avances…<br>"
+            "mais ton business te ramène déjà trop souvent au centre."
+        ),
+        "high": (
+            "<br><br>Concrètement :<br>"
+            "ta croissance reste encore trop liée à ton niveau de disponibilité."
+        ),
+        "critical": (
+            "<br><br>Concrètement :<br>"
+            "<b>sans toi, ça ralentit. ça bloque. ça s’accumule.</b>"
         ),
     }
 
     if dependency_pct < 25:
-        ending = (
-            "<br><br>Pour l’instant, ça tient.<br>"
-            "Mais dès que la charge monte, ce modèle va commencer à te freiner."
-        )
+        ending = endings["low"]
     elif dependency_pct < 50:
-        ending = (
-            "<br><br>Tu avances…<br>"
-            "mais ton business te ramène déjà trop souvent au centre."
-        )
+        ending = endings["mid"]
     elif dependency_pct < 75:
-        ending = (
-            "<br><br>Concrètement :<br>"
-            "tu ne peux pas vraiment lever le pied sans impact."
-        )
+        ending = endings["high"]
     else:
-        ending = (
-            "<br><br>Concrètement :<br>"
-            "<b>sans toi, ça ralentit. ça bloque. ça s’accumule.</b>"
-        )
+        ending = endings["critical"]
 
     return intros.get(business_type, intros["freelance"]) + ending
 
@@ -667,6 +666,39 @@ def estimate_time_gain(
     return estimate_min, estimate_max
 
 
+def estimate_monthly_loss(estimated_min: int, estimated_max: int, profile: dict) -> tuple[int, int]:
+    revenue_band = profile.get("revenue_band", "lt3")
+
+    hourly_rates = {
+        "lt3": 25,
+        "3to10": 50,
+        "10to30": 100,
+        "30plus": 150,
+    }
+
+    rate = hourly_rates.get(revenue_band, 50)
+
+    monthly_min = estimated_min * 4 * rate
+    monthly_max = estimated_max * 4 * rate
+
+    return int(monthly_min), int(monthly_max)
+
+
+def estimate_lost_clients(monthly_loss_min: int, monthly_loss_max: int, profile: dict) -> tuple[int, int]:
+    revenue_band = profile.get("revenue_band", "lt3")
+
+    avg_client_value = {
+        "lt3": 200,
+        "3to10": 500,
+        "10to30": 1000,
+        "30plus": 2000,
+    }
+
+    value = avg_client_value.get(revenue_band, 500)
+
+    return int(monthly_loss_min / value), int(monthly_loss_max / value)
+
+
 def dimension_priority_copy(dim: str, profile: dict) -> str:
     business_type = profile.get("business_type", "freelance")
 
@@ -750,8 +782,12 @@ def create_lead_record(answers: dict, profile: dict, result_data: dict) -> int:
                 top3_json,
                 estimated_min,
                 estimated_max,
-                dm_text
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                dm_text,
+                monthly_loss_min,
+                monthly_loss_max,
+                lost_clients_min,
+                lost_clients_max
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 now,
@@ -775,6 +811,10 @@ def create_lead_record(answers: dict, profile: dict, result_data: dict) -> int:
                 result_data["estimated_min"],
                 result_data["estimated_max"],
                 result_data["dm_copy"],
+                result_data["monthly_loss_min"],
+                result_data["monthly_loss_max"],
+                result_data["lost_clients_min"],
+                result_data["lost_clients_max"],
             ),
         )
         return int(cur.lastrowid)
@@ -1744,19 +1784,17 @@ HTML = r"""
 
           <div class="name">AURA</div>
           <div class="subtitle">Agent IA • Diagnostic automatisation</div>
-          <div class="tag">Découvre pourquoi ton business dépend encore de toi.</div>
+          <div class="tag">Découvre à quel point ton business dépend encore de toi.</div>
 
           <div class="promiseBox">
             <div class="promiseTitle">En 2 minutes, AURA te montre :</div>
             <ul class="promiseList">
               <li>où ton business dépend encore trop de toi</li>
-              <li>combien d’heures tu perds chaque semaine à cause de ça</li>
+              <li>combien d’heures tu bloques chaque semaine à cause de ça</li>
               <li>quelles zones te rendent encore indispensable (acquisition, onboarding, exécution, structuration)</li>
-            <div class="promiseTitle">Et surtout : <br><br>
-
-à quel point cette dépendance est en train de ralentir ta croissance.</div>
+              <li>ce que cette dépendance te coûte vraiment en croissance</li>
             </ul>
-            <div class="promiseHighlight">+ tu peux voir si ton business est prêt à être restructuré pour tourner davantage sans toi</div>
+            <div class="promiseHighlight">+ tu peux voir si ton business est prêt à fonctionner davantage comme un système, et moins comme une extension de toi</div>
           </div>
 
           <div class="progress"><div id="bar" class="bar"></div></div>
@@ -1775,7 +1813,7 @@ HTML = r"""
             </div>
             <div class="chatHeaderText">
               <div class="chatHeaderTitle">Salut 👋 Je suis AURA.</div>
-              <div class="chatHeaderSub">Je vais t’aider à voir où ton business dépend encore trop de toi… puis te montrer si une vraie restructuration est nécessaire.</div>
+              <div class="chatHeaderSub">Je vais t’aider à voir où ton business dépend encore trop de toi… puis te montrer ce que ça bloque vraiment dans ta croissance.</div>
             </div>
           </div>
           <div class="chatHeaderRight">~2 minutes</div>
@@ -1829,6 +1867,14 @@ const auraBox = document.getElementById("auraBox");
 
 function sleep(ms){
   return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function formatEuro(value){
+  try{
+    return new Intl.NumberFormat("fr-FR").format(value);
+  }catch(e){
+    return String(value);
+  }
 }
 
 function setProgress(){
@@ -2010,16 +2056,15 @@ Je viens de faire le diagnostic AURA.
 
 Résultat : mon business dépend encore de moi à ${baseData.dependency_pct}%.
 
-Les zones les plus critiques qui sont ressorties :
+Ce qui ressort surtout :
 - ${baseData.top3[0]}
 - ${baseData.top3[1]}
 - ${baseData.top3[2]}
 
-Je vois clairement que je suis encore le goulot d’étranglement,
-et que ça me bloque pour scaler sans m’épuiser.${extra}
+Aujourd’hui, je vois que mon business repose encore trop sur moi sur les zones critiques.
+Ça me coûte entre ${formatEuro(baseData.monthly_loss_min)}€ et ${formatEuro(baseData.monthly_loss_max)}€ par mois en temps, friction et croissance bloquée.${extra}
 
-👉 Est-ce que c’est exactement le type de restructuration
-que tu aides à mettre en place ?`;
+👉 Est-ce que c’est exactement le type de blocage que tu aides à restructurer ?`;
 }
 
 function showCopyPreview(text, isSuccess=false){
@@ -2127,26 +2172,35 @@ function openChannelModal(baseData){
 function renderFinalCTA(baseData){
   const card = document.createElement("div");
   card.className = "resultCard messageAppear";
+  card.style.border = "1px solid rgba(47,107,255,.25)";
+  card.style.background = "linear-gradient(180deg,#ffffff,#f5f9ff)";
+
   card.innerHTML = `
-    <div style="font-weight:900;font-size:18px;">
-      👉 Voir comment sortir de ce business dépendant
-    </div>
-
-    <div class="micro" style="margin-top:6px;">
-      Je vais regarder ton cas et te dire si ton business peut être restructuré
-      pour que le système prenne le relais là où aujourd’hui tout remonte à toi.
+    <div style="font-weight:900;font-size:20px;">
+      👉 Voici ce que je peux débloquer pour toi
     </div>
 
     <div class="micro" style="margin-top:10px;">
-      Ce qu’on regarde ensemble :
+      Je vais analyser ton business plus en détail et te montrer :
     </div>
 
-    <div class="micro">• où tu restes indispensable aujourd’hui</div>
-    <div class="micro">• quelles zones peuvent vraiment être absorbées par le système</div>
-    <div class="micro">• si ton business est prêt pour une vraie restructuration</div>
-
     <div class="micro" style="margin-top:10px;">
-      ⏱️ Réponse personnalisée directement sur le réseau de ton choix
+      • où ton business dépend encore de toi, exactement<br>
+      • quelles tâches peuvent être supprimées ou automatisées rapidement<br>
+      • comment structurer un système qui prend le relais sans casser ta qualité
+    </div>
+
+    <div style="margin-top:12px;font-weight:800;">
+      👉 Objectif : te libérer du temps ET débloquer ta croissance
+    </div>
+
+    <div style="margin-top:12px;font-weight:800;color:#1f5cff;">
+      👉 Si rien ne change, tu continues à perdre au moins ${formatEuro(baseData.monthly_loss_min)}€ par mois
+    </div>
+
+    <div style="margin-top:14px;padding:12px;border-radius:14px;background:#0f172a;color:#e2e8f0;font-size:13px;">
+      ⚠️ Je ne réponds qu’aux profils où il y a un vrai levier d’amélioration.<br>
+      Si ton business est déjà structuré, je te le dirai.
     </div>
 
     <div class="leadForm">
@@ -2160,15 +2214,18 @@ function renderFinalCTA(baseData){
       </div>
 
       <div style="font-size:12px;color:#64748b;">
-        Plus tu es précise, plus je peux voir où ton business dépend encore trop de toi.
-        <br><b>Réponse personnalisée — pas automatisée</b>
+        💡 Plus tu es précise, plus mon analyse sera pertinente
       </div>
     </div>
 
     <div class="resultActions">
       <button class="dmBtn" id="openChannelsBtn" type="button">
-        👉 Voir comment construire le système qui prend le relais
+        👉 Voir comment supprimer mes points de blocage
       </button>
+    </div>
+
+    <div class="micro" style="margin-top:10px;">
+      ⏱️ Réponse personnalisée (pas automatisée)
     </div>
   `;
 
@@ -2325,6 +2382,7 @@ async function finish(){
   const steps = [
     "Analyse de tes réponses…",
     "Détection des priorités…",
+    "Calcul de l’impact caché…",
     "Préparation de ton résultat…"
   ];
 
@@ -2348,18 +2406,17 @@ async function finish(){
   finalData = data;
   currentLeadId = data.lead_id;
 
-  await sleep(2200);
+  await sleep(2400);
   clearInterval(loaderInterval);
 
   await typeHtmlInto(
     loadingMsg.bubble,
     `
     <div class="scoreHero">
-      <div style="font-weight:900;font-size:16px;">Ton business dépend encore de toi à :</div>
+      <div style="font-weight:900;font-size:16px;">Ton business est actuellement limité par toi à :</div>
       <div class="scorePercent ${getScoreClass(data.dependency_pct)}">${data.dependency_pct}%</div>
       <div class="scoreSecondary">
-        Autonomie actuelle estimée : ${data.autonomy_pct}%<br>
-        (plus ce chiffre est bas, plus ton business dépend de toi)
+        👉 Concrètement : ton système ne prend pas encore le relais là où il devrait.
       </div>
       <div class="micro" style="margin-top:10px;">
         <b>${data.level}</b> — ${data.subtitle}
@@ -2372,7 +2429,34 @@ async function finish(){
   await sleep(600);
 
   await addBotMsgTyped(
-    `${data.summary}`,
+    `
+    <div class="resultCard messageAppear" style="border:1px solid #fecaca;background:#fff1f2;">
+      <div style="font-weight:900;font-size:18px;color:#b91c1c;">
+        ⚠️ Ce que ça te coûte réellement
+      </div>
+
+      <div style="margin-top:10px;font-weight:700;">
+        Tu perds actuellement entre <b>${formatEuro(data.monthly_loss_min)}€ et ${formatEuro(data.monthly_loss_max)}€ par mois</b>
+      </div>
+
+      <div class="micro" style="margin-top:6px;">
+        à cause des tâches, frictions et dépendances que ton système pourrait déjà absorber.
+      </div>
+
+      <div style="margin-top:10px;font-weight:700;">
+        👉 soit l’équivalent de <b>${data.lost_clients_min} à ${data.lost_clients_max} clients</b> que tu pourrais potentiellement absorber en plus.
+      </div>
+    </div>
+    `,
+    "",
+    14
+  );
+
+  await sleep(600);
+
+  await addBotMsgTyped(
+    `${data.summary}<br><br>
+     Et c’est exactement ce qui limite ta croissance aujourd’hui.`,
     "",
     14
   );
@@ -2388,8 +2472,10 @@ async function finish(){
   await sleep(600);
 
   await addBotMsgTyped(
-    `Le problème n’est pas ton implication.<br><br>
-     👉 Le problème, c’est que ton business n’est pas encore construit pour fonctionner sans toi.`,
+    `Le problème n’est pas ton niveau d’effort.<br><br>
+     👉 Le problème, c’est que ton business n’est pas encore construit pour fonctionner sans toi sur les zones critiques.<br><br>
+     Et tant que ça reste comme ça :<br>
+     tu échanges du temps contre de la croissance.`,
     "",
     14
   );
@@ -2397,8 +2483,12 @@ async function finish(){
   await sleep(600);
 
   await addBotMsgTyped(
-    `Aujourd’hui, tu perds encore entre <b>${data.estimated_min} et ${data.estimated_max} heures par semaine</b><br><br>
-     sur des choses que ton système pourrait déjà gérer à ta place.`,
+    `Aujourd’hui, tu bloques entre <b>${data.estimated_min} et ${data.estimated_max} heures par semaine</b><br><br>
+     👉 sur des choses que ton système devrait déjà gérer à ta place.<br><br>
+     Ce temps pourrait être utilisé pour :<br>
+     • signer plus de clients<br>
+     • améliorer ton offre<br>
+     • ou simplement lever le pied sans risque`,
     "estimateBox",
     14
   );
@@ -2406,7 +2496,7 @@ async function finish(){
   await sleep(600);
 
   await addBotMsgTyped(
-    `<b>Les 3 zones qui te rendent encore indispensable aujourd’hui :</b><br><br>
+    `<b>👉 Voilà concrètement où ton business te rend encore indispensable :</b><br><br>
      1) ${data.top3[0]}<br>
      2) ${data.top3[1]}<br>
      3) ${data.top3[2]}`,
@@ -2417,10 +2507,16 @@ async function finish(){
   await sleep(600);
 
   await addBotMsgTyped(
-    `${data.tension}<br><br>${data.closing}<br><br>
-     👉 Ce qu’il faut maintenant, ce n’est pas ajouter quelques outils de plus.<br><br>
-     C’est restructurer les zones où aujourd’hui tu compenses encore à la main,<br>
-     pour qu’un système fiable prenne réellement le relais.`,
+    `${data.tension}<br><br>
+
+     👉 Et c’est exactement pour ça que ton business plafonne aujourd’hui.<br><br>
+
+     Tant que ces zones restent dépendantes de toi :<br>
+     • tu ne peux pas vraiment scaler<br>
+     • tu ne peux pas lever le pied<br>
+     • tu restes le goulot<br><br>
+
+     ${data.closing}`,
     "",
     14
   );
@@ -2491,6 +2587,16 @@ async def result(request: Request):
     profile_title, profile_text = dominant_profile(dimension_scores, profile)
     top3 = priorities_from_dimensions(dimension_scores, profile)
     estimated_min, estimated_max = estimate_time_gain(answers, dependency_pct, dimension_scores, profile)
+    monthly_loss_min, monthly_loss_max = estimate_monthly_loss(
+        estimated_min,
+        estimated_max,
+        profile
+    )
+    lost_clients_min, lost_clients_max = estimate_lost_clients(
+        monthly_loss_min,
+        monthly_loss_max,
+        profile
+    )
     summary = summary_message(dependency_pct, profile)
     tension, closing = level_messages(dependency_pct, profile)
 
@@ -2498,14 +2604,13 @@ async def result(request: Request):
         f"Hello Audrey,\n\n"
         f"Je viens de faire le diagnostic AURA.\n\n"
         f"Résultat : mon business dépend encore de moi à {dependency_pct}%.\n\n"
-        f"Les zones les plus critiques qui sont ressorties :\n"
+        f"Ce qui ressort surtout :\n"
         f"- {top3[0]}\n"
         f"- {top3[1]}\n"
         f"- {top3[2]}\n\n"
-        f"Je vois clairement que je suis encore le goulot d’étranglement,\n"
-        f"et que ça me bloque pour scaler sans m’épuiser.\n\n"
-        f"👉 Est-ce que c’est exactement le type de restructuration\n"
-        f"que tu aides à mettre en place ?"
+        f"Aujourd’hui, je vois que mon business repose encore trop sur moi sur les zones critiques.\n"
+        f"Ça me coûte entre {monthly_loss_min}€ et {monthly_loss_max}€ par mois en temps, friction et croissance bloquée.\n\n"
+        f"👉 Est-ce que c’est exactement le type de blocage que tu aides à restructurer ?"
     )
 
     result_data = {
@@ -2521,6 +2626,10 @@ async def result(request: Request):
         "top3": top3,
         "estimated_min": estimated_min,
         "estimated_max": estimated_max,
+        "monthly_loss_min": monthly_loss_min,
+        "monthly_loss_max": monthly_loss_max,
+        "lost_clients_min": lost_clients_min,
+        "lost_clients_max": lost_clients_max,
         "summary": summary,
         "tension": tension,
         "closing": closing,
@@ -2578,7 +2687,8 @@ def admin_leads():
                    business_type, revenue_band, team_size,
                    activity, repetitive_tasks, tools,
                    linkedin_clicked, top3_json, contact_channel,
-                   answers_json, profile_json, dimension_scores_json
+                   answers_json, profile_json, dimension_scores_json,
+                   monthly_loss_min, monthly_loss_max, lost_clients_min, lost_clients_max
             FROM leads
             ORDER BY id DESC
             """
@@ -2667,6 +2777,27 @@ def admin_leads():
                 <div style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:14px;padding:12px;">
                     <div style="font-size:12px;color:#64748b;font-weight:700;">Canal choisi</div>
                     <div style="font-size:18px;font-weight:900;margin-top:4px;">{row["contact_channel"] or "-"}</div>
+                </div>
+            </div>
+
+            <div style="
+                display:grid;
+                grid-template-columns:repeat(2,minmax(0,1fr));
+                gap:10px;
+                margin-top:12px;
+            ">
+                <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:14px;padding:12px;">
+                    <div style="font-size:12px;color:#9a3412;font-weight:700;">Coût caché mensuel</div>
+                    <div style="font-size:24px;font-weight:900;margin-top:4px;color:#c2410c;">
+                        {row["monthly_loss_min"] or 0}€ à {row["monthly_loss_max"] or 0}€
+                    </div>
+                </div>
+
+                <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:14px;padding:12px;">
+                    <div style="font-size:12px;color:#1d4ed8;font-weight:700;">Capacité potentielle perdue</div>
+                    <div style="font-size:24px;font-weight:900;margin-top:4px;color:#1d4ed8;">
+                        {row["lost_clients_min"] or 0} à {row["lost_clients_max"] or 0} clients
+                    </div>
                 </div>
             </div>
 
