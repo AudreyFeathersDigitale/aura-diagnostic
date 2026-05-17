@@ -1801,27 +1801,35 @@ HTML = r"""
           </div>
 
           <div class="name">AURA</div>
-          <div class="subtitle">Agent IA • Diagnostic automatisation</div>
-          <div class="tag">Découvre à quel point ton business dépend encore de toi.</div>
+<div class="subtitle">Agent IA • Diagnostic de dépendance business</div>
+<div class="tag">Découvre pourquoi ton business dépend encore trop de toi.</div>
 
-          <div class="promiseBox">
-            <div class="promiseTitle">En 2 minutes, AURA te montre :</div>
-            <ul class="promiseList">
-              <li>où ton business dépend encore trop de toi</li>
-              <li>combien d’heures tu bloques chaque semaine à cause de ça</li>
-              <li>quelles zones te rendent encore indispensable (acquisition, onboarding, exécution, structuration)</li>
-              <li>ce que cette dépendance te coûte vraiment en croissance</li>
-            </ul>
-            <div class="promiseHighlight">+ tu peux voir si ton business est prêt à fonctionner davantage comme un système, et moins comme une extension de toi</div>
-          </div>
+<div class="promiseBox">
 
-          <div class="progress"><div id="bar" class="bar"></div></div>
+  <div class="promiseTitle">
+    En 2 minutes, AURA va identifier :
+  </div>
 
-          <div style="margin-top:18px;" class="leftTitle">
-            💡 En moyenne, les entrepreneurs découvrent 5 à 15 heures perdues chaque semaine.
-          </div>
-        </div>
-      </div>
+  <ul class="promiseList">
+    <li>pourquoi tu restes encore le point de passage obligé</li>
+    <li>où tu perds du temps sans vraiment le voir au quotidien</li>
+    <li>quelles zones te rendent encore indispensable aujourd’hui</li>
+    <li>ce qui bloque ta capacité à grandir sans augmenter ta charge</li>
+  </ul>
+
+  <div class="promiseHighlight">
+    👉 L’objectif : voir si ton business peut continuer à avancer… même quand tu ralentis.
+  </div>
+
+</div>
+
+<div class="progress"><div id="bar" class="bar"></div></div>
+
+<div style="margin-top:18px;" class="leftTitle">
+  💡 Beaucoup découvrent que leur vrai problème n’est pas le manque de temps… mais le fait que tout finit toujours par revenir vers eux.
+</div>
+</div>
+</div>
 
       <div class="right">
         <div class="chatHeader">
