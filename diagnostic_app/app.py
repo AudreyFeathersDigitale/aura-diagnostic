@@ -1796,28 +1796,22 @@ HTML = r"""
             </div>
           </div>
 
-          <div class="name">AURA</div>
-          <div class="subtitle">Agent IA • Diagnostic automatisation</div>
-          <div class="tag">Découvre à quel point ton business dépend encore de toi.</div>
-
           <div class="promiseBox">
-            <div class="promiseTitle">En 2 minutes, AURA te montre :</div>
-            <ul class="promiseList">
-              <li>où ton business dépend encore trop de toi</li>
-              <li>combien d’heures tu bloques chaque semaine à cause de ça</li>
-              <li>quelles zones te rendent encore indispensable (acquisition, onboarding, exécution, structuration)</li>
-              <li>ce que cette dépendance te coûte vraiment en croissance</li>
-            </ul>
-            <div class="promiseHighlight">+ tu peux voir si ton business est prêt à fonctionner davantage comme un système, et moins comme une extension de toi</div>
-          </div>
+    <div class="promiseTitle">En 2 minutes, AURA te montre :</div>
+    <ul class="promiseList">
+      <li>où ton business dépend encore trop de toi</li>
+      <li>combien d’heures tu bloques chaque semaine à cause de ça</li>
+      <li>quelles zones te rendent encore indispensable (acquisition, onboarding, exécution, structuration)</li>
+      <li>ce que cette dépendance te coûte vraiment en croissance</li>
+    </ul>
+    <div class="promiseHighlight">
+      + tu peux voir si ton business est prêt à fonctionner davantage comme un système, et moins comme une extension de toi
+    </div>
+</div>
 
-          <div class="progress"><div id="bar" class="bar"></div></div>
-
-          <div style="margin-top:18px;" class="leftTitle">
-            💡 En moyenne, les entrepreneurs découvrent 5 à 15 heures perdues chaque semaine.
-          </div>
-        </div>
-      </div>
+<div style="margin-top:18px;" class="leftTitle">
+💡 En moyenne, les entrepreneurs découvrent 5 à 15 heures perdues chaque semaine.
+</div>
 
       <div class="right">
         <div class="chatHeader">
