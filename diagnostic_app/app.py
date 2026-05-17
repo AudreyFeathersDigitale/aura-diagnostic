@@ -2431,113 +2431,102 @@ async function finish(){
     loadingMsg.bubble,
     `
     <div class="scoreHero">
-      <div style="font-weight:900;font-size:16px;">Ton business est actuellement limité par toi à :</div>
-      <div class="scorePercent ${getScoreClass(data.dependency_pct)}">${data.dependency_pct}%</div>
-      <div class="scoreSecondary">
-        👉 Concrètement : ton système ne prend pas encore le relais là où il devrait.
-      </div>
-      <div class="micro" style="margin-top:10px;">
-        <b>${data.level}</b> — ${data.subtitle}
-      </div>
+  <div style="font-weight:900;font-size:16px;">Ton business est actuellement limité par toi à :</div>
+  <div class="scorePercent ${getScoreClass(data.dependency_pct)}">${data.dependency_pct}%</div>
+  <div class="scoreSecondary">
+    👉 Concrètement : ton système ne prend pas encore le relais là où il devrait.
+  </div>
+  <div class="micro" style="margin-top:10px;">
+    <b>${data.level}</b> — ${data.subtitle}
+  </div>
+</div>
+`,
+14
+);
+
+await sleep(600);
+
+await addBotMsgTyped(
+  `
+  <div class="resultCard messageAppear" style="border:1px solid #fecaca;background:#fff1f2;">
+    <div style="font-weight:900;font-size:18px;color:#b91c1c;">
+      ⚠️ Ce que cette dépendance te coûte réellement
     </div>
-    `,
-    14
-  );
 
-  await sleep(600);
-
-  await addBotMsgTyped(
-    `
-    <div class="resultCard messageAppear" style="border:1px solid #fecaca;background:#fff1f2;">
-      <div style="font-weight:900;font-size:18px;color:#b91c1c;">
-        ⚠️ Ce que ça te coûte réellement
-      </div>
-
-      <div style="margin-top:10px;font-weight:700;">
-        Tu perds actuellement entre <b>${formatEuro(data.monthly_loss_min)}€ et ${formatEuro(data.monthly_loss_max)}€ par mois</b>
-      </div>
-
-      <div class="micro" style="margin-top:6px;">
-        à cause des tâches, frictions et dépendances que ton système pourrait déjà absorber.
-      </div>
-
-      <div style="margin-top:10px;font-weight:700;">
-        👉 soit l’équivalent de <b>${data.lost_clients_min} à ${data.lost_clients_max} clients</b> que tu pourrais potentiellement absorber en plus.
-      </div>
+    <div style="margin-top:10px;font-weight:800;">
+      Elle ne te coûte pas seulement du temps.
     </div>
-    `,
-    "",
-    14
-  );
 
-  await sleep(600);
+    <div class="micro" style="margin-top:6px;">
+      Elle bloque aussi des opportunités que ton business n’est pas encore capable d’absorber sereinement sans te rajouter de charge.
+    </div>
 
-  await addBotMsgTyped(
-    `${data.summary}<br><br>
-     Et c’est exactement ce qui limite ta croissance aujourd’hui.`,
-    "",
-    14
-  );
+    <div style="margin-top:12px;font-weight:800;">
+      ⏱ Tu bloques actuellement entre <b>${data.estimated_min} et ${data.estimated_max} heures par semaine</b>
+    </div>
 
-  await sleep(600);
+    <div class="micro" style="margin-top:6px;">
+      sur des tâches, suivis ou validations qui reviennent encore vers toi.
+    </div>
 
-  await addBotMsgTyped(
-    `<b>Répartition de la dépendance par zone :</b>${renderDimensions(data.dimension_scores)}`,
-    "",
-    14
-  );
+    <div style="margin-top:12px;font-weight:800;">
+      💸 Cela représente environ <b>${formatEuro(data.monthly_loss_min)}€ à ${formatEuro(data.monthly_loss_max)}€ par mois</b>
+    </div>
 
-  await sleep(600);
+    <div class="micro" style="margin-top:6px;">
+      en temps, friction et croissance bloquée.
+    </div>
 
-  await addBotMsgTyped(
-    `Le problème n’est pas ton niveau d’effort.<br><br>
-     👉 Le problème, c’est que ton business n’est pas encore construit pour fonctionner sans toi sur les zones critiques.<br><br>
-     Et tant que ça reste comme ça :<br>
-     tu échanges du temps contre de la croissance.`,
-    "",
-    14
-  );
+    <div class="micro" style="margin-top:10px;">
+      📈 Exemples : plus de clients, plus de visibilité, plus de demandes… sans que ton système soit encore prêt à les absorber proprement.
+    </div>
+  </div>
+  `,
+  "",
+  14
+);
 
-  await sleep(600);
+await sleep(600);
 
-  await addBotMsgTyped(
-    `Aujourd’hui, tu bloques entre <b>${data.estimated_min} et ${data.estimated_max} heures par semaine</b><br><br>
-     👉 sur des choses que ton système devrait déjà gérer à ta place.<br><br>
-     Ce temps pourrait être utilisé pour :<br>
-     • signer plus de clients<br>
-     • améliorer ton offre<br>
-     • ou simplement lever le pied sans risque`,
-    "estimateBox",
-    14
-  );
+await addBotMsgTyped(
+  `${data.summary}<br><br>
+   Et c’est exactement ce qui limite ta croissance aujourd’hui.`,
+  "",
+  14
+);
 
-  await sleep(600);
+await sleep(600);
 
-  await addBotMsgTyped(
-    `<b>👉 Voilà concrètement où ton business te rend encore indispensable :</b><br><br>
-     1) ${data.top3[0]}<br>
-     2) ${data.top3[1]}<br>
-     3) ${data.top3[2]}`,
-    "",
-    14
-  );
+await addBotMsgTyped(
+  `<b>Répartition de la dépendance par zone :</b>${renderDimensions(data.dimension_scores)}`,
+  "",
+  14
+);
 
-  await sleep(600);
+await sleep(600);
 
-  await addBotMsgTyped(
-    `${data.tension}<br><br>
+await addBotMsgTyped(
+  `<b>👉 Voilà concrètement où ton business te rend encore indispensable :</b><br><br>
+   1) ${data.top3[0]}<br>
+   2) ${data.top3[1]}<br>
+   3) ${data.top3[2]}`,
+  "",
+  14
+);
 
-     👉 Et c’est exactement pour ça que ton business plafonne aujourd’hui.<br><br>
+await sleep(600);
 
-     Tant que ces zones restent dépendantes de toi :<br>
-     • tu ne peux pas vraiment scaler<br>
-     • tu ne peux pas lever le pied<br>
-     • tu restes le goulot<br><br>
-
-     ${data.closing}`,
-    "",
-    14
-  );
+await addBotMsgTyped(
+  `Le problème n’est pas ton niveau d’effort.<br><br>
+   👉 Le problème, c’est que ton business dépend encore trop de toi sur les zones critiques.<br><br>
+   Tant que ces zones restent dépendantes de toi :<br>
+   • tu ne peux pas vraiment scaler sereinement<br>
+   • tu ne peux pas lever le pied sans risque<br>
+   • tu restes le point de passage obligé<br><br>
+   ${data.closing}`,
+  "",
+  14
+);
 
   await sleep(400);
   renderFinalCTA(data);
