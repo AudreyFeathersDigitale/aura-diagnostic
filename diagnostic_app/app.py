@@ -179,6 +179,10 @@ ANSWER_SCORES = {
     "D": 3,
 }
 
+# =========================
+# 3) MOTEUR DE SCORING
+# =========================
+
 QUESTION_DIMENSIONS = {
     "dependance": {"main": "STR", "secondary": ("DEL",0.5), "weight": 1.5},
 
@@ -1796,33 +1800,28 @@ HTML = r"""
             </div>
           </div>
 
+          <div class="name">AURA</div>
+          <div class="subtitle">Agent IA • Diagnostic automatisation</div>
+          <div class="tag">Découvre à quel point ton business dépend encore de toi.</div>
+
           <div class="promiseBox">
+            <div class="promiseTitle">En 2 minutes, AURA te montre :</div>
+            <ul class="promiseList">
+              <li>où ton business dépend encore trop de toi</li>
+              <li>combien d’heures tu bloques chaque semaine à cause de ça</li>
+              <li>quelles zones te rendent encore indispensable (acquisition, onboarding, exécution, structuration)</li>
+              <li>ce que cette dépendance te coûte vraiment en croissance</li>
+            </ul>
+            <div class="promiseHighlight">+ tu peux voir si ton business est prêt à fonctionner davantage comme un système, et moins comme une extension de toi</div>
+          </div>
 
-    <div class="promiseTitle">
-En 2 minutes, AURA va révéler :
-</div>
+          <div class="progress"><div id="bar" class="bar"></div></div>
 
-    <ul class="promiseList">
-      <li>pourquoi tu restes encore le point de passage obligé</li>
-
-      <li>où tu perds du temps sans vraiment le voir au quotidien</li>
-
-      <li>quelles zones te rendent encore indispensable aujourd’hui</li>
-
-      <li>ce qui bloque aujourd’hui ta capacité à grandir sans augmenter ta charge</li>
-    </ul>
-
-    <div class="promiseHighlight">
-      👉 L’objectif : voir si ton business peut continuer à avancer… même quand tu ralentis.
-    </div>
-
-</div>
-
-<div style="margin-top:18px;" class="leftTitle">
-
-💡 Beaucoup découvrent que leur vrai problème n’est pas le manque de temps… mais le fait que tout finit toujours par revenir vers eux.
-
-</div>
+          <div style="margin-top:18px;" class="leftTitle">
+            💡 En moyenne, les entrepreneurs découvrent 5 à 15 heures perdues chaque semaine.
+          </div>
+        </div>
+      </div>
 
       <div class="right">
         <div class="chatHeader">
@@ -1832,9 +1831,8 @@ En 2 minutes, AURA va révéler :
             </div>
             <div class="chatHeaderText">
               <div class="chatHeaderTitle">Salut 👋 Je suis AURA.</div>
-              <div class="chatHeaderSub">
-En 2 minutes, je vais te montrer pourquoi ton business te ramène encore trop souvent au centre.
-</div>
+              <div class="chatHeaderSub">Je vais t’aider à voir où ton business dépend encore trop de toi… puis te montrer ce que ça bloque vraiment dans ta croissance.</div>
+            </div>
           </div>
           <div class="chatHeaderRight">~2 minutes</div>
         </div>
@@ -2432,103 +2430,114 @@ async function finish(){
   await typeHtmlInto(
     loadingMsg.bubble,
     `
-   <div class="scoreHero">
-  <div style="font-weight:900;font-size:16px;">Ton business est actuellement limité par toi à :</div>
-  <div class="scorePercent ${getScoreClass(data.dependency_pct)}">${data.dependency_pct}%</div>
-  <div class="scoreSecondary">
-    👉 Concrètement : ton système ne prend pas encore le relais là où il devrait.
-  </div>
-  <div class="micro" style="margin-top:10px;">
-    <b>${data.level}</b> — ${data.subtitle}
-  </div>
-</div>
-`,
-14
-);
-
-await sleep(600);
-
-await addBotMsgTyped(
-  `
-  <div class="resultCard messageAppear" style="border:1px solid #fecaca;background:#fff1f2;">
-    <div style="font-weight:900;font-size:18px;color:#b91c1c;">
-      ⚠️ Ce que cette dépendance te coûte réellement
+    <div class="scoreHero">
+      <div style="font-weight:900;font-size:16px;">Ton business est actuellement limité par toi à :</div>
+      <div class="scorePercent ${getScoreClass(data.dependency_pct)}">${data.dependency_pct}%</div>
+      <div class="scoreSecondary">
+        👉 Concrètement : ton système ne prend pas encore le relais là où il devrait.
+      </div>
+      <div class="micro" style="margin-top:10px;">
+        <b>${data.level}</b> — ${data.subtitle}
+      </div>
     </div>
+    `,
+    14
+  );
 
-    <div style="margin-top:10px;font-weight:800;">
-      Elle ne te coûte pas seulement du temps.
+  await sleep(600);
+
+  await addBotMsgTyped(
+    `
+    <div class="resultCard messageAppear" style="border:1px solid #fecaca;background:#fff1f2;">
+      <div style="font-weight:900;font-size:18px;color:#b91c1c;">
+        ⚠️ Ce que ça te coûte réellement
+      </div>
+
+      <div style="margin-top:10px;font-weight:700;">
+        Tu perds actuellement entre <b>${formatEuro(data.monthly_loss_min)}€ et ${formatEuro(data.monthly_loss_max)}€ par mois</b>
+      </div>
+
+      <div class="micro" style="margin-top:6px;">
+        à cause des tâches, frictions et dépendances que ton système pourrait déjà absorber.
+      </div>
+
+      <div style="margin-top:10px;font-weight:700;">
+        👉 soit l’équivalent de <b>${data.lost_clients_min} à ${data.lost_clients_max} clients</b> que tu pourrais potentiellement absorber en plus.
+      </div>
     </div>
+    `,
+    "",
+    14
+  );
 
-    <div class="micro" style="margin-top:6px;">
-      Elle bloque aussi des opportunités que ton business n’est pas encore capable d’absorber sereinement sans te rajouter de charge.
-    </div>
+  await sleep(600);
 
-    <div style="margin-top:12px;font-weight:800;">
-      ⏱ Tu bloques actuellement entre <b>${data.estimated_min} et ${data.estimated_max} heures par semaine</b>
-    </div>
+  await addBotMsgTyped(
+    `${data.summary}<br><br>
+     Et c’est exactement ce qui limite ta croissance aujourd’hui.`,
+    "",
+    14
+  );
 
-    <div class="micro" style="margin-top:6px;">
-      sur des tâches, suivis ou validations qui reviennent encore vers toi.
-    </div>
+  await sleep(600);
 
-    <div style="margin-top:12px;font-weight:800;">
-      💸 Cela représente environ <b>${formatEuro(data.monthly_loss_min)}€ à ${formatEuro(data.monthly_loss_max)}€ par mois</b>
-    </div>
+  await addBotMsgTyped(
+    `<b>Répartition de la dépendance par zone :</b>${renderDimensions(data.dimension_scores)}`,
+    "",
+    14
+  );
 
-    <div class="micro" style="margin-top:6px;">
-      en temps, friction et croissance bloquée.
-    </div>
+  await sleep(600);
 
-    <div class="micro" style="margin-top:10px;">
-      📈 Exemples : plus de clients, plus de visibilité, plus de demandes… sans que ton système soit encore prêt à les absorber proprement.
-    </div>
-  </div>
-  `,
-  "",
-  14
-);
+  await addBotMsgTyped(
+    `Le problème n’est pas ton niveau d’effort.<br><br>
+     👉 Le problème, c’est que ton business n’est pas encore construit pour fonctionner sans toi sur les zones critiques.<br><br>
+     Et tant que ça reste comme ça :<br>
+     tu échanges du temps contre de la croissance.`,
+    "",
+    14
+  );
 
-await sleep(600);
+  await sleep(600);
 
-await addBotMsgTyped(
-  `${data.summary}<br><br>
-   Et c’est exactement ce qui limite ta croissance aujourd’hui.`,
-  "",
-  14
-);
+  await addBotMsgTyped(
+    `Aujourd’hui, tu bloques entre <b>${data.estimated_min} et ${data.estimated_max} heures par semaine</b><br><br>
+     👉 sur des choses que ton système devrait déjà gérer à ta place.<br><br>
+     Ce temps pourrait être utilisé pour :<br>
+     • signer plus de clients<br>
+     • améliorer ton offre<br>
+     • ou simplement lever le pied sans risque`,
+    "estimateBox",
+    14
+  );
 
-await sleep(600);
+  await sleep(600);
 
-await addBotMsgTyped(
-  `<b>Répartition de la dépendance par zone :</b>${renderDimensions(data.dimension_scores)}`,
-  "",
-  14
-);
+  await addBotMsgTyped(
+    `<b>👉 Voilà concrètement où ton business te rend encore indispensable :</b><br><br>
+     1) ${data.top3[0]}<br>
+     2) ${data.top3[1]}<br>
+     3) ${data.top3[2]}`,
+    "",
+    14
+  );
 
-await sleep(600);
+  await sleep(600);
 
-await addBotMsgTyped(
-  `<b>👉 Voilà concrètement où ton business te rend encore indispensable :</b><br><br>
-   1) ${data.top3[0]}<br>
-   2) ${data.top3[1]}<br>
-   3) ${data.top3[2]}`,
-  "",
-  14
-);
+  await addBotMsgTyped(
+    `${data.tension}<br><br>
 
-await sleep(600);
+     👉 Et c’est exactement pour ça que ton business plafonne aujourd’hui.<br><br>
 
-await addBotMsgTyped(
-  `Le problème n’est pas ton niveau d’effort.<br><br>
-   👉 Le problème, c’est que ton business dépend encore trop de toi sur les zones critiques.<br><br>
-   Tant que ces zones restent dépendantes de toi :<br>
-   • tu ne peux pas vraiment scaler sereinement<br>
-   • tu ne peux pas lever le pied sans risque<br>
-   • tu restes le point de passage obligé<br><br>
-   ${data.closing}`,
-  "",
-  14
-);
+     Tant que ces zones restent dépendantes de toi :<br>
+     • tu ne peux pas vraiment scaler<br>
+     • tu ne peux pas lever le pied<br>
+     • tu restes le goulot<br><br>
+
+     ${data.closing}`,
+    "",
+    14
+  );
 
   await sleep(400);
   renderFinalCTA(data);
