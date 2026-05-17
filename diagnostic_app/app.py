@@ -1813,7 +1813,7 @@ En 2 minutes, AURA va révéler :
     </ul>
 
     <div class="promiseHighlight">
-      👉 L’objectif : voir si ton business peut continuer à avancer… même quand tu ralentis.
+      👉 L’objectif : voir si ton business peut continuer à avancer… même quand tu ralentis...
     </div>
 
 </div>
@@ -1825,34 +1825,33 @@ En 2 minutes, AURA va révéler :
 </div>
 
       <div class="right">
-        <div class="chatHeader">
-          <div class="chatHeaderLeft">
-            <div class="chatHeaderAvatarWrap">
-              <img class="chatHeaderAvatar" src="/static/aura_head.png" alt="AURA">
-            </div>
-            <div class="chatHeaderText">
-              <div class="chatHeaderTitle">Salut 👋 Je suis AURA.</div>
-              <div class="chatHeaderSub">
-En 2 minutes, je vais te montrer pourquoi ton business te ramène encore trop souvent au centre.
-</div>
-          </div>
-          <div class="chatHeaderRight">~2 minutes</div>
-        </div>
-
-        <div class="chat" id="chat"></div>
-        <div class="choices" id="choices"></div>
-
-        <div class="footer" id="footer">
-          <div class="cta">Mot clé LinkedIn : <code>diagnostic</code></div>
-          <button class="restart" id="restart">Recommencer</button>
-        </div>
-
-        <div class="copy" id="copyBox"></div>
+  <div class="chatHeader">
+    <div class="chatHeaderLeft">
+      <div class="chatHeaderAvatarWrap">
+        <img class="chatHeaderAvatar" src="/static/aura_head.png" alt="AURA">
       </div>
 
+      <div class="chatHeaderText">
+        <div class="chatHeaderTitle">Salut 👋 Je suis AURA.</div>
+        <div class="chatHeaderSub">
+          En 2 minutes, je vais te montrer pourquoi ton business te ramène encore trop souvent au centre.
+        </div>
+      </div>
     </div>
+
+    <div class="chatHeaderRight">~2 minutes</div>
   </div>
 
+  <div class="chat" id="chat"></div>
+  <div class="choices" id="choices"></div>
+
+  <div class="footer" id="footer">
+    <div class="cta">Mot clé LinkedIn : <code>diagnostic</code></div>
+    <button class="restart" id="restart">Recommencer</button>
+  </div>
+
+  <div class="copy" id="copyBox"></div>
+</div>
 <script>
 const PROFILE_QUESTIONS = %PROFILE_QUESTIONS_JSON%;
 const QUESTIONS = %QUESTIONS_JSON%;
