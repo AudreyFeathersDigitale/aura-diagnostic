@@ -1832,8 +1832,9 @@ HTML = r"""
             </div>
             <div class="chatHeaderText">
               <div class="chatHeaderTitle">Salut 👋 Je suis AURA.</div>
-              <div class="chatHeaderSub">Je vais t’aider à voir où ton business dépend encore trop de toi… puis te montrer ce que ça bloque vraiment dans ta croissance.</div>
-            </div>
+              <div class="chatHeaderSub">
+En 2 minutes, je vais te montrer pourquoi ton business te ramène encore trop souvent au centre.
+</div>
           </div>
           <div class="chatHeaderRight">~2 minutes</div>
         </div>
