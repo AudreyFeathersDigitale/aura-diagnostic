@@ -63,102 +63,111 @@ PROFILE_QUESTIONS = [
 QUESTIONS = [
     (
         "dependance",
-        "Si tu arrêtes de travailler pendant <b>1 semaine</b>, ton business continue vraiment… ou certaines choses commencent à bloquer ?",
+        "Si tu levais complètement le pied pendant <b>1 semaine</b>, qu’est-ce qui se passerait vraiment ?",
         {
-            "A": "Tout continue sans moi, même les opérations importantes.",
-            "B": "Globalement ça tourne, mais quelques tâches s’accumulent.",
-            "C": "Certaines choses commencent à bloquer ou ralentir.",
-            "D": "Tout dépend de moi, ça s’arrête presque complètement.",
+            "A": "Franchement, ça continuerait sans problème.",
+            "B": "Quelques trucs s’accumuleraient un peu.",
+            "C": "Plusieurs choses commenceraient à ralentir.",
+            "D": "Ça deviendrait vite compliqué.",
         },
     ),
+
     (
         "leads",
-        "Aujourd’hui, tes prospects arrivent… mais es-tu sûr(e) de pouvoir tous les suivre sans en perdre ou en oublier ?",
+        "Aujourd’hui, tes <b>prospects</b> arrivent… mais est-ce que tu es sûr(e) de pouvoir tous les suivre sans en perdre en route ?",
         {
-            "A": "Oui, tout est centralisé et suivi automatiquement.",
-            "B": "J’ai un système, mais je vérifie encore manuellement.",
-            "C": "Ils arrivent à plusieurs endroits, je dois jongler.",
-            "D": "Je n’ai pas vraiment de système clair.",
+            "A": "Oui, tout est suivi naturellement.",
+            "B": "J’ai un système mais je vérifie encore certaines choses.",
+            "C": "Je jongle entre plusieurs endroits.",
+            "D": "J’ai souvent peur qu’il y ait des oublis.",
         },
     ),
+
     (
         "onboarding",
-        "Quand un client signe, est-ce que tout est fluide… ou dois-tu encore intervenir à chaque étape ?",
+        "Quand un nouveau client signe, qu’est-ce qui se passe généralement ensuite ?",
         {
-            "A": "Tout est automatisé et fluide.",
-            "B": "Partiellement automatisé, mais pas partout.",
-            "C": "Je dois intervenir régulièrement.",
-            "D": "C’est souvent manuel ou improvisé.",
+            "A": "Tout démarre naturellement.",
+            "B": "Je vérifie juste quelques détails.",
+            "C": "Je dois intervenir à plusieurs étapes.",
+            "D": "Sans moi, rien ne démarre vraiment.",
         },
     ),
+
     (
         "outils",
-        "Tu utilises plusieurs outils… mais est-ce qu’ils travaillent vraiment ensemble ou tu fais encore beaucoup de choses à la main ?",
-        {
-            "A": "Tout est connecté et fonctionne ensemble.",
-            "B": "Une partie des outils est connectée.",
-            "C": "Peu de connexions, beaucoup de manipulations.",
-            "D": "Rien n’est connecté, je gère tout à la main.",
-        },
-    ),
-    (
-        "repetitif",
-        "Combien de fois par semaine refais-tu les mêmes actions (copier-coller, relances, organisation…) sans automatisation ?",
+        "Dans une semaine normale, tu as parfois l’impression de passer ton temps entre plusieurs outils ?",
         {
             "A": "Très rarement.",
-            "B": "Quelques fois par semaine.",
-            "C": "Très régulièrement.",
-            "D": "Tous les jours ou presque.",
-        },
-    ),
-    (
-        "process",
-        "Si quelqu’un devait reprendre ton business demain, pourrait-il suivre tes process… ou tout est encore dans ta tête ?",
-        {
-            "A": "Tout est documenté et structuré.",
-            "B": "Une partie est documentée.",
-            "C": "Très peu de choses sont structurées.",
-            "D": "Tout est dans ma tête.",
-        },
-    ),
-    (
-        "frein",
-        "Aujourd’hui, ton business tourne grâce à un système… ou surtout parce que tu es là pour tout gérer ?",
-        {
-            "A": "Le système gère la majorité.",
-            "B": "Mix entre système et moi.",
-            "C": "Principalement moi.",
-            "D": "Uniquement moi.",
-        },
-    ),
-    (
-        "temps_perdu",
-        "Chaque semaine, combien d’heures passes-tu sur des tâches que tu pourrais éviter avec un meilleur système ?",
-        {
-            "A": "Moins de 2 heures.",
-            "B": "2 à 5 heures.",
-            "C": "6 à 10 heures.",
-            "D": "Plus de 10 heures.",
-        },
-    ),
-    (
-        "charge",
-        "As-tu parfois l’impression que si tu ralentis un peu, tout peut partir en vrille ?",
-        {
-            "A": "Non, tout est sous contrôle.",
             "B": "Parfois.",
             "C": "Souvent.",
-            "D": "Oui clairement.",
+            "D": "Tout le temps.",
         },
     ),
+
     (
-        "goulot",
-        "Si ton business était vraiment bien structuré, qu’est-ce qui ferait le plus de différence pour toi aujourd’hui ?",
+        "interruptions",
+        "Dans une semaine normale, combien de fois as-tu l’impression d’être interrompu(e) par des petits sujets qui reviennent vers toi ?",
         {
-            "A": "Pas grand-chose, ça fonctionne déjà bien.",
-            "B": "Gagner du temps.",
-            "C": "Réduire les tâches manuelles.",
-            "D": "Avoir un système qui tourne sans moi.",
+            "A": "Très rarement.",
+            "B": "Quelques fois.",
+            "C": "Souvent.",
+            "D": "Toute la journée ou presque.",
+        },
+    ),
+
+    (
+        "blocages",
+        "Aujourd’hui, quand quelque chose bloque dans ton business, ça ressemble plutôt à quoi ?",
+        {
+            "A": "Ça se règle généralement sans moi.",
+            "B": "Je dois jeter un œil de temps en temps.",
+            "C": "Plusieurs sujets remontent vers moi.",
+            "D": "J’ai l’impression que tout finit par revenir vers moi.",
+        },
+    ),
+
+    (
+        "frein",
+        "Aujourd’hui, ton business avance surtout grâce à :",
+        {
+            "A": "Une façon de fonctionner claire.",
+            "B": "Un mélange entre mon organisation et moi.",
+            "C": "Principalement moi.",
+            "D": "Surtout parce que je suis partout.",
+        },
+    ),
+
+    (
+        "temps_perdu",
+        "Quand tu regardes ta semaine, combien de temps est absorbé par des tâches qui n’apportent pas directement de valeur ?",
+        {
+            "A": "Moins de 2h.",
+            "B": "2 à 5h.",
+            "C": "6 à 10h.",
+            "D": "Plus de 10h.",
+        },
+    ),
+
+    (
+        "charge",
+        "Quand tu ralentis quelques jours, qu’est-ce que tu ressens le plus ?",
+        {
+            "A": "Rien de particulier.",
+            "B": "Je vérifie juste quelques trucs.",
+            "C": "J’ai besoin de surveiller plusieurs choses.",
+            "D": "J’ai peur que ça parte dans tous les sens.",
+        },
+    ),
+
+    (
+        "projection",
+        "Si ton business tournait davantage sans toi demain, qu’est-ce qui changerait le plus ?",
+        {
+            "A": "Pas grand-chose.",
+            "B": "Je récupérerais du temps.",
+            "C": "J’aurais moins de charge mentale.",
+            "D": "Je pourrais enfin respirer et grandir sereinement.",
         },
     ),
 ]
@@ -170,21 +179,26 @@ ANSWER_SCORES = {
     "D": 3,
 }
 
-# =========================
-# 3) MOTEUR DE SCORING
-# =========================
-
 QUESTION_DIMENSIONS = {
-    "dependance": {"main": "STR", "secondary": ("DEL", 0.5), "weight": 1.5},
-    "leads": {"main": "ACQ", "secondary": ("STR", 0.3), "weight": 1.0},
-    "onboarding": {"main": "ONB", "secondary": ("DEL", 0.4), "weight": 1.0},
-    "outils": {"main": "DEL", "secondary": ("STR", 0.5), "weight": 1.0},
-    "repetitif": {"main": "DEL", "secondary": ("STR", 0.3), "weight": 1.0},
-    "process": {"main": "STR", "secondary": ("DEL", 0.4), "weight": 1.5},
-    "frein": {"main": "STR", "secondary": ("DEL", 0.5), "weight": 1.5},
-    "temps_perdu": {"main": "DEL", "secondary": None, "weight": 1.2},
-    "charge": {"main": "STR", "secondary": ("DEL", 0.3), "weight": 1.2},
-    "goulot": {"main": "STR", "secondary": None, "weight": 0.4},
+    "dependance": {"main": "STR", "secondary": ("DEL",0.5), "weight": 1.5},
+
+    "leads": {"main":"ACQ", "secondary":("STR",0.3), "weight":1.0},
+
+    "onboarding": {"main":"ONB", "secondary":("DEL",0.4), "weight":1.0},
+
+    "outils": {"main":"DEL", "secondary":("STR",0.4), "weight":1.0},
+
+    "interruptions": {"main":"STR", "secondary":("DEL",0.5), "weight":1.2},
+
+    "blocages": {"main":"STR", "secondary":("DEL",0.5), "weight":1.5},
+
+    "frein": {"main":"STR", "secondary":("DEL",0.6), "weight":1.5},
+
+    "temps_perdu": {"main":"DEL", "secondary":("STR",0.3), "weight":1.2},
+
+    "charge": {"main":"STR", "secondary":("DEL",0.3), "weight":1.2},
+
+    "projection": {"main":"STR", "secondary":None, "weight":0.4},
 }
 
 PROFILE_WEIGHTS = {
@@ -2206,10 +2220,10 @@ function renderFinalCTA(baseData){
     <div class="leadForm">
       <div>
         <label for="repetitiveInput">
-          Qu’est-ce qui te fait perdre le plus de temps aujourd’hui ?
-        </label>
+Quelles tâches te donnent le plus l’impression de tourner en boucle aujourd’hui ?
+</label>
         <textarea id="repetitiveInput" class="leadTextarea"
-          placeholder="Ex : relances, onboarding, suivi client, organisation, copier-coller..."
+          placeholder="Ex : relances, onboarding, suivi client, DM, WhatsApp, contenu, organisation..."
         ></textarea>
       </div>
 
