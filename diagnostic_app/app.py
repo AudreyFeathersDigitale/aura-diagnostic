@@ -1799,28 +1799,28 @@ HTML = r"""
           <div class="promiseBox">
 
     <div class="promiseTitle">
-      En 2 minutes, AURA va t’aider à comprendre :
-    </div>
+En 2 minutes, AURA va révéler :
+</div>
 
     <ul class="promiseList">
-      <li>pourquoi ton business te ramène encore au centre</li>
+      <li>pourquoi tu restes encore le point de passage obligé</li>
 
-      <li>où tu perds du temps sans vraiment t’en rendre compte</li>
+      <li>où tu perds du temps sans vraiment le voir au quotidien</li>
 
-      <li>quelles zones te rendent encore indispensable</li>
+      <li>quelles zones te rendent encore indispensable aujourd’hui</li>
 
-      <li>ce qui bloque aujourd’hui ta capacité à grandir sereinement</li>
+      <li>ce qui bloque aujourd’hui ta capacité à grandir sans augmenter ta charge</li>
     </ul>
 
     <div class="promiseHighlight">
-      👉 L’objectif : voir si ton business peut continuer à avancer… même quand toi tu lèves le pied.
+      👉 L’objectif : voir si ton business peut continuer à avancer… même quand tu ralentis.
     </div>
 
 </div>
 
 <div style="margin-top:18px;" class="leftTitle">
 
-💡 Beaucoup découvrent que leur vrai problème n’est pas un manque de temps… mais le fait que tout finit par revenir vers eux.
+💡 Beaucoup découvrent que leur vrai problème n’est pas le manque de temps… mais le fait que tout finit toujours par revenir vers eux.
 
 </div>
 
