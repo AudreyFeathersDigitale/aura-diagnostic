@@ -330,33 +330,30 @@ def compute_dimension_scores(answers: dict, profile: dict) -> dict:
 
 
 def compute_dependency_pct(dimension_scores: dict, profile: dict) -> int:
-
     revenue_band = profile.get("revenue_band", "lt3")
     team_size = profile.get("team_size", "solo")
 
     dimension_weights = {
-        "ACQ": 0.20,   # acquisition / prospects
-        "ONB": 0.15,   # onboarding
-        "DEL": 0.30,   # exécution
-        "STR": 0.35,   # structuration
+        "ACQ": 0.20,
+        "ONB": 0.15,
+        "DEL": 0.30,
+        "STR": 0.35,
     }
 
-    weights = dimension_weights
-
     score = (
-        dimension_scores["ACQ"] * weights["ACQ"] +
-        dimension_scores["ONB"] * weights["ONB"] +
-        dimension_scores["DEL"] * weights["DEL"] +
-        dimension_scores["STR"] * weights["STR"]
+        dimension_scores["ACQ"] * dimension_weights["ACQ"] +
+        dimension_scores["ONB"] * dimension_weights["ONB"] +
+        dimension_scores["DEL"] * dimension_weights["DEL"] +
+        dimension_scores["STR"] * dimension_weights["STR"]
     )
 
     if team_size in ("small", "team") and dimension_scores["STR"] >= 60:
-    score += 5
+        score += 5
 
-if revenue_band in ("10to30", "30plus") and dimension_scores["DEL"] >= 60:
-    score += 3
+    if revenue_band in ("10to30", "30plus") and dimension_scores["DEL"] >= 60:
+        score += 3
 
-return min(round(score), 100)
+    return min(round(score), 100)
 
 def compute_autonomy_pct(dependency_pct: int) -> int:
     return max(0, 100 - dependency_pct)
