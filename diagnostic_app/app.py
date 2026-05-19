@@ -25,17 +25,6 @@ INSTAGRAM_URL = "https://www.instagram.com/business.auto.feathersdigital/"
 
 PROFILE_QUESTIONS = [
     (
-        "business_type",
-        "Avant de commencer, je personnalise ton diagnostic en 3 questions rapides.<br><br><b>Ton activité principale aujourd’hui ?</b>",
-        {
-            "freelance": "Solopreneur (freelance, coach, consultant)",
-            "agency": "Agence",
-            "info": "Infopreneur / Formation",
-            "saas": "SaaS / Produit digital",
-            "ecommerce": "E-commerce",
-        },
-    ),
-    (
         "revenue_band",
         "Ton niveau de chiffre d’affaires mensuel actuel ?",
         {
@@ -203,14 +192,6 @@ QUESTION_DIMENSIONS = {
     "charge": {"main":"STR", "secondary":("DEL",0.3), "weight":1.2},
 
     "projection": {"main":"STR", "secondary":None, "weight":0.4},
-}
-
-PROFILE_WEIGHTS = {
-    "freelance": {"ACQ": 1.1, "ONB": 1.2, "DEL": 1.0, "STR": 1.1},
-    "agency": {"ACQ": 1.0, "ONB": 1.1, "DEL": 1.1, "STR": 1.3},
-    "info": {"ACQ": 1.1, "ONB": 1.0, "DEL": 1.0, "STR": 1.1},
-    "saas": {"ACQ": 0.9, "ONB": 1.0, "DEL": 1.1, "STR": 1.2},
-    "ecommerce": {"ACQ": 0.9, "ONB": 0.8, "DEL": 1.3, "STR": 1.2},
 }
 
 DIMENSION_LABELS = {
@@ -908,7 +889,6 @@ def render_profile_html(profile_json: str | None) -> str:
         return "-"
 
     label_maps = {
-        "business_type": dict(PROFILE_QUESTIONS[0][2]),
         "revenue_band": dict(PROFILE_QUESTIONS[1][2]),
         "team_size": dict(PROFILE_QUESTIONS[2][2]),
     }
