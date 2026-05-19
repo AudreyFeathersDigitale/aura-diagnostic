@@ -368,111 +368,29 @@ def compute_autonomy_pct(dependency_pct: int) -> int:
 
 
 def level_from_dependency_pct(dependency_pct: int, profile: dict) -> tuple[str, str]:
-    business_type = profile.get("business_type", "freelance")
-
-    level_copy = {
-        "freelance": {
-            "low": (
-                "Dépendance faible",
-                "Ton activité a déjà une bonne base, mais certaines zones peuvent encore mieux tourner sans toi."
-            ),
-            "mid": (
-                "Dépendance modérée",
-                "Ton business avance, mais il te ramène encore trop souvent au centre."
-            ),
-            "high": (
-                "Dépendance forte",
-                "Tu es encore le point de passage obligé sur plusieurs zones critiques."
-            ),
-            "critical": (
-                "Dépendance critique",
-                "Si tu ralentis, ton business ralentit immédiatement avec toi."
-            ),
-        },
-        "agency": {
-            "low": (
-                "Dépendance faible",
-                "Ton agence a une base saine, même si certaines validations reviennent encore vers toi."
-            ),
-            "mid": (
-                "Dépendance modérée",
-                "Ton agence avance, mais elle dépend encore trop de ta supervision."
-            ),
-            "high": (
-                "Dépendance forte",
-                "Tu restes le point de passage obligé de ton agence."
-            ),
-            "critical": (
-                "Dépendance critique",
-                "Si tu ralentis, ton agence ralentit avec toi."
-            ),
-        },
-        "info": {
-            "low": (
-                "Dépendance faible",
-                "Ton activité est déjà mieux structurée que la moyenne."
-            ),
-            "mid": (
-                "Dépendance modérée",
-                "Ton système existe, mais il dépend encore trop de ton intervention."
-            ),
-            "high": (
-                "Dépendance forte",
-                "Tu portes encore trop d’étapes à la main dans ton activité."
-            ),
-            "critical": (
-                "Dépendance critique",
-                "Sans toi, trop de briques de ton activité perdent en fluidité."
-            ),
-        },
-        "saas": {
-            "low": (
-                "Dépendance faible",
-                "Ton business est déjà relativement robuste, mais certaines zones reposent encore sur toi."
-            ),
-            "mid": (
-                "Dépendance modérée",
-                "Ton système tient, mais trop de frictions remontent encore jusqu’à toi."
-            ),
-            "high": (
-                "Dépendance forte",
-                "Tu compenses encore des failles que ton système devrait déjà absorber."
-            ),
-            "critical": (
-                "Dépendance critique",
-                "Ton effet de levier reste trop dépendant de ta présence directe."
-            ),
-        },
-        "ecommerce": {
-            "low": (
-                "Dépendance faible",
-                "Ton activité est globalement saine, avec encore quelques frictions à lisser."
-            ),
-            "mid": (
-                "Dépendance modérée",
-                "Ton e-commerce tourne, mais trop d’opérations reviennent encore sur toi."
-            ),
-            "high": (
-                "Dépendance forte",
-                "Tu restes encore trop central(e) dans l’exécution de ton activité."
-            ),
-            "critical": (
-                "Dépendance critique",
-                "Si tu ralentis, plusieurs points de friction remontent immédiatement."
-            ),
-        },
-    }
-
-    copy = level_copy.get(business_type, level_copy["freelance"])
 
     if dependency_pct < 25:
-        return copy["low"]
-    if dependency_pct < 50:
-        return copy["mid"]
-    if dependency_pct < 75:
-        return copy["high"]
-    return copy["critical"]
+        return (
+            "Dépendance faible",
+            "Ton business commence déjà à fonctionner avec une certaine autonomie."
+        )
 
+    if dependency_pct < 50:
+        return (
+            "Dépendance modérée",
+            "Ton activité avance, mais elle te ramène encore régulièrement au centre."
+        )
+
+    if dependency_pct < 75:
+        return (
+            "Dépendance forte",
+            "Tu restes encore le point de passage obligé sur plusieurs zones importantes."
+        )
+
+    return (
+        "Dépendance critique",
+        "Aujourd’hui ton business avance encore à ton rythme."
+    )
 
 def display_score_30(dependency_pct: int) -> int:
     autonomy = compute_autonomy_pct(dependency_pct)
