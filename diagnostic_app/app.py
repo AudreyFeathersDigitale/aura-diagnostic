@@ -330,19 +330,18 @@ def compute_dimension_scores(answers: dict, profile: dict) -> dict:
 
 
 def compute_dependency_pct(dimension_scores: dict, profile: dict) -> int:
-    business_type = profile.get("business_type", "freelance")
+
     revenue_band = profile.get("revenue_band", "lt3")
     team_size = profile.get("team_size", "solo")
 
-    business_weights = {
-        "freelance": {"ACQ": 0.20, "ONB": 0.15, "DEL": 0.30, "STR": 0.35},
-        "agency": {"ACQ": 0.10, "ONB": 0.20, "DEL": 0.30, "STR": 0.40},
-        "info": {"ACQ": 0.25, "ONB": 0.15, "DEL": 0.25, "STR": 0.35},
-        "saas": {"ACQ": 0.25, "ONB": 0.15, "DEL": 0.30, "STR": 0.30},
-        "ecommerce": {"ACQ": 0.20, "ONB": 0.10, "DEL": 0.40, "STR": 0.30},
+    dimension_weights = {
+        "ACQ": 0.20,   # acquisition / prospects
+        "ONB": 0.15,   # onboarding
+        "DEL": 0.30,   # exécution
+        "STR": 0.35,   # structuration
     }
 
-    weights = business_weights.get(business_type, business_weights["freelance"])
+    weights = dimension_weights
 
     score = (
         dimension_scores["ACQ"] * weights["ACQ"] +
@@ -398,54 +397,28 @@ def display_score_30(dependency_pct: int) -> int:
 
 
 def summary_message(dependency_pct: int, profile: dict) -> str:
-    business_type = profile.get("business_type", "freelance")
+    if dependency_pct < 25:
+        return (
+            "Ton business a déjà une bonne base.<br><br>"
+            "Mais certaines zones peuvent encore mieux tourner sans toi."
+        )
 
-    intros = {
-        "freelance": (
+    if dependency_pct < 50:
+        return (
+            "Ton business avance.<br><br>"
+            "Mais il te ramène encore trop souvent au centre."
+        )
+
+    if dependency_pct < 75:
+        return (
             "Ton business fonctionne.<br><br>"
-            "Mais il fonctionne parce que tu compenses encore là où ton système devrait déjà prendre le relais.<br><br>"
-            "👉 Aujourd’hui, tu es encore le point de passage obligé."
-        ),
-        "agency": (
-            "Ton agence avance.<br><br>"
-            "Mais elle avance encore parce que trop de validations et de décisions remontent jusqu’à toi.<br><br>"
-            "👉 Aujourd’hui, tu restes le point de passage obligé."
-        ),
-        "info": (
-            "Ton activité fonctionne.<br><br>"
-            "Mais trop d’étapes reposent encore sur toi au lieu d’être absorbées par un système plus robuste.<br><br>"
-            "👉 Aujourd’hui, tu restes encore au centre."
-        ),
-        "saas": (
-            "Ton business peut scaler.<br><br>"
-            "Mais certaines frictions remontent encore jusqu’à toi au lieu d’être absorbées naturellement par le système.<br><br>"
-            "👉 Aujourd’hui, tu restes encore un point de passage critique."
-        ),
-        "ecommerce": (
-            "Ton activité tourne.<br><br>"
-            "Mais elle tourne encore avec trop de dépendance à ton intervention sur l’opérationnel.<br><br>"
-            "👉 Aujourd’hui, tu es encore trop central(e)."
-        ),
-    }
+            "Mais il fonctionne encore beaucoup parce que tu compenses là où ton système devrait prendre le relais."
+        )
 
-    endings = {
-        "low": (
-            "<br><br>Pour l’instant, ça tient.<br>"
-            "Mais dès que la charge augmente, ce modèle commence déjà à limiter ton levier."
-        ),
-        "mid": (
-            "<br><br>Tu avances…<br>"
-            "mais ton business te ramène déjà trop souvent au centre."
-        ),
-        "high": (
-            "<br><br>Concrètement :<br>"
-            "ta croissance reste encore trop liée à ton niveau de disponibilité."
-        ),
-        "critical": (
-            "<br><br>Concrètement :<br>"
-            "<b>sans toi, ça ralentit. ça bloque. ça s’accumule.</b>"
-        ),
-    }
+    return (
+        "Ton business fonctionne.<br><br>"
+        "Mais aujourd’hui, il avance encore trop souvent à ton rythme."
+    )
 
     if dependency_pct < 25:
         ending = endings["low"]
@@ -505,7 +478,6 @@ def estimate_time_gain(
     dimension_scores: dict,
     profile: dict,
 ) -> tuple[int, int]:
-    business_type = profile.get("business_type", "freelance")
     revenue_band = profile.get("revenue_band", "lt3")
     team_size = profile.get("team_size", "solo")
 
@@ -620,26 +592,21 @@ def estimate_lost_clients(monthly_loss_min: int, monthly_loss_max: int, profile:
 
 
 def dimension_priority_copy(dim: str, profile: dict) -> str:
-    business_type = profile.get("business_type", "freelance")
 
-    if dim == "STR":
-        if business_type == "agency":
-            return "Formaliser les process et réduire la dépendance au fondateur"
-        if business_type == "saas":
-            return "Renforcer la robustesse du système sur les zones encore trop dépendantes de toi"
-        return "Formaliser les process clés et réduire la dépendance à toi"
+    priorities = {
+        "STR": "Des process et une organisation qui reposent encore trop sur toi",
 
-    if dim == "DEL":
-        if business_type == "ecommerce":
-            return "Réduire les tâches manuelles dans l’exécution et le suivi"
-        if business_type == "agency":
-            return "Fluidifier l’exécution et limiter les remontées opérationnelles"
-        return "Automatiser les tâches répétitives et l’exécution"
+        "DEL": "Des tâches répétitives et suivis qui reviennent encore vers toi",
 
-    if dim == "ONB":
-        return "Fluidifier l’onboarding"
+        "ONB": "Un onboarding client qui dépend encore trop de ton intervention",
 
-    return "Structurer le suivi des leads et des relances"
+        "ACQ": "Le suivi des prospects et des relances reste encore trop manuel",
+    }
+
+    return priorities.get(
+        dim,
+        "Certaines zones de ton activité reposent encore trop sur toi"
+    )
 
 
 def priorities_from_dimensions(dimension_scores: dict, profile: dict) -> list[str]:
@@ -648,32 +615,47 @@ def priorities_from_dimensions(dimension_scores: dict, profile: dict) -> list[st
 
 
 def dominant_profile(dimension_scores: dict, profile: dict) -> tuple[str, str]:
-    business_type = profile.get("business_type", "freelance")
-    ordered = sorted(dimension_scores.items(), key=lambda x: x[1], reverse=True)
+
+    ordered = sorted(
+        dimension_scores.items(),
+        key=lambda x: x[1],
+        reverse=True
+    )
+
     top_dim = ordered[0][0] if ordered else "STR"
 
-    if top_dim == "STR":
-        title = "Ton principal frein aujourd’hui vient de la structuration"
-        if business_type == "agency":
-            text = "Ton agence repose encore trop sur ta supervision et des process qui ne sont pas assez solides sans toi."
-        elif business_type == "saas":
-            text = "Ton système n’absorbe pas encore assez les frictions. Trop de sujets critiques remontent encore jusqu’à toi."
-        else:
-            text = "Tes process, ton organisation et la circulation de l’info dépendent encore trop de toi pour rester fluides."
-    elif top_dim == "DEL":
-        title = "Ton principal frein aujourd’hui vient de l’exécution"
-        if business_type == "ecommerce":
-            text = "Trop d’actions opérationnelles, de suivis et de manipulations restent encore manuels dans ton activité."
-        else:
-            text = "Une partie trop importante de la production et des tâches répétitives repose encore sur toi ou sur des actions manuelles."
-    elif top_dim == "ONB":
-        title = "Ton principal frein aujourd’hui vient de l’onboarding"
-        text = "L’entrée de nouveaux clients n’est pas encore assez fluide. Tu interviens encore trop souvent là où le système devrait prendre le relais."
-    else:
-        title = "Ton principal frein aujourd’hui vient de l’acquisition"
-        text = "Le suivi des leads, des relances et la conversion dépendent encore trop d’un pilotage manuel."
+    profiles = {
 
-    return title, text
+        "STR": (
+            "Ton principal frein aujourd’hui vient de la structuration",
+
+            "Tes process, ton organisation et certaines décisions reposent encore trop sur toi."
+        ),
+
+        "DEL": (
+            "Ton principal frein aujourd’hui vient de l’exécution",
+
+            "Trop de tâches répétitives, suivis et actions opérationnelles reviennent encore vers toi."
+        ),
+
+        "ONB": (
+            "Ton principal frein aujourd’hui vient de l’onboarding",
+
+            "L’arrivée de nouveaux clients dépend encore trop de ton intervention."
+        ),
+
+        "ACQ": (
+            "Ton principal frein aujourd’hui vient de l’acquisition",
+
+            "Le suivi des prospects, relances et conversions reste encore trop manuel."
+        )
+
+    }
+
+    return profiles.get(
+        top_dim,
+        profiles["STR"]
+    )
 
 
 def create_lead_record(answers: dict, profile: dict, result_data: dict) -> int:
