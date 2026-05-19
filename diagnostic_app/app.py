@@ -2366,32 +2366,16 @@ await addBotMsgTyped(
       ⚠️ Ce que cette dépendance te coûte réellement
     </div>
 
-    <div style="margin-top:10px;font-weight:800;">
-      Elle ne te coûte pas seulement du temps.
-    </div>
-
-    <div class="micro" style="margin-top:6px;">
-      Elle bloque aussi des opportunités que ton business n’est pas encore capable d’absorber sereinement sans te rajouter de charge.
-    </div>
-
     <div style="margin-top:12px;font-weight:800;">
       ⏱ Tu bloques actuellement entre <b>${data.estimated_min} et ${data.estimated_max} heures par semaine</b>
     </div>
 
-    <div class="micro" style="margin-top:6px;">
-      sur des tâches, suivis ou validations qui reviennent encore vers toi.
+    <div style="margin-top:12px;font-weight:800;">
+      📈 Cela peut représenter <b>${data.lost_clients_min} à ${data.lost_clients_max} opportunités supplémentaires par mois</b>
     </div>
 
-    <div style="margin-top:12px;font-weight:800;">
-📈 Cela peut représenter <b>${data.lost_clients_min} à ${data.lost_clients_max} opportunités supplémentaires par mois</b>
-</div>
-
-<div class="micro" style="margin-top:6px;">
-prospects, clients potentiels ou demandes que ton système pourrait absorber plus sereinement.
-</div>
-
-    <div class="micro" style="margin-top:10px;">
-      📈 Exemples : plus de clients, plus de visibilité, plus de demandes… sans que ton système soit encore prêt à les absorber proprement.
+    <div class="micro" style="margin-top:6px;">
+      prospects, clients potentiels ou demandes que ton système pourrait absorber plus sereinement.
     </div>
   </div>
   `,
@@ -2402,15 +2386,8 @@ prospects, clients potentiels ou demandes que ton système pourrait absorber plu
 await sleep(600);
 
 await addBotMsgTyped(
-  `<b>Répartition de la dépendance par zone :</b>${renderDimensions(data.dimension_scores)}`,
-  "",
-  14
-);
-
-await sleep(600);
-
-await addBotMsgTyped(
-  `<b>👉 Tes 3 principaux points de dépendance :</b><br><br>
+  `<b>👉 Tes principales zones de dépendance aujourd’hui :</b>${renderDimensions(data.dimension_scores)}<br><br>
+   <b>Priorités :</b><br><br>
    1) ${data.top3[0]}<br>
    2) ${data.top3[1]}<br>
    3) ${data.top3[2]}`,
@@ -2421,7 +2398,10 @@ await addBotMsgTyped(
 await sleep(600);
 
 await addBotMsgTyped(
-  `👉 Si rien ne change :<br><br>
+  `${data.projection_message}<br><br>
+   Aujourd’hui ton diagnostic montre une chose :<br><br>
+   ton business avance encore davantage grâce à ta présence que grâce à son système.<br><br>
+   Si rien ne change :<br><br>
    • tu resteras le point de passage obligé<br>
    • ta charge continuera d’augmenter<br>
    • ta croissance restera liée à ton temps`,
@@ -2429,23 +2409,7 @@ await addBotMsgTyped(
   14
 );
 
-await sleep(600);
-
-await addBotMsgTyped(
-`${data.projection_message}
-
-<br><br>
-
-Aujourd’hui ton diagnostic montre surtout une chose :
-
-ton business avance encore davantage grâce à ta présence que grâce à son système.
-
-<br><br>
-
-Et c’est exactement ce qui bloque encore ce résultat.`,
-"",
-14
-);
+await sleep(400);
 renderFinalCTA(data);
 
 locked = false;
