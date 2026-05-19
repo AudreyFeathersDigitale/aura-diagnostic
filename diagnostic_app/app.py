@@ -50,115 +50,137 @@ PROFILE_QUESTIONS = [
 # =========================
 
 QUESTIONS = [
-    (
-        "dependance",
-        "Si tu levais complètement le pied pendant <b>1 semaine</b>, qu’est-ce qui se passerait vraiment ?",
-        {
-            "A": "Franchement, ça continuerait sans problème.",
-            "B": "Quelques trucs s’accumuleraient un peu.",
-            "C": "Plusieurs choses commenceraient à ralentir.",
-            "D": "Ça deviendrait vite compliqué.",
-        },
-    ),
+(
+"absence",
+"Si tu levais complètement le pied pendant <b>7 jours</b>, qu’est-ce qui se passerait réellement ?",
+{
+"A":"Le business continuerait normalement.",
+"B":"Quelques choses s’accumuleraient.",
+"C":"Plusieurs choses ralentiraient.",
+"D":"Une grosse partie dépendrait de mon retour."
+}
+),
 
-    (
-        "leads",
-        "Aujourd’hui, tes <b>prospects</b> arrivent… mais est-ce que tu es sûr(e) de pouvoir tous les suivre sans en perdre en route ?",
-        {
-            "A": "Oui, tout est suivi naturellement.",
-            "B": "J’ai un système mais je vérifie encore certaines choses.",
-            "C": "Je jongle entre plusieurs endroits.",
-            "D": "J’ai souvent peur qu’il y ait des oublis.",
-        },
-    ),
+(
+"dependance",
+"Aujourd’hui, quand il y a une décision à prendre, une question client ou quelque chose à débloquer, ça finit généralement comment ?",
+{
+"A":"Ça avance sans moi.",
+"B":"Je donne parfois un avis.",
+"C":"Je dois souvent intervenir.",
+"D":"Ça finit presque toujours par revenir vers moi."
+}
+),
 
-    (
-        "onboarding",
-        "Quand un nouveau client signe, qu’est-ce qui se passe généralement ensuite ?",
-        {
-            "A": "Tout démarre naturellement.",
-            "B": "Je vérifie juste quelques détails.",
-            "C": "Je dois intervenir à plusieurs étapes.",
-            "D": "Sans moi, rien ne démarre vraiment.",
-        },
-    ),
+(
+"leads",
+"Quand des prospects arrivent aujourd’hui, leur suivi ressemble plutôt à :",
+{
+"A":"Tout est clair et fluide.",
+"B":"Je garde un œil dessus.",
+"C":"Je jongle entre plusieurs tâches ou outils.",
+"D":"J’ai peur que certains passent entre les mailles."
+}
+),
 
-    (
-        "outils",
-        "Dans une semaine normale, tu as parfois l’impression de passer ton temps entre plusieurs outils ?",
-        {
-            "A": "Très rarement.",
-            "B": "Parfois.",
-            "C": "Souvent.",
-            "D": "Tout le temps.",
-        },
-    ),
+(
+"relances",
+"Quand un prospect ne répond pas, les relances sont :",
+{
+"A":"Automatiques ou bien structurées.",
+"B":"Semi-organisées.",
+"C":"Souvent faites à la main.",
+"D":"Très irrégulières."
+}
+),
 
-    (
-        "interruptions",
-        "Dans une semaine normale, combien de fois as-tu l’impression d’être interrompu(e) par des petits sujets qui reviennent vers toi ?",
-        {
-            "A": "Très rarement.",
-            "B": "Quelques fois.",
-            "C": "Souvent.",
-            "D": "Toute la journée ou presque.",
-        },
-    ),
+(
+"onboarding",
+"Quand un nouveau client rejoint ton accompagnement :",
+{
+"A":"Tout démarre naturellement.",
+"B":"Je vérifie quelques éléments.",
+"C":"Je dois intervenir plusieurs fois.",
+"D":"Sans moi, ça ne démarre pas vraiment."
+}
+),
 
-    (
-        "blocages",
-        "Aujourd’hui, quand quelque chose bloque dans ton business, ça ressemble plutôt à quoi ?",
-        {
-            "A": "Ça se règle généralement sans moi.",
-            "B": "Je dois jeter un œil de temps en temps.",
-            "C": "Plusieurs sujets remontent vers moi.",
-            "D": "J’ai l’impression que tout finit par revenir vers moi.",
-        },
-    ),
+(
+"interruptions",
+"Dans une semaine classique, combien de fois tu te retrouves à refaire des choses qui reviennent sans arrêt ?",
+{
+"A":"Très rarement.",
+"B":"Quelques fois.",
+"C":"Souvent.",
+"D":"J’ai l’impression que ça arrive toute la journée."
+}
+),
 
-    (
-        "frein",
-        "Aujourd’hui, ton business avance surtout grâce à :",
-        {
-            "A": "Une façon de fonctionner claire.",
-            "B": "Un mélange entre mon organisation et moi.",
-            "C": "Principalement moi.",
-            "D": "Surtout parce que je suis partout.",
-        },
-    ),
+(
+"outils",
+"As-tu parfois l’impression de passer ton temps entre plusieurs outils ?",
+{
+"A":"Très rarement.",
+"B":"Parfois.",
+"C":"Souvent.",
+"D":"En permanence."
+}
+),
 
-    (
-        "temps_perdu",
-        "Quand tu regardes ta semaine, combien de temps est absorbé par des tâches qui n’apportent pas directement de valeur ?",
-        {
-            "A": "Moins de 2h.",
-            "B": "2 à 5h.",
-            "C": "6 à 10h.",
-            "D": "Plus de 10h.",
-        },
-    ),
+(
+"execution",
+"Une grande partie des tâches répétitives aujourd’hui est :",
+{
+"A":"Déjà structurée.",
+"B":"Partiellement organisée.",
+"C":"Encore très manuelle.",
+"D":"Principalement gérée par moi."
+}
+),
 
-    (
-        "charge",
-        "Quand tu ralentis quelques jours, qu’est-ce que tu ressens le plus ?",
-        {
-            "A": "Rien de particulier.",
-            "B": "Je vérifie juste quelques trucs.",
-            "C": "J’ai besoin de surveiller plusieurs choses.",
-            "D": "J’ai peur que ça parte dans tous les sens.",
-        },
-    ),
+(
+"blocages",
+"Quand quelque chose ralentit dans ton business :",
+{
+"A":"Ça se résout sans moi.",
+"B":"Je regarde rapidement.",
+"C":"Plusieurs choses remontent vers moi.",
+"D":"J’ai l’impression que tout revient vers moi."
+}
+),
 
-    (
-        "projection",
-        "Si ton business tournait davantage sans toi demain, qu’est-ce qui changerait le plus ?",
-        {
-            "A": "Pas grand-chose.",
-            "B": "Je récupérerais du temps.",
-            "C": "J’aurais moins de charge mentale.",
-            "D": "Je pourrais enfin respirer et grandir sereinement.",
-        },
-    ),
+(
+"temps",
+"Quand tu regardes ta semaine, combien de temps est absorbé par des tâches qui n’apportent pas directement de valeur ?",
+{
+"A":"Moins de 2h",
+"B":"2 à 5h",
+"C":"6 à 10h",
+"D":"Plus de 10h"
+}
+),
+
+(
+"croissance",
+"Aujourd’hui, qu’est-ce qui limite le plus ta capacité à grandir sereinement ?",
+{
+"A":"Rien de particulier.",
+"B":"Quelques ajustements.",
+"C":"Le manque de temps.",
+"D":"Le fait que tout dépend encore trop de moi."
+}
+),
+
+(
+"projection",
+"Si ton business fonctionnait davantage comme un système demain, qu’est-ce qui changerait le plus ?",
+{
+"A":"Pas grand-chose.",
+"B":"Je récupérerais du temps.",
+"C":"J’aurais moins de charge mentale.",
+"D":"Je pourrais grandir plus sereinement."
+}
+)
 ]
 
 ANSWER_SCORES = {
@@ -173,25 +195,31 @@ ANSWER_SCORES = {
 # =========================
 
 QUESTION_DIMENSIONS = {
-    "dependance": {"main": "STR", "secondary": ("DEL",0.5), "weight": 1.5},
 
-    "leads": {"main":"ACQ", "secondary":("STR",0.3), "weight":1.0},
+"absence":{"main":"STR","secondary":("DEL",0.5),"weight":1.8},
 
-    "onboarding": {"main":"ONB", "secondary":("DEL",0.4), "weight":1.0},
+"dependance":{"main":"STR","secondary":("DEL",0.5),"weight":1.7},
 
-    "outils": {"main":"DEL", "secondary":("STR",0.4), "weight":1.0},
+"leads":{"main":"ACQ","secondary":("STR",0.3),"weight":1.0},
 
-    "interruptions": {"main":"STR", "secondary":("DEL",0.5), "weight":1.2},
+"relances":{"main":"ACQ","secondary":("DEL",0.4),"weight":1.2},
 
-    "blocages": {"main":"STR", "secondary":("DEL",0.5), "weight":1.5},
+"onboarding":{"main":"ONB","secondary":("DEL",0.5),"weight":1.2},
 
-    "frein": {"main":"STR", "secondary":("DEL",0.6), "weight":1.5},
+"interruptions":{"main":"DEL","secondary":("STR",0.4),"weight":1.0},
 
-    "temps_perdu": {"main":"DEL", "secondary":("STR",0.3), "weight":1.2},
+"outils":{"main":"DEL","secondary":("STR",0.3),"weight":0.8},
 
-    "charge": {"main":"STR", "secondary":("DEL",0.3), "weight":1.2},
+"execution":{"main":"DEL","secondary":("STR",0.5),"weight":1.5},
 
-    "projection": {"main":"STR", "secondary":None, "weight":0.4},
+"blocages":{"main":"STR","secondary":("DEL",0.4),"weight":1.4},
+
+"temps":{"main":"DEL","secondary":("STR",0.3),"weight":1.0},
+
+"croissance":{"main":"STR","secondary":("ACQ",0.2),"weight":1.5},
+
+"projection":{"main":"STR","secondary":None,"weight":0.5}
+
 }
 
 PROFILE_WEIGHTS = {
