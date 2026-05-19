@@ -2203,7 +2203,7 @@ function renderFinalCTA(baseData){
     </div>
 
     <div style="margin-top:12px;font-weight:800;color:#1f5cff;">
-      👉 Si rien ne change, tu continues à perdre au moins ${formatEuro(baseData.monthly_loss_min)}€ par mois
+      👉 Si rien ne change, certaines opportunités continueront d’arriver… sans pouvoir être réellement exploitées
     </div>
 
     <div style="margin-top:14px;padding:12px;border-radius:14px;background:#0f172a;color:#e2e8f0;font-size:13px;">
