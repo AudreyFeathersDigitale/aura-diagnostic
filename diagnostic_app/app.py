@@ -724,7 +724,7 @@ def create_lead_record(answers: dict, profile: dict, result_data: dict) -> int:
                 now,
                 json.dumps(answers, ensure_ascii=False),
                 json.dumps(profile, ensure_ascii=False),
-                profile.get("coach_infopreneur"),
+                "coach_infopreneur",
                 profile.get("revenue_band"),
                 profile.get("team_size"),
                 result_data["score_pct"],
@@ -2555,6 +2555,8 @@ async def result(request: Request):
         "closing": closing,
         "dm_copy": dm_copy,
         "projection_message": projection_message,
+        "monthly_loss_min": 0,
+        "monthly_loss_max": 0,
     }
 
     lead_id = create_lead_record(answers, profile, result_data)
