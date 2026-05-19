@@ -162,23 +162,23 @@ QUESTIONS = [
 
 (
 "croissance",
-"Aujourd’hui, qu’est-ce qui limite le plus ta capacité à grandir sereinement ?",
+"Quand tu veux prendre plus de clients ou lancer quelque chose de nouveau :",
 {
-"A":"Rien de particulier.",
-"B":"Quelques ajustements.",
-"C":"Le manque de temps.",
-"D":"Le fait que tout dépend encore trop de moi."
+"A":"Je peux le faire sereinement.",
+"B":"Je dois réorganiser quelques choses.",
+"C":"Je sens rapidement une surcharge.",
+"D":"J’ai l’impression que tout devient plus compliqué."
 }
 ),
 
 (
 "projection",
-"Si ton business fonctionnait davantage comme un système demain, qu’est-ce qui changerait le plus ?",
+"Si ton business continuait d’avancer même quand tu lèves le pied, qu’est-ce qui aurait le plus d’impact pour toi ?",
 {
-"A":"Pas grand-chose.",
-"B":"Je récupérerais du temps.",
-"C":"J’aurais moins de charge mentale.",
-"D":"Je pourrais grandir plus sereinement."
+"A":"Je récupérerais du temps.",
+"B":"J’aurais moins de charge mentale.",
+"C":"Je pourrais accueillir plus de clients sereinement.",
+"D":"J’aurais enfin l’impression de respirer davantage."
 }
 )
 ]
@@ -362,11 +362,11 @@ def compute_dependency_pct(dimension_scores: dict, profile: dict) -> int:
     team_size = profile.get("team_size", "solo")
 
     dimension_weights = {
-        "ACQ": 0.20,
-        "ONB": 0.15,
-        "DEL": 0.30,
-        "STR": 0.35,
-    }
+    "ACQ":0.25,
+    "ONB":0.15,
+    "DEL":0.30,
+    "STR":0.30
+}
 
     score = (
         dimension_scores["ACQ"] * dimension_weights["ACQ"] +
@@ -479,6 +479,33 @@ def level_messages(dependency_pct: int, profile: dict) -> tuple[str, str]:
         )
 
     return tension, closing
+
+
+def level_messages(dependency_pct: int, profile: dict) -> tuple[str, str]:
+    ...
+    return tension, closing
+
+
+def projection_cta_message(answer: str) -> str:
+    messages = {
+        "A": "👉 Tu m’as dit vouloir récupérer davantage de temps.",
+        "B": "👉 Tu m’as dit vouloir réduire ta charge mentale.",
+        "C": "👉 Tu m’as dit vouloir pouvoir accueillir plus de clients sereinement.",
+        "D": "👉 Tu m’as dit vouloir enfin respirer davantage.",
+    }
+
+    return messages.get(
+        answer,
+        "👉 Tu veux que ton business repose moins sur toi."
+    )
+
+
+def estimate_time_gain(
+    answers: dict,
+    dependency_pct: int,
+    dimension_scores: dict,
+    profile: dict,
+) -> tuple[int, int]:
 
 
 def estimate_time_gain(
@@ -2112,8 +2139,7 @@ function renderFinalCTA(baseData){
     </div>
 
     <div style="margin-top:14px;padding:12px;border-radius:14px;background:#0f172a;color:#e2e8f0;font-size:13px;">
-      ⚠️ Je ne réponds qu’aux profils où il y a un vrai levier d’amélioration.<br>
-      Si ton business est déjà structuré, je te le dirai.
+      ⚠️ 💡 Si ton diagnostic montre un vrai levier d’amélioration, je te dirai exactement où agir en priorité.
     </div>
 
     <div class="leadForm">
@@ -2498,6 +2524,10 @@ async def result(request: Request):
         f"👉 Est-ce que c’est exactement le type de blocage que tu aides à restructurer ?"
     )
 
+projection_message = projection_cta_message(
+    answers.get("projection")
+)
+
     result_data = {
         "dependency_pct": dependency_pct,
         "autonomy_pct": autonomy_pct,
@@ -2517,6 +2547,7 @@ async def result(request: Request):
         "tension": tension,
         "closing": closing,
         "dm_copy": dm_copy,
+        "projection_message": projection_message,
     }
 
     lead_id = create_lead_record(answers, profile, result_data)
