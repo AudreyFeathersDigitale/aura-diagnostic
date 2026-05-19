@@ -892,17 +892,17 @@ def render_profile_html(profile_json: str | None) -> str:
         return "-"
 
     label_maps = {
-    "revenue_band": dict(PROFILE_QUESTIONS[0][2]),
-    "team_size": dict(PROFILE_QUESTIONS[1][2]),
-}
-    
+        "revenue_band": dict(PROFILE_QUESTIONS[0][2]),
+        "team_size": dict(PROFILE_QUESTIONS[1][2]),
+    }
+
     items = []
     labels = {
-    "revenue_band": "CA mensuel",
-    "team_size": "Taille de l’équipe",
-}
+        "revenue_band": "CA mensuel",
+        "team_size": "Taille de l’équipe",
+    }
 
-for key in ["revenue_band", "team_size"]:
+    for key in ["revenue_band", "team_size"]:
         raw = data.get(key)
         display = label_maps.get(key, {}).get(raw, raw or "-")
         items.append(
