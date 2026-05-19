@@ -118,12 +118,12 @@ QUESTIONS = [
 
 (
 "outils",
-"As-tu parfois l’impression de passer ton temps entre plusieurs outils ?",
+"Aujourd’hui, certaines informations importantes sont-elles dispersées ?",
 {
-"A":"Très rarement.",
-"B":"Parfois.",
-"C":"Souvent.",
-"D":"En permanence."
+"A":"Tout est centralisé.",
+"B":"Quelques éléments seulement.",
+"C":"Je cherche souvent des infos.",
+"D":"J’ai parfois l’impression que tout est partout."
 }
 ),
 
@@ -218,7 +218,7 @@ QUESTION_DIMENSIONS = {
 
 "croissance":{"main":"STR","secondary":("ACQ",0.2),"weight":1.5},
 
-"projection":{"main":"STR","secondary":None,"weight":0.5}
+"projection":{"main":"STR","secondary":None,"weight":0}
 
 }
 
@@ -537,7 +537,7 @@ def estimate_time_gain(
         estimate_min += 2
         estimate_max += 4
 
-    temps_perdu_answer = answers.get("temps_perdu")
+    temps_perdu_answer = answers.get("temps")
     if temps_perdu_answer == "A":
         estimate_max = min(estimate_max, max(estimate_min + 1, 4))
     elif temps_perdu_answer == "B":
@@ -555,22 +555,34 @@ def estimate_time_gain(
     return estimate_min, estimate_max
 
 
-def estimate_monthly_loss(estimated_min: int, estimated_max: int, profile: dict) -> tuple[int, int]:
+def estimate_business_opportunities(
+    estimated_min: int,
+    estimated_max: int,
+    profile: dict
+) -> tuple[int, int]:
+
     revenue_band = profile.get("revenue_band", "lt3")
 
-    hourly_rates = {
-        "lt3": 25,
-        "3to10": 50,
-        "10to30": 100,
-        "30plus": 150,
+    opportunity_factor = {
+        "lt3": 1,
+        "3to10": 2,
+        "10to30": 4,
+        "30plus": 6,
     }
 
-    rate = hourly_rates.get(revenue_band, 50)
+    factor = opportunity_factor.get(revenue_band,2)
 
-    monthly_min = estimated_min * 4 * rate
-    monthly_max = estimated_max * 4 * rate
+    min_opportunities = max(
+        1,
+        round((estimated_min/5)*factor)
+    )
 
-    return int(monthly_min), int(monthly_max)
+    max_opportunities = max(
+        min_opportunities+1,
+        round((estimated_max/4)*factor)
+    )
+
+    return min_opportunities, max_opportunities
 
 
 def estimate_lost_clients(monthly_loss_min: int, monthly_loss_max: int, profile: dict) -> tuple[int, int]:
@@ -2082,17 +2094,13 @@ function renderFinalCTA(baseData){
 
   card.innerHTML = `
     <div style="font-weight:900;font-size:20px;">
-      👉 Voici ce que je peux débloquer pour toi
+      👉 Voilà ce qui pourrait changer dans ton business :
     </div>
 
     <div class="micro" style="margin-top:10px;">
-      Je vais analyser ton business plus en détail et te montrer :
-    </div>
-
-    <div class="micro" style="margin-top:10px;">
-      • où ton business dépend encore de toi, exactement<br>
-      • quelles tâches peuvent être supprimées ou automatisées rapidement<br>
-      • comment structurer un système qui prend le relais sans casser ta qualité
+      • moins de tâches qui reviennent vers toi<br>
+      • moins de charge mentale<br>
+      • plus de capacité sans augmenter ton temps
     </div>
 
     <div style="margin-top:12px;font-weight:800;">
@@ -2357,12 +2365,12 @@ await addBotMsgTyped(
     </div>
 
     <div style="margin-top:12px;font-weight:800;">
-      💸 Cela représente environ <b>${formatEuro(data.monthly_loss_min)}€ à ${formatEuro(data.monthly_loss_max)}€ par mois</b>
-    </div>
+📈 Cela peut représenter <b>${data.lost_clients_min} à ${data.lost_clients_max} opportunités supplémentaires par mois</b>
+</div>
 
-    <div class="micro" style="margin-top:6px;">
-      en temps, friction et croissance bloquée.
-    </div>
+<div class="micro" style="margin-top:6px;">
+prospects, clients potentiels ou demandes que ton système pourrait absorber plus sereinement.
+</div>
 
     <div class="micro" style="margin-top:10px;">
       📈 Exemples : plus de clients, plus de visibilité, plus de demandes… sans que ton système soit encore prêt à les absorber proprement.
@@ -2469,16 +2477,11 @@ async def result(request: Request):
     profile_title, profile_text = dominant_profile(dimension_scores, profile)
     top3 = priorities_from_dimensions(dimension_scores, profile)
     estimated_min, estimated_max = estimate_time_gain(answers, dependency_pct, dimension_scores, profile)
-    monthly_loss_min, monthly_loss_max = estimate_monthly_loss(
-        estimated_min,
-        estimated_max,
-        profile
-    )
-    lost_clients_min, lost_clients_max = estimate_lost_clients(
-        monthly_loss_min,
-        monthly_loss_max,
-        profile
-    )
+    lost_clients_min, lost_clients_max = estimate_business_opportunities(
+    estimated_min,
+    estimated_max,
+    profile
+)
     summary = summary_message(dependency_pct, profile)
     tension, closing = level_messages(dependency_pct, profile)
 
@@ -2508,8 +2511,6 @@ async def result(request: Request):
         "top3": top3,
         "estimated_min": estimated_min,
         "estimated_max": estimated_max,
-        "monthly_loss_min": monthly_loss_min,
-        "monthly_loss_max": monthly_loss_max,
         "lost_clients_min": lost_clients_min,
         "lost_clients_max": lost_clients_max,
         "summary": summary,
