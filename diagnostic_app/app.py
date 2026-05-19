@@ -2479,15 +2479,6 @@ await addBotMsgTyped(
 await sleep(600);
 
 await addBotMsgTyped(
-  `${data.summary}<br><br>
-   Et c’est exactement ce qui limite ta croissance aujourd’hui.`,
-  "",
-  14
-);
-
-await sleep(600);
-
-await addBotMsgTyped(
   `<b>Répartition de la dépendance par zone :</b>${renderDimensions(data.dimension_scores)}`,
   "",
   14
@@ -2496,7 +2487,7 @@ await addBotMsgTyped(
 await sleep(600);
 
 await addBotMsgTyped(
-  `<b>👉 Voilà concrètement où ton business te rend encore indispensable :</b><br><br>
+  `<b>👉 Tes 3 principaux points de dépendance :</b><br><br>
    1) ${data.top3[0]}<br>
    2) ${data.top3[1]}<br>
    3) ${data.top3[2]}`,
@@ -2507,21 +2498,18 @@ await addBotMsgTyped(
 await sleep(600);
 
 await addBotMsgTyped(
-  `Le problème n’est pas ton niveau d’effort.<br><br>
-   👉 Le problème, c’est que ton business dépend encore trop de toi sur les zones critiques.<br><br>
-   Tant que ces zones restent dépendantes de toi :<br>
-   • tu ne peux pas vraiment scaler sereinement<br>
-   • tu ne peux pas lever le pied sans risque<br>
-   • tu restes le point de passage obligé<br><br>
-   ${data.closing}`,
+  `👉 Si rien ne change :<br><br>
+   • tu resteras le point de passage obligé<br>
+   • ta charge continuera d’augmenter<br>
+   • ta croissance restera liée à ton temps`,
   "",
   14
 );
 
-  await sleep(400);
-  renderFinalCTA(data);
+await sleep(400);
+renderFinalCTA(data);
 
-  locked = false;
+locked = false;
 }
 
 function reset(){
