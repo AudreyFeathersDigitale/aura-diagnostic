@@ -481,31 +481,23 @@ def level_messages(dependency_pct: int, profile: dict) -> tuple[str, str]:
     return tension, closing
 
 
-def level_messages(dependency_pct: int, profile: dict) -> tuple[str, str]:
-    ...
-    return tension, closing
-
-
 def projection_cta_message(answer: str) -> str:
+
     messages = {
-        "A": "👉 Tu m’as dit vouloir récupérer davantage de temps.",
-        "B": "👉 Tu m’as dit vouloir réduire ta charge mentale.",
-        "C": "👉 Tu m’as dit vouloir pouvoir accueillir plus de clients sereinement.",
-        "D": "👉 Tu m’as dit vouloir enfin respirer davantage.",
+
+        "A":"👉 Tu m’as dit vouloir récupérer davantage de temps.",
+
+        "B":"👉 Tu m’as dit vouloir réduire ta charge mentale.",
+
+        "C":"👉 Tu m’as dit vouloir accueillir plus de clients sereinement.",
+
+        "D":"👉 Tu m’as dit vouloir enfin respirer davantage."
     }
 
     return messages.get(
         answer,
         "👉 Tu veux que ton business repose moins sur toi."
     )
-
-
-def estimate_time_gain(
-    answers: dict,
-    dependency_pct: int,
-    dimension_scores: dict,
-    profile: dict,
-) -> tuple[int, int]:
 
 
 def estimate_time_gain(
@@ -732,7 +724,7 @@ def create_lead_record(answers: dict, profile: dict, result_data: dict) -> int:
                 now,
                 json.dumps(answers, ensure_ascii=False),
                 json.dumps(profile, ensure_ascii=False),
-                profile.get("business_type"),
+                profile.get("coach_infopreneur"),
                 profile.get("revenue_band"),
                 profile.get("team_size"),
                 result_data["score_pct"],
@@ -2437,7 +2429,23 @@ await addBotMsgTyped(
   14
 );
 
-await sleep(400);
+await sleep(600);
+
+await addBotMsgTyped(
+`${data.projection_message}
+
+<br><br>
+
+Aujourd’hui ton diagnostic montre surtout une chose :
+
+ton business avance encore davantage grâce à ta présence que grâce à son système.
+
+<br><br>
+
+Et c’est exactement ce qui bloque encore ce résultat.`,
+"",
+14
+);
 renderFinalCTA(data);
 
 locked = false;
@@ -2506,7 +2514,10 @@ async def result(request: Request):
     lost_clients_min, lost_clients_max = estimate_business_opportunities(
     estimated_min,
     estimated_max,
-    profile
+    profile)
+    
+    projection_message = projection_cta_message(
+    answers.get("projection")
 )
     summary = summary_message(dependency_pct, profile)
     tension, closing = level_messages(dependency_pct, profile)
@@ -2520,13 +2531,9 @@ async def result(request: Request):
         f"- {top3[1]}\n"
         f"- {top3[2]}\n\n"
         f"Aujourd’hui, je vois que mon business repose encore trop sur moi sur les zones critiques.\n"
-        f"Ça me coûte entre {monthly_loss_min}€ et {monthly_loss_max}€ par mois en temps, friction et croissance bloquée.\n\n"
+        f"Ça me coûte en temps, friction et croissance bloquée.\n\n"
         f"👉 Est-ce que c’est exactement le type de blocage que tu aides à restructurer ?"
     )
-
-projection_message = projection_cta_message(
-    answers.get("projection")
-)
 
     result_data = {
         "dependency_pct": dependency_pct,
