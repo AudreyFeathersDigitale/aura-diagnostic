@@ -351,16 +351,12 @@ def compute_dependency_pct(dimension_scores: dict, profile: dict) -> int:
     )
 
     if team_size in ("small", "team") and dimension_scores["STR"] >= 60:
-        score += 5
+    score += 5
 
-    if revenue_band in ("10to30", "30plus") and dimension_scores["DEL"] >= 60:
-        score += 3
+if revenue_band in ("10to30", "30plus") and dimension_scores["DEL"] >= 60:
+    score += 3
 
-    if business_type in ("freelance", "info") and dimension_scores["ACQ"] >= 70:
-        score += 2
-
-    return min(round(score), 100)
-
+return min(round(score), 100)
 
 def compute_autonomy_pct(dependency_pct: int) -> int:
     return max(0, 100 - dependency_pct)
@@ -419,18 +415,6 @@ def summary_message(dependency_pct: int, profile: dict) -> str:
         "Ton business fonctionne.<br><br>"
         "Mais aujourd’hui, il avance encore trop souvent à ton rythme."
     )
-
-    if dependency_pct < 25:
-        ending = endings["low"]
-    elif dependency_pct < 50:
-        ending = endings["mid"]
-    elif dependency_pct < 75:
-        ending = endings["high"]
-    else:
-        ending = endings["critical"]
-
-    return intros.get(business_type, intros["freelance"]) + ending
-
 
 def level_messages(dependency_pct: int, profile: dict) -> tuple[str, str]:
     if dependency_pct < 25:
@@ -511,18 +495,6 @@ def estimate_time_gain(
     if dimension_scores["ONB"] >= 70:
         estimate_min += 1
         estimate_max += 2
-
-    if business_type == "agency":
-        estimate_min += 1
-        estimate_max += 2
-    elif business_type == "ecommerce":
-        estimate_min += 1
-        estimate_max += 3
-    elif business_type == "saas":
-        estimate_max += 2
-    elif business_type == "info":
-        estimate_min += 1
-        estimate_max += 1
 
     if team_size == "small":
         estimate_min += 1
