@@ -194,6 +194,10 @@ QUESTION_DIMENSIONS = {
     "projection": {"main":"STR", "secondary":None, "weight":0.4},
 }
 
+PROFILE_WEIGHTS = {
+    "freelance": {"ACQ": 1.1, "ONB": 1.2, "DEL": 1.0, "STR": 1.1},
+}
+
 DIMENSION_LABELS = {
     "ACQ": "Acquisition",
     "ONB": "Onboarding",
@@ -289,8 +293,7 @@ def profile_questions_as_json() -> str:
 
 
 def get_profile_dimension_weights(profile: dict) -> dict:
-    business_type = profile.get("business_type", "freelance")
-    return PROFILE_WEIGHTS.get(business_type, PROFILE_WEIGHTS["freelance"])
+    return PROFILE_WEIGHTS["freelance"]
 
 
 def compute_dimension_scores(answers: dict, profile: dict) -> dict:
@@ -889,18 +892,17 @@ def render_profile_html(profile_json: str | None) -> str:
         return "-"
 
     label_maps = {
-        "revenue_band": dict(PROFILE_QUESTIONS[1][2]),
-        "team_size": dict(PROFILE_QUESTIONS[2][2]),
-    }
-
+    "revenue_band": dict(PROFILE_QUESTIONS[0][2]),
+    "team_size": dict(PROFILE_QUESTIONS[1][2]),
+}
+    
     items = []
     labels = {
-        "business_type": "Type de business",
-        "revenue_band": "CA mensuel",
-        "team_size": "Taille de l’équipe",
-    }
+    "revenue_band": "CA mensuel",
+    "team_size": "Taille de l’équipe",
+}
 
-    for key in ["business_type", "revenue_band", "team_size"]:
+for key in ["revenue_band", "team_size"]:
         raw = data.get(key)
         display = label_maps.get(key, {}).get(raw, raw or "-")
         items.append(
