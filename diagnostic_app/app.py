@@ -1000,26 +1000,21 @@ HTML = r"""
   }
 
   .auraImg{
-    width:300px;
-    height:300px;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    filter: drop-shadow(0 18px 22px rgba(15,23,42,.12));
-    transform-origin:50% 70%;
-  }
+  width:220px;
+  height:220px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  filter: drop-shadow(0 14px 22px rgba(92,86,122,.12));
+  transform:none;
+  animation:none;
+}
 
   .auraImg img{
     width:150%;
-    height:auto;
-    object-fit:contain;
-    display:block;
-    user-select:none;
-    -webkit-user-drag:none;
-    pointer-events:none;
-  }
+    }
 
-  .name{
+    .name{
     text-align:center;
     font-weight:950;
     font-size:38px;
@@ -1648,29 +1643,12 @@ HTML = r"""
     .right{ min-height:620px; }
   }
 
-  @keyframes auraTilt {
-    0%,100% { transform: translateY(0) rotate(0deg); }
-    50% { transform: translateY(-8px) rotate(-1.2deg); }
-  }
-
-  @keyframes auraGlow {
-    0%,100% { filter: drop-shadow(0 0 0 rgba(47,107,255,.00)); }
-    50% { filter: drop-shadow(0 0 18px rgba(107,78,255,.18)); }
-  }
-
+   
   @keyframes auraTalk {
     0%{ transform: translateY(0) scale(1); }
     35%{ transform: translateY(-4px) scale(1.02); }
     70%{ transform: translateY(0) scale(1); }
     100%{ transform: translateY(-2px) scale(1.01); }
-  }
-
-  @keyframes auraCute {
-    0%{ transform: rotate(0deg); }
-    25%{ transform: rotate(1.2deg); }
-    50%{ transform: rotate(0deg); }
-    75%{ transform: rotate(-1.2deg); }
-    100%{ transform: rotate(0deg); }
   }
 
   .auraTalking{
