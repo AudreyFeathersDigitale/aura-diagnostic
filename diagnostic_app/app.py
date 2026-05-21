@@ -1011,7 +1011,7 @@ HTML = r"""
 }
 
   .auraImg img{
-    width:150%;
+    width:100%;
     }
 
     .name{
