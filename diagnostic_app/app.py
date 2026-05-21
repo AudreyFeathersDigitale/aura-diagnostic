@@ -806,8 +806,8 @@ def render_answers_html(answers_json: str | None) -> str:
         items.append(
             f"""
             <div style="margin-bottom:12px;">
-                <div style="font-weight:800;color:#0f172a;">{prompt}</div>
-                <div style="color:#475569;margin-top:4px;">{html.escape(str(answer_label))}</div>
+                <div style="font-weight:800;color:var(--aura-ink);">{prompt}</div>
+                <div style="color:var(--muted);margin-top:4px;">{html.escape(str(answer_label))}</div>
             </div>
             """
         )
@@ -848,10 +848,10 @@ def render_dimension_scores_html(dimension_scores_json: str | None) -> str:
 
     def score_color(value: int) -> str:
         if value >= 70:
-            return "#ef4444"
+            return "var(--aura-mauve-alert)"
         if value >= 40:
-            return "#f59e0b"
-        return "#16a34a"
+            return "var(--aura-champagne)"
+        return "var(--aura-ink-2)"
 
     items = []
     ordered = [
@@ -866,14 +866,14 @@ def render_dimension_scores_html(dimension_scores_json: str | None) -> str:
         color = score_color(value)
         items.append(f"""
         <div style="
-            background:#f8fafc;
-            border:1px solid #e5e7eb;
+            background:var(--soft2);
+            border:1px solid rgba(37,37,90,.10);
             border-radius:14px;
             padding:12px;
         ">
-            <div style="font-size:12px;color:#64748b;font-weight:700;">{label}</div>
+            <div style="font-size:12px;color:var(--muted);font-weight:700;">{label}</div>
             <div style="font-size:24px;font-weight:900;color:{color};margin-top:4px;">{value}%</div>
-            <div style="font-size:12px;color:#64748b;margin-top:4px;line-height:1.35;">{hint}</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:4px;line-height:1.35;">{hint}</div>
         </div>
         """)
 
@@ -899,15 +899,28 @@ HTML = r"""
 <link rel="icon" type="image/png" href="/static/favicon.png">
 <style>
   :root{
-    --panel:#eef2f7;
-    --card:#ffffff;
-    --soft:#f1f5f9;
-    --soft2:#f8fafc;
-    --text:#0f172a;
-    --muted:#64748b;
-    --blue:#2f6bff;
-    --blue2:#1f5cff;
-    --line:rgba(15,23,42,.08);
+    /* Palette AURA — agent IA premium, calme, violet + bleu nuit + champagne */
+    --aura-ink:#25255A;
+    --aura-ink-2:#3E3A66;
+    --aura-violet:#6B4EFF;
+    --aura-violet-2:#8F7BFF;
+    --aura-lavender:#C9C3D8;
+    --aura-lavender-soft:#F3F0FA;
+    --aura-cream:#F6F4F8;
+    --aura-cream-2:#F2EFE8;
+    --aura-champagne:#B59E6B;
+    --aura-champagne-soft:#E6D7BF;
+    --aura-mauve-alert:#8E3B65;
+
+    --panel:#F3F0FA;
+    --card:#FFFFFF;
+    --soft:#F6F4F8;
+    --soft2:#FBFAFD;
+    --text:var(--aura-ink);
+    --muted:#6F6A8A;
+    --blue:var(--aura-violet);
+    --blue2:#4D3AC4;
+    --line:rgba(37,37,90,.10);
   }
 
   *{ box-sizing:border-box; }
@@ -922,9 +935,9 @@ HTML = r"""
     padding:22px;
     color:var(--text);
     background:
-      radial-gradient(900px 540px at 30% 20%, rgba(47,107,255,.10), transparent 60%),
-      radial-gradient(900px 620px at 70% 15%, rgba(255,199,128,.10), transparent 62%),
-      linear-gradient(180deg, #f7f9fc, #f3f6fb 55%, #f7f9fc);
+      radial-gradient(900px 540px at 30% 20%, rgba(107,78,255,.10), transparent 60%),
+      radial-gradient(900px 620px at 70% 15%, rgba(181,158,107,.12), transparent 62%),
+      linear-gradient(180deg, var(--aura-cream), var(--aura-lavender-soft) 55%, var(--aura-cream));
   }
 
   .frame{
@@ -950,7 +963,7 @@ HTML = r"""
   }
 
   .left{
-    background: linear-gradient(180deg, #ffffff, #f4f7fb);
+    background: linear-gradient(180deg, var(--card), var(--aura-lavender-soft));
     padding:22px;
     position:relative;
   }
@@ -960,8 +973,8 @@ HTML = r"""
     position:absolute;
     inset:-80px;
     background:
-      radial-gradient(circle at 35% 25%, rgba(47,107,255,.12), transparent 55%),
-      radial-gradient(circle at 62% 58%, rgba(255,199,128,.12), transparent 60%);
+      radial-gradient(circle at 35% 25%, rgba(107,78,255,.12), transparent 55%),
+      radial-gradient(circle at 62% 58%, rgba(181,158,107,.14), transparent 60%);
     filter: blur(22px);
     opacity:.9;
     pointer-events:none;
@@ -1036,8 +1049,8 @@ HTML = r"""
     margin-top:16px;
     padding:14px 14px 10px;
     border-radius:18px;
-    background: rgba(47,107,255,.06);
-    border:1px solid rgba(47,107,255,.10);
+    background: rgba(107,78,255,.07);
+    border:1px solid rgba(107,78,255,.10);
   }
 
   .promiseTitle{
@@ -1076,7 +1089,7 @@ HTML = r"""
     width:0%;
     height:100%;
     border-radius:999px;
-    background: linear-gradient(90deg, var(--blue), #6aa3ff);
+    background: linear-gradient(90deg, var(--blue), var(--aura-violet-2));
     transition: width .25s ease;
   }
 
@@ -1109,7 +1122,7 @@ HTML = r"""
     width:56px;
     height:56px;
     border-radius:14px;
-    background:#eef2f7;
+    background:var(--aura-lavender-soft);
     border:1px solid var(--line);
     display:flex;
     align-items:center;
@@ -1171,7 +1184,7 @@ HTML = r"""
     border-radius:999px;
     overflow:hidden;
     border:1px solid var(--line);
-    background:#fff;
+    background:var(--card);
     display:flex;
     align-items:center;
     justify-content:center;
@@ -1206,7 +1219,7 @@ HTML = r"""
 
   .questionTag{
     display:inline-block;
-    background:#e2e8f0;
+    background:var(--aura-lavender);
     color:#1e293b;
     font-weight:800;
     font-size:12px;
@@ -1225,7 +1238,7 @@ HTML = r"""
     width:7px;
     height:7px;
     border-radius:999px;
-    background:#94a3b8;
+    background:var(--aura-lavender);
     opacity:.55;
     animation: pop 1.2s infinite;
   }
@@ -1247,7 +1260,7 @@ HTML = r"""
   .loader{
     width:18px;
     height:18px;
-    border:2px solid rgba(47,107,255,.18);
+    border:2px solid rgba(107,78,255,.18);
     border-top:2px solid var(--blue);
     border-radius:999px;
     animation: spin 0.8s linear infinite;
@@ -1282,8 +1295,8 @@ HTML = r"""
   }
 
   .btn:hover{
-    border-color: rgba(47,107,255,.28);
-    box-shadow: 0 16px 26px rgba(47,107,255,.10);
+    border-color: rgba(107,78,255,.28);
+    box-shadow: 0 16px 26px rgba(107,78,255,.10);
   }
 
   .btn:active{
@@ -1292,8 +1305,8 @@ HTML = r"""
 
   .btnSelected{
     border-color: var(--blue);
-    background: #eef4ff;
-    box-shadow: 0 10px 20px rgba(47,107,255,.15);
+    background: var(--aura-lavender-soft);
+    box-shadow: 0 10px 20px rgba(107,78,255,.15);
     transform: scale(.98);
   }
 
@@ -1332,8 +1345,8 @@ HTML = r"""
   }
 
   .cta code{
-    background:#0f172a;
-    color:#e2e8f0;
+    background:var(--aura-ink);
+    color:var(--aura-lavender);
     padding:4px 10px;
     border-radius:12px;
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -1353,7 +1366,7 @@ HTML = r"""
     justify-content:center;
     color:white;
     background: linear-gradient(180deg, var(--blue), var(--blue2));
-    box-shadow: 0 18px 26px rgba(47,107,255,.18);
+    box-shadow: 0 18px 26px rgba(107,78,255,.18);
   }
 
   .restart:hover,
@@ -1366,22 +1379,22 @@ HTML = r"""
     margin-top:12px;
     padding:12px;
     border-radius:18px;
-    background:#0f172a;
-    color:#e2e8f0;
+    background:var(--aura-ink);
+    color:var(--aura-lavender);
     border:1px solid rgba(15,23,42,.10);
     white-space:pre-wrap;
     font-size:12px;
   }
 
   .copy.success{
-    background: #f0fdf4;
-    color: #166534;
+    background: #F6F4F8;
+    color: var(--aura-ink-2);
     border: 1px solid rgba(22,163,74,.2);
   }
 
   .resultCard{
     margin-top:12px;
-    background:#fff;
+    background:var(--card);
     border:1px solid var(--line);
     border-radius:18px;
     padding:16px;
@@ -1402,8 +1415,8 @@ HTML = r"""
   }
 
   .estimateBox{
-    background: linear-gradient(180deg, #ffffff, #f8fbff);
-    border:1px solid rgba(47,107,255,.14);
+    background: linear-gradient(180deg, var(--card), var(--aura-lavender-soft));
+    border:1px solid rgba(107,78,255,.14);
   }
 
   .leadForm{
@@ -1427,15 +1440,15 @@ HTML = r"""
     border-radius:14px;
     padding:12px 14px;
     font:inherit;
-    background:#fff;
+    background:var(--card);
     color:var(--text);
     outline:none;
   }
 
   .leadInput:focus,
   .leadTextarea:focus{
-    border-color: rgba(47,107,255,.45);
-    box-shadow: 0 0 0 4px rgba(47,107,255,.08);
+    border-color: rgba(107,78,255,.45);
+    box-shadow: 0 0 0 4px rgba(107,78,255,.08);
   }
 
   .leadTextarea{
@@ -1474,8 +1487,8 @@ HTML = r"""
   }
 
   .scoreHero{
-    background: linear-gradient(180deg, #ffffff, #f8fbff);
-    border:1px solid rgba(47,107,255,.14);
+    background: linear-gradient(180deg, var(--card), var(--aura-lavender-soft));
+    border:1px solid rgba(107,78,255,.14);
     padding:18px 20px;
     border-radius:16px;
   }
@@ -1492,15 +1505,15 @@ HTML = r"""
   }
 
   .scorePercent.good{
-    color:#16a34a !important;
+    color:var(--aura-ink-2) !important;
   }
 
   .scorePercent.warning{
-    color:#f59e0b !important;
+    color:var(--aura-champagne) !important;
   }
 
   .scorePercent.danger{
-    color:#ef4444 !important;
+    color:var(--aura-mauve-alert) !important;
   }
 
   .scoreSecondary{
@@ -1518,7 +1531,7 @@ HTML = r"""
   }
 
   .dimensionItem{
-    background:#f8fafc;
+    background:var(--soft2);
     border:1px solid rgba(15,23,42,.06);
     border-radius:14px;
     padding:10px 12px;
@@ -1538,21 +1551,21 @@ HTML = r"""
 
   .dimensionHint{
     font-size:12px;
-    color:#64748b;
+    color:var(--muted);
     margin-top:4px;
     line-height:1.3;
   }
 
   .dimensionValue.good{
-    color:#16a34a;
+    color:var(--aura-ink-2);
   }
 
   .dimensionValue.warning{
-    color:#f59e0b;
+    color:var(--aura-champagne);
   }
 
   .dimensionValue.danger{
-    color:#ef4444;
+    color:var(--aura-mauve-alert);
   }
 
   .channelOverlay{
@@ -1568,7 +1581,7 @@ HTML = r"""
 
   .channelModal{
     width:min(560px, 96vw);
-    background:#fff;
+    background:var(--card);
     border:1px solid rgba(15,23,42,.08);
     border-radius:22px;
     padding:22px;
@@ -1582,7 +1595,7 @@ HTML = r"""
   }
 
   .channelText{
-    color:#64748b;
+    color:var(--muted);
     font-size:14px;
     line-height:1.45;
   }
@@ -1596,7 +1609,7 @@ HTML = r"""
   .channelBtn{
     width:100%;
     border:1px solid rgba(15,23,42,.08);
-    background:#f8fafc;
+    background:var(--soft2);
     border-radius:16px;
     padding:16px;
     cursor:pointer;
@@ -1605,9 +1618,9 @@ HTML = r"""
   }
 
   .channelBtn:hover{
-    border-color:rgba(47,107,255,.30);
-    box-shadow:0 12px 24px rgba(47,107,255,.10);
-    background:#fff;
+    border-color:rgba(107,78,255,.30);
+    box-shadow:0 12px 24px rgba(107,78,255,.10);
+    background:var(--card);
   }
 
   .channelBtnTitle{
@@ -1616,7 +1629,7 @@ HTML = r"""
   }
 
   .channelBtnSub{
-    color:#64748b;
+    color:var(--muted);
     font-size:13px;
     margin-top:4px;
   }
@@ -1625,8 +1638,8 @@ HTML = r"""
     margin-top:14px;
     width:100%;
     border:none;
-    background:#e2e8f0;
-    color:#0f172a;
+    background:var(--aura-lavender);
+    color:var(--aura-ink);
     font-weight:900;
     border-radius:14px;
     padding:12px 14px;
@@ -1645,7 +1658,7 @@ HTML = r"""
 
   @keyframes auraGlow {
     0%,100% { filter: drop-shadow(0 0 0 rgba(47,107,255,.00)); }
-    50% { filter: drop-shadow(0 0 18px rgba(47,107,255,.18)); }
+    50% { filter: drop-shadow(0 0 18px rgba(107,78,255,.18)); }
   }
 
   @keyframes auraTalk {
@@ -1931,7 +1944,7 @@ function botAsk(){
     msg.bubble.classList.add("bubbleQuestion");
     msg.bubble.innerHTML = `
       <div class="questionTag">Question ${currentQuestionIndex()} / ${totalQuestions()} • ${Math.round((currentQuestionIndex()/totalQuestions())*100)}%</div>
-      <div style="margin-bottom:6px;color:#64748b;font-size:13px;">${r}</div>
+      <div style="margin-bottom:6px;color:var(--muted);font-size:13px;">${r}</div>
       <div>${q.prompt}</div>
     `;
 
@@ -2108,8 +2121,8 @@ function openChannelModal(baseData){
 function renderFinalCTA(baseData){
   const card = document.createElement("div");
   card.className = "resultCard messageAppear";
-  card.style.border = "1px solid rgba(47,107,255,.25)";
-  card.style.background = "linear-gradient(180deg,#ffffff,#f5f9ff)";
+  card.style.border = "1px solid rgba(107,78,255,.25)";
+  card.style.background = "linear-gradient(180deg,var(--card),var(--aura-lavender-soft))";
 
   card.innerHTML = `
     <div style="font-weight:900;font-size:20px;">
@@ -2126,11 +2139,11 @@ function renderFinalCTA(baseData){
       👉 Objectif : te libérer du temps ET débloquer ta croissance
     </div>
 
-    <div style="margin-top:12px;font-weight:800;color:#1f5cff;">
+    <div style="margin-top:12px;font-weight:800;color:var(--blue2);">
       👉 Si rien ne change, certaines opportunités continueront d’arriver… sans pouvoir être réellement exploitées
     </div>
 
-    <div style="margin-top:14px;padding:12px;border-radius:14px;background:#0f172a;color:#e2e8f0;font-size:13px;">
+    <div style="margin-top:14px;padding:12px;border-radius:14px;background:var(--aura-ink);color:var(--aura-lavender);font-size:13px;">
       ⚠️ 💡 Si ton diagnostic montre un vrai levier d’amélioration, je te dirai exactement où agir en priorité.
     </div>
 
@@ -2144,7 +2157,7 @@ Quelles tâches te donnent le plus l’impression de tourner en boucle aujourd�
         ></textarea>
       </div>
 
-      <div style="font-size:12px;color:#64748b;">
+      <div style="font-size:12px;color:var(--muted);">
         💡 Plus tu es précise, plus mon analyse sera pertinente
       </div>
     </div>
@@ -2361,8 +2374,8 @@ await sleep(600);
 
 await addBotMsgTyped(
   `
-  <div class="resultCard messageAppear" style="border:1px solid #fecaca;background:#fff1f2;">
-    <div style="font-weight:900;font-size:18px;color:#b91c1c;">
+  <div class="resultCard messageAppear" style="border:1px solid rgba(142,59,101,.22);background:#F8F1F5;">
+    <div style="font-weight:900;font-size:18px;color:var(--aura-mauve-alert);">
       ⚠️ Ce que cette dépendance te coûte réellement
     </div>
 
@@ -2591,7 +2604,7 @@ def admin_leads():
         cards.append(f"""
         <div style="
             background:white;
-            border:1px solid #e5e7eb;
+            border:1px solid rgba(37,37,90,.10);
             border-radius:20px;
             padding:20px;
             margin-bottom:18px;
@@ -2599,13 +2612,13 @@ def admin_leads():
         ">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;">
                 <div>
-                    <div style="font-weight:900;font-size:22px;color:#0f172a;">
+                    <div style="font-weight:900;font-size:22px;color:var(--aura-ink);">
                         Lead #{row["id"]} — Dépendance {row["dependency_pct"] or 0}%
                     </div>
-                    <div style="color:#64748b;margin-top:6px;font-size:14px;">
+                    <div style="color:var(--muted);margin-top:6px;font-size:14px;">
                         Créé le : {row["created_at"]}
                     </div>
-                    <div style="color:#64748b;font-size:14px;">
+                    <div style="color:var(--muted);font-size:14px;">
                         Mis à jour : {row["updated_at"]}
                     </div>
                 </div>
@@ -2646,23 +2659,23 @@ def admin_leads():
                 gap:10px;
                 margin-top:18px;
             ">
-                <div style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:14px;padding:12px;">
-                    <div style="font-size:12px;color:#64748b;font-weight:700;">Autonomie</div>
+                <div style="background:var(--soft2);border:1px solid rgba(37,37,90,.10);border-radius:14px;padding:12px;">
+                    <div style="font-size:12px;color:var(--muted);font-weight:700;">Autonomie</div>
                     <div style="font-size:24px;font-weight:900;margin-top:4px;">{row["autonomy_pct"] or 0}%</div>
                 </div>
 
-                <div style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:14px;padding:12px;">
-                    <div style="font-size:12px;color:#64748b;font-weight:700;">Niveau</div>
+                <div style="background:var(--soft2);border:1px solid rgba(37,37,90,.10);border-radius:14px;padding:12px;">
+                    <div style="font-size:12px;color:var(--muted);font-weight:700;">Niveau</div>
                     <div style="font-size:18px;font-weight:900;margin-top:4px;">{row["level"] or "-"}</div>
                 </div>
 
-                <div style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:14px;padding:12px;">
-                    <div style="font-size:12px;color:#64748b;font-weight:700;">Temps estimé</div>
+                <div style="background:var(--soft2);border:1px solid rgba(37,37,90,.10);border-radius:14px;padding:12px;">
+                    <div style="font-size:12px;color:var(--muted);font-weight:700;">Temps estimé</div>
                     <div style="font-size:20px;font-weight:900;margin-top:4px;">{row["estimated_min"]} à {row["estimated_max"]}h</div>
                 </div>
 
-                <div style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:14px;padding:12px;">
-                    <div style="font-size:12px;color:#64748b;font-weight:700;">Canal choisi</div>
+                <div style="background:var(--soft2);border:1px solid rgba(37,37,90,.10);border-radius:14px;padding:12px;">
+                    <div style="font-size:12px;color:var(--muted);font-weight:700;">Canal choisi</div>
                     <div style="font-size:18px;font-weight:900;margin-top:4px;">{row["contact_channel"] or "-"}</div>
                 </div>
             </div>
@@ -2673,7 +2686,7 @@ def admin_leads():
                 gap:10px;
                 margin-top:12px;
             ">
-                <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:14px;padding:12px;">
+                <div style="background:var(--card)7ed;border:1px solid #fed7aa;border-radius:14px;padding:12px;">
                     <div style="font-size:12px;color:#9a3412;font-weight:700;">Coût caché mensuel</div>
                     <div style="font-size:24px;font-weight:900;margin-top:4px;color:#c2410c;">
                         {row["monthly_loss_min"] or 0}€ à {row["monthly_loss_max"] or 0}€
@@ -2688,19 +2701,19 @@ def admin_leads():
                 </div>
             </div>
 
-            <div style="margin-top:18px;padding-top:18px;border-top:1px solid #e5e7eb;">
+            <div style="margin-top:18px;padding-top:18px;border-top:1px solid rgba(37,37,90,.10);">
                 <div style="font-weight:900;font-size:18px;margin-bottom:8px;">Répartition de la dépendance par zone</div>
                 {dimensions_html}
             </div>
 
-            <div style="margin-top:18px;padding-top:18px;border-top:1px solid #e5e7eb;">
+            <div style="margin-top:18px;padding-top:18px;border-top:1px solid rgba(37,37,90,.10);">
                 <div style="font-weight:900;font-size:18px;margin-bottom:10px;">Synthèse diagnostic</div>
                 <div style="margin-bottom:6px;"><b>Profil diagnostic :</b> {row["profile_title"] or "-"}</div>
                 <div style="margin-bottom:6px;"><b>Sous-titre :</b> {row["subtitle"] or "-"}</div>
                 <div style="line-height:1.5;color:#334155;">{row["profile_text"] or "-"}</div>
             </div>
 
-            <div style="margin-top:18px;padding-top:18px;border-top:1px solid #e5e7eb;">
+            <div style="margin-top:18px;padding-top:18px;border-top:1px solid rgba(37,37,90,.10);">
                 <div style="font-weight:900;font-size:18px;margin-bottom:10px;">Top 3 priorités</div>
                 <div style="line-height:1.7;">
                     {"<br>".join([f"{i+1}) {html.escape(str(item))}" for i, item in enumerate(top3)]) if top3 else "-"}
@@ -2713,7 +2726,7 @@ def admin_leads():
                 gap:18px;
                 margin-top:18px;
                 padding-top:18px;
-                border-top:1px solid #e5e7eb;
+                border-top:1px solid rgba(37,37,90,.10);
             ">
                 <div>
                     <div style="font-weight:900;font-size:18px;margin-bottom:10px;">Profil répondu</div>
@@ -2733,13 +2746,13 @@ def admin_leads():
                 gap:18px;
                 margin-top:18px;
                 padding-top:18px;
-                border-top:1px solid #e5e7eb;
+                border-top:1px solid rgba(37,37,90,.10);
             ">
                 <div>
                     <div style="font-weight:900;font-size:18px;margin-bottom:10px;">Texte libre saisi</div>
                     <div style="
-                        background:#f8fafc;
-                        border:1px solid #e5e7eb;
+                        background:var(--soft2);
+                        border:1px solid rgba(37,37,90,.10);
                         border-radius:14px;
                         padding:12px;
                         min-height:90px;
@@ -2756,7 +2769,7 @@ def admin_leads():
                 </div>
             </div>
 
-            <div style="margin-top:18px;padding-top:18px;border-top:1px solid #e5e7eb;">
+            <div style="margin-top:18px;padding-top:18px;border-top:1px solid rgba(37,37,90,.10);">
                 <div style="font-weight:900;font-size:18px;margin-bottom:10px;">Réponses détaillées</div>
                 <div style="line-height:1.55;">{answers_html}</div>
             </div>
@@ -2771,7 +2784,7 @@ def admin_leads():
       <title>Leads AURA</title>
       <meta name="viewport" content="width=device-width, initial-scale=1"/>
     </head>
-    <body style="font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto;background:#f3f4f6;padding:24px;color:#0f172a;">
+    <body style="font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto;background:var(--aura-cream);padding:24px;color:var(--aura-ink);">
       <div style="max-width:1200px;margin:0 auto;">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:20px;">
           <h1 style="margin:0;font-size:34px;">Leads AURA</h1>
@@ -2779,7 +2792,7 @@ def admin_leads():
           <button
             onclick="deleteAllLeads()"
             style="
-              background:#991b1b;
+              background:var(--aura-mauve-alert);
               color:white;
               border:none;
               font-weight:900;
