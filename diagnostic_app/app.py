@@ -1719,7 +1719,7 @@ HTML = r"""
         <div class="leftInner">
           <div class="auraBig">
             <div class="auraImg" id="auraBox">
-              <img id="auraBig" src="/static/aura_open.png" alt="AURA">
+              <img id="auraBig" src="/static/aura.png" alt="AURA">
             </div>
           </div>
 
@@ -1758,7 +1758,9 @@ HTML = r"""
         <div class="chatHeader">
           <div class="chatHeaderLeft">
             <div class="chatHeaderAvatarWrap">
-              <img class="chatHeaderAvatar" src="/static/aura_head.png" alt="AURA">
+             <img class="chatHeaderAvatar"
+     src="/static/aura.png"
+     alt="AURA">
             </div>
             <div class="chatHeaderText">
               <div class="chatHeaderTitle">Salut 👋 Je suis AURA.</div>
