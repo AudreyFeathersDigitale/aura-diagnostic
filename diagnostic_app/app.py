@@ -1000,8 +1000,8 @@ HTML = r"""
   }
 
   .auraImg{
-  width:220px;
-  height:220px;
+  width:200px;
+  height:200px;
   display:flex;
   justify-content:center;
   align-items:center;
