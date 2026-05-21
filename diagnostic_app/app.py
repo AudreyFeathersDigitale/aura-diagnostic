@@ -1807,9 +1807,8 @@ const bar = document.getElementById("bar");
 const restartBtn = document.getElementById("restart");
 const copyBox = document.getElementById("copyBox");
 
-const AURA_OPEN = "/static/aura_open.png";
-const AURA_BLINK = "/static/aura_blink.png";
-const AURA_HEAD = "/static/aura_head.png";
+const AURA_IMG = "/static/aura.png";
+const AURA_HEAD = "/static/aura.png";
 
 const auraImg = document.getElementById("auraBig");
 const auraBox = document.getElementById("auraBox");
@@ -1831,17 +1830,6 @@ function setProgress(){
   const pct = Math.round((done / TOTAL_STEPS) * 100);
   bar.style.width = pct + "%";
 }
-
-function blink(){
-  const img = new Image();
-  img.onload = () => {
-    auraImg.src = AURA_BLINK;
-    setTimeout(() => { auraImg.src = AURA_OPEN; }, 140);
-  };
-  img.onerror = () => {};
-  img.src = AURA_BLINK;
-}
-setInterval(() => { if (Math.random() < 0.33) blink(); }, 2200);
 
 function playAuraTalk(){
   auraBox.classList.remove("auraTalking");
