@@ -1000,16 +1000,13 @@ HTML = r"""
   }
 
   .auraImg{
-    width:350px;
-    height:310px;
+    width:300px;
+    height:300px;
     display:flex;
     justify-content:center;
     align-items:center;
     filter: drop-shadow(0 18px 22px rgba(15,23,42,.12));
     transform-origin:50% 70%;
-    animation:
-      auraTilt 3.2s ease-in-out infinite,
-      auraGlow 2.8s ease-in-out infinite;
   }
 
   .auraImg img{
