@@ -2428,13 +2428,22 @@ def on_startup():
 
 @app.get("/", response_class=HTMLResponse)
 def home():
-    return (
+    html_content = (
         HTML
         .replace("%PROFILE_QUESTIONS_JSON%", profile_questions_as_json())
         .replace("%QUESTIONS_JSON%", questions_as_json())
         .replace("%LINKEDIN_URL_JSON%", json.dumps(LINKEDIN_URL))
         .replace("%FACEBOOK_URL_JSON%", json.dumps(FACEBOOK_URL))
         .replace("%INSTAGRAM_URL_JSON%", json.dumps(INSTAGRAM_URL))
+    )
+
+    return HTMLResponse(
+        content=html_content,
+        headers={
+            "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+            "Pragma": "no-cache",
+            "Expires": "0",
+        },
     )
 
 
