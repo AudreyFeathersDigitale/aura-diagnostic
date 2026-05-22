@@ -1992,23 +1992,42 @@ function updateCopyBox(){
 }
 
 async function saveLeadDetails(contactChannel=null){
+
   if(!currentLeadId || !finalData) return;
 
-  const repetitive_tasks = (document.getElementById("repetitiveInput")?.value || "").trim();
+  const repetitive_tasks = (
+      document.getElementById("repetitiveInput")?.value || ""
+  ).trim();
+
+  const firstname = (
+      document.getElementById("nameInput")?.value || ""
+  ).trim();
+
+  const email = (
+      document.getElementById("emailInput")?.value || ""
+  ).trim();
+
+  const instagram = (
+      document.getElementById("instaInput")?.value || ""
+  ).trim();
+
   const dm_text = buildDmText(finalData);
 
-  await fetch("/save-lead", {
-    method: "POST",
-    headers: {"Content-Type":"application/json"},
-    body: JSON.stringify({
-      lead_id: currentLeadId,
-      activity: null,
-      repetitive_tasks,
-      tools: null,
-      linkedin_clicked: contactChannel === "linkedin",
-      dm_text,
-      contact_channel: contactChannel
-    })
+  await fetch("/save-lead",{
+      method:"POST",
+      headers:{
+          "Content-Type":"application/json"
+      },
+      body:JSON.stringify({
+          lead_id:currentLeadId,
+          activity:firstname,
+          repetitive_tasks,
+          tools:instagram,
+          email:email,
+          linkedin_clicked:contactChannel==="linkedin",
+          dm_text,
+          contact_channel:contactChannel
+      })
   });
 }
 
