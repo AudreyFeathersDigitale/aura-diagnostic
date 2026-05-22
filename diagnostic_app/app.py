@@ -2417,7 +2417,7 @@ async function finish(){
   finalData = data;
   currentLeadId = data.lead_id;
 
-  await sleep(2400);
+  await sleep(800);
   clearInterval(loaderInterval);
 
   await typeHtmlInto(
@@ -2437,7 +2437,7 @@ async function finish(){
 14
 );
 
-await sleep(600);
+await sleep(250);
 
 await addBotMsgTyped(
   `
@@ -2463,7 +2463,7 @@ await addBotMsgTyped(
   14
 );
 
-await sleep(600);
+await sleep(250);
 
 await addBotMsgTyped(
   `<b>👉 Tes principales zones de dépendance aujourd’hui :</b>${renderDimensions(data.dimension_scores)}<br><br>
@@ -2475,7 +2475,7 @@ await addBotMsgTyped(
   14
 );
 
-await sleep(600);
+await sleep(250);
 
 await addBotMsgTyped(
   `${data.projection_message}<br><br>
