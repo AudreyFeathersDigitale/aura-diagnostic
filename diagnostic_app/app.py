@@ -727,7 +727,7 @@ def create_lead_record(answers: dict, profile: dict, result_data: dict) -> int:
                 json.dumps(answers, ensure_ascii=False),
                 json.dumps(profile, ensure_ascii=False),
                 "coach_infopreneur",
-                none,
+                None,
                 profile.get("revenue_band"),
                 profile.get("team_size"),
                 result_data["score_pct"],
