@@ -1887,7 +1887,9 @@ function botAsk(){
   locked = true;
   setProgress();
 
-  const q = phase === "profile" ? PROFILE_QUESTIONS[profileStep] : QUESTIONS[step];
+  const q = phase === "profile"
+      ? PROFILE_QUESTIONS[profileStep]
+      : QUESTIONS[step];
 
   const reactions = [
     "Voyons ça ensemble 👀",
@@ -1896,31 +1898,54 @@ function botAsk(){
     "Je comprends 👍",
     "Continuons"
   ];
-  const r = reactions[Math.floor(Math.random() * reactions.length)];
 
-  if (currentQuestionRow) {
-    currentQuestionRow.remove();
-    currentQuestionRow = null;
+  const r = reactions[
+      Math.floor(Math.random()*reactions.length)
+  ];
+
+  if(currentQuestionRow){
+      currentQuestionRow.remove();
+      currentQuestionRow = null;
   }
 
-  const msg = addBotMsg("", true);
+  const msg = addBotMsg("",true);
 
-  setTimeout(() => {
-    playAuraTalk();
-    setTimeout(() => playAuraTalk(), 180);
+  // ↓ passe de 650 → 120
+  setTimeout(()=>{
 
-    msg.bubble.classList.remove("bubbleTyping");
-    msg.bubble.classList.add("bubbleQuestion");
-    msg.bubble.innerHTML = `
-      <div class="questionTag">Question ${currentQuestionIndex()} / ${totalQuestions()} • ${Math.round((currentQuestionIndex()/totalQuestions())*100)}%</div>
-      <div style="margin-bottom:6px;color:var(--muted);font-size:13px;">${r}</div>
-      <div>${q.prompt}</div>
-    `;
+      playAuraTalk();
 
-    currentQuestionRow = msg.row;
-    renderChoices(q, phase === "profile");
-    locked = false;
-  }, 650);
+      msg.bubble.classList.remove("bubbleTyping");
+      msg.bubble.classList.add("bubbleQuestion");
+
+      msg.bubble.innerHTML=`
+        <div class="questionTag">
+          Question ${currentQuestionIndex()}
+          / ${totalQuestions()}
+          • ${Math.round((currentQuestionIndex()/totalQuestions())*100)}%
+        </div>
+
+        <div style="
+            margin-bottom:6px;
+            color:var(--muted);
+            font-size:13px;
+        ">
+            ${r}
+        </div>
+
+        <div>${q.prompt}</div>
+      `;
+
+      currentQuestionRow=msg.row;
+
+      renderChoices(
+          q,
+          phase==="profile"
+      );
+
+      locked=false;
+
+  },120);
 }
 
 function choose(key, value, btn, isProfile=false){
