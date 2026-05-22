@@ -1698,7 +1698,6 @@ HTML = r"""
             </div>
           </div>
 
-          <div class="name">AURA</div>
 <div class="subtitle">Agent IA • Diagnostic de dépendance business</div>
 <div class="tag">Découvre pourquoi ton business dépend encore trop de toi.</div>
 
