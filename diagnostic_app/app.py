@@ -283,6 +283,7 @@ def init_db() -> None:
         ensure_column(conn, "leads", "business_type", "TEXT")
         ensure_column(conn, "leads", "revenue_band", "TEXT")
         ensure_column(conn, "leads", "team_size", "TEXT")
+        ensure_column(conn, "leads", "email", "TEXT")
         ensure_column(conn, "leads", "dependency_pct", "INTEGER DEFAULT 0")
         ensure_column(conn, "leads", "autonomy_pct", "INTEGER DEFAULT 0")
         ensure_column(conn, "leads", "dimension_scores_json", "TEXT")
@@ -697,6 +698,7 @@ def create_lead_record(answers: dict, profile: dict, result_data: dict) -> int:
                 answers_json,
                 profile_json,
                 business_type,
+                email,
                 revenue_band,
                 team_size,
                 score_pct,
@@ -725,6 +727,7 @@ def create_lead_record(answers: dict, profile: dict, result_data: dict) -> int:
                 json.dumps(answers, ensure_ascii=False),
                 json.dumps(profile, ensure_ascii=False),
                 "coach_infopreneur",
+                none,
                 profile.get("revenue_band"),
                 profile.get("team_size"),
                 result_data["score_pct"],
@@ -757,6 +760,7 @@ def update_lead_details(
     tools: str | None,
     linkedin_clicked: bool,
     dm_text: str | None,
+    email: str | None = None,
     contact_channel: str | None = None,
 ) -> None:
     now = utcnow_iso()
@@ -769,6 +773,7 @@ def update_lead_details(
                 repetitive_tasks = ?,
                 tools = ?,
                 linkedin_clicked = ?,
+                email = COALESCE(?, email),
                 dm_text = COALESCE(?, dm_text),
                 contact_channel = COALESCE(?, contact_channel)
             WHERE id = ?
@@ -2209,7 +2214,7 @@ function renderFinalCTA(baseData){
 <div class="micro" style="margin-top:10px;">
   ⏱️ Réponse personnalisée (pas automatisée)
 </div>
-
+`;
 
   chat.appendChild(card);
   chat.scrollTop = chat.scrollHeight;
@@ -2604,6 +2609,7 @@ async def save_lead(request: Request):
         tools=body.get("tools"),
         linkedin_clicked=bool(body.get("linkedin_clicked")),
         dm_text=body.get("dm_text"),
+        email=body.get("email"),
         contact_channel=body.get("contact_channel"),
     )
 
