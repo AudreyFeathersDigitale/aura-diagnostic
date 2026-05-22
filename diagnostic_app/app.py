@@ -16,7 +16,6 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
 
 LINKEDIN_URL = "https://www.linkedin.com/in/audrey-mouton-80b902217/?skipRedirect=true"
-FACEBOOK_URL = "https://www.facebook.com/profile.php?id=61578569620081"
 INSTAGRAM_URL = "https://www.instagram.com/business.auto.feathersdigital/"
 
 # =========================
@@ -779,14 +778,17 @@ def update_lead_details(
             WHERE id = ?
             """,
             (
-                now,
-                activity,
-                repetitive_tasks,
-                tools,
-                1 if linkedin_clicked else 0,
-                dm_text,
-                contact_channel,
-                lead_id,
+                (
+    now,
+    activity,
+    repetitive_tasks,
+    tools,
+    1 if linkedin_clicked else 0,
+    email,
+    dm_text,
+    contact_channel,
+    lead_id,
+)
             ),
         )
 
@@ -1767,7 +1769,6 @@ HTML = r"""
 const PROFILE_QUESTIONS = %PROFILE_QUESTIONS_JSON%;
 const QUESTIONS = %QUESTIONS_JSON%;
 const LINKEDIN_URL = %LINKEDIN_URL_JSON%;
-const FACEBOOK_URL = %FACEBOOK_URL_JSON%;
 const INSTAGRAM_URL = %INSTAGRAM_URL_JSON%;
 
 let phase = "profile";
@@ -2081,10 +2082,6 @@ function openChannelModal(baseData){
           <div class="channelBtnTitle">M'écrire sur LinkedIn</div>
         </button>
 
-        <button class="channelBtn" data-channel="facebook">
-          <div class="channelBtnTitle">M'écrire sur Facebook</div>
-        </button>
-
         <button class="channelBtn" data-channel="instagram">
           <div class="channelBtnTitle">M'écrire sur Instagram</div>
         </button>
@@ -2115,7 +2112,6 @@ function openChannelModal(baseData){
       await saveLeadDetails(channel);
 
       let url = LINKEDIN_URL;
-      if(channel === "facebook") url = FACEBOOK_URL;
       if(channel === "instagram") url = INSTAGRAM_URL;
 
       window.open(url, "_blank", "noopener,noreferrer");
@@ -2540,7 +2536,6 @@ def home():
         .replace("%PROFILE_QUESTIONS_JSON%", profile_questions_as_json())
         .replace("%QUESTIONS_JSON%", questions_as_json())
         .replace("%LINKEDIN_URL_JSON%", json.dumps(LINKEDIN_URL))
-        .replace("%FACEBOOK_URL_JSON%", json.dumps(FACEBOOK_URL))
         .replace("%INSTAGRAM_URL_JSON%", json.dumps(INSTAGRAM_URL))
     )
 
