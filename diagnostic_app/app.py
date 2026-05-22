@@ -2112,30 +2112,85 @@ function renderFinalCTA(baseData){
     </div>
 
     <div class="leadForm">
-      <div>
-        <label for="repetitiveInput">
-Quelles tâches te donnent le plus l’impression de tourner en boucle aujourd’hui ?
-</label>
-        <textarea id="repetitiveInput" class="leadTextarea"
-          placeholder="Ex : relances, onboarding, suivi client, DM, WhatsApp, contenu, organisation..."
-        ></textarea>
-      </div>
 
-      <div style="font-size:12px;color:var(--muted);">
-        💡 Plus tu es précise, plus mon analyse sera pertinente
-      </div>
+  <div>
+    <label for="repetitiveInput">
+      Quelles tâches te donnent le plus l’impression de tourner en boucle aujourd’hui ?
+    </label>
+
+    <textarea
+      id="repetitiveInput"
+      class="leadTextarea"
+      placeholder="Ex : relances, onboarding, suivi client, DM, WhatsApp, contenu, organisation..."
+    ></textarea>
+  </div>
+
+  <div style="font-size:12px;color:var(--muted);">
+    💡 Plus tu es précise, plus mon analyse sera pertinente
+  </div>
+
+
+  <!-- NOUVEAU -->
+  <div style="
+      margin-top:14px;
+      padding:14px;
+      border-radius:14px;
+      background:var(--soft2);
+      border:1px solid rgba(107,78,255,.10);
+  ">
+
+    <div style="
+        font-weight:900;
+        margin-bottom:12px;
+    ">
+      📩 Reçois tes priorités personnalisées
     </div>
 
-    <div class="resultActions">
-      <button class="dmBtn" id="openChannelsBtn" type="button">
-        👉 Voir comment supprimer mes points de blocage
-      </button>
+    <div style="
+        font-size:13px;
+        color:var(--muted);
+        margin-bottom:14px;
+    ">
+      Je pourrai te montrer précisément où agir en priorité selon ton diagnostic.
     </div>
 
-    <div class="micro" style="margin-top:10px;">
-      ⏱️ Réponse personnalisée (pas automatisée)
+    <div style="display:grid;gap:10px;">
+
+      <input
+        id="nameInput"
+        class="leadInput"
+        placeholder="Ton prénom"
+      >
+
+      <input
+        id="emailInput"
+        class="leadInput"
+        type="email"
+        placeholder="Ton email"
+      >
+
+      <input
+        id="instaInput"
+        class="leadInput"
+        placeholder="@Instagram (optionnel)"
+      >
+
     </div>
-  `;
+
+  </div>
+
+</div>
+
+<div class="resultActions">
+  <button class="dmBtn" id="openChannelsBtn" type="button">
+      👉 Voir comment supprimer mes points de blocage
+  </button>
+</div>
+
+<div class="micro" style="margin-top:10px;">
+  ⏱️ Réponse personnalisée (pas automatisée)
+</div>
+
 
   chat.appendChild(card);
   chat.scrollTop = chat.scrollHeight;
