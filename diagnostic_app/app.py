@@ -1823,7 +1823,6 @@ function playAuraTalk(){
     auraBox.classList.add("auraCute");
   }
 
-  if (Math.random() < 0.55) blink();
 }
 
 function addBotMsg(html, typing=false, extraClass=""){
