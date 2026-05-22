@@ -2517,7 +2517,11 @@ function reset(){
 }
 
 restartBtn.onclick = reset;
-reset();
+
+window.onload = () => {
+    reset();
+};
+
 </script>
 
 </body>
