@@ -2025,9 +2025,17 @@ async function saveLeadDetails(contactChannel=null){
 
   if(!currentLeadId || !finalData) return;
 
-  const repetitive_tasks = (
-      document.getElementById("repetitiveInput")?.value || ""
-  ).trim();
+const name = (
+document.getElementById("nameInput")?.value || ""
+).trim();
+
+const contact = (
+document.getElementById("contactInput")?.value || ""
+).trim();
+
+const repetitive_tasks = (
+document.getElementById("repetitiveInput")?.value || ""
+).trim();
 
   const firstname = (
       document.getElementById("nameInput")?.value || ""
@@ -2048,16 +2056,15 @@ async function saveLeadDetails(contactChannel=null){
       headers:{
           "Content-Type":"application/json"
       },
-      body:JSON.stringify({
-          lead_id:currentLeadId,
-          activity:firstname,
-          repetitive_tasks,
-          tools:instagram,
-          email:email,
-          linkedin_clicked:contactChannel==="linkedin",
-          dm_text,
-          contact_channel:contactChannel
-      })
+      body: JSON.stringify({
+    lead_id: currentLeadId,
+    activity: name,
+    tools: contact,
+    repetitive_tasks,
+    linkedin_clicked: contactChannel === "linkedin",
+    dm_text,
+    contact_channel: contactChannel
+})
   });
 }
 
@@ -2157,21 +2164,47 @@ function renderFinalCTA(baseData){
 
     <div class="leadForm">
 
-  <div>
-    <label for="repetitiveInput">
-      Quelles tâches te donnent le plus l’impression de tourner en boucle aujourd’hui ?
-    </label>
+    <div>
+        <label for="nameInput">
+            Ton prénom
+        </label>
 
-    <textarea
-      id="repetitiveInput"
-      class="leadTextarea"
-      placeholder="Ex : relances, onboarding, suivi client, DM, WhatsApp, contenu, organisation..."
-    ></textarea>
-  </div>
+        <input
+            id="nameInput"
+            class="leadInput"
+            placeholder="Ex : Julien">
+    </div>
 
-  <div style="font-size:12px;color:var(--muted);">
-    💡 Plus tu es précise, plus mon analyse sera pertinente
-  </div>
+
+    <div>
+        <label for="contactInput">
+            Ton meilleur moyen de contact
+        </label>
+
+        <input
+            id="contactInput"
+            class="leadInput"
+            placeholder="Email, Instagram ou LinkedIn">
+    </div>
+
+
+    <div>
+        <label for="repetitiveInput">
+            Quelles tâches te donnent le plus l’impression de tourner en boucle aujourd’hui ?
+        </label>
+
+        <textarea
+            id="repetitiveInput"
+            class="leadTextarea"
+            placeholder="Ex : relances, onboarding, suivi client, DM, WhatsApp, contenu, organisation..."
+        ></textarea>
+    </div>
+
+    <div style="font-size:12px;color:var(--muted);">
+        Plus tu es précis(e), plus l’analyse sera pertinente
+    </div>
+
+</div>
 
 
   <!-- NOUVEAU -->
