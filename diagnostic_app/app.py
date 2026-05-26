@@ -2206,56 +2206,6 @@ function renderFinalCTA(baseData){
 
 </div>
 
-
-  <!-- NOUVEAU -->
-  <div style="
-      margin-top:14px;
-      padding:14px;
-      border-radius:14px;
-      background:var(--soft2);
-      border:1px solid rgba(107,78,255,.10);
-  ">
-
-    <div style="
-        font-weight:900;
-        margin-bottom:12px;
-    ">
-      📩 Reçois tes priorités personnalisées
-    </div>
-
-    <div style="
-        font-size:13px;
-        color:var(--muted);
-        margin-bottom:14px;
-    ">
-      Je pourrai te montrer précisément où agir en priorité selon ton diagnostic.
-    </div>
-
-    <div style="display:grid;gap:10px;">
-
-      <input
-        id="nameInput"
-        class="leadInput"
-        placeholder="Ton prénom"
-      >
-
-      <input
-        id="emailInput"
-        class="leadInput"
-        type="email"
-        placeholder="Ton email"
-      >
-
-      <input
-        id="instaInput"
-        class="leadInput"
-        placeholder="@Instagram (optionnel)"
-      >
-
-    </div>
-
-  </div>
-
 </div>
 
 <div class="resultActions">
