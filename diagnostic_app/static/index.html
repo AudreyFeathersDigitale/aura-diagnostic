@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="fr">
+
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+  <title>AURA — Diagnostic automatisation</title>
+
+  <link rel="icon" type="image/png" href="/static/aura.png">
+
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+
+<body>
+
+  <div class="frame">
+
+    <div class="grid">
+
+      <!-- LEFT -->
+
+      <div class="left">
+
+        <div class="leftInner">
+
+          <div class="auraBig">
+            <div class="auraImg" id="auraBox">
+              <img id="auraBig" src="/static/aura.png" alt="AURA">
+            </div>
+          </div>
+
+          <div class="subtitle">
+            Agent IA • Diagnostic de dépendance business
+          </div>
+
+          <div class="tag">
+            Découvre pourquoi ton business dépend encore trop de toi.
+          </div>
+
+          <div class="promiseBox">
+
+            <div class="promiseTitle">
+              En 2 minutes, AURA va identifier :
+            </div>
+
+            <ul class="promiseList">
+
+              <li>
+                pourquoi tu restes encore le point de passage obligé
+              </li>
+
+              <li>
+                où tu perds du temps sans vraiment le voir au quotidien
+              </li>
+
+              <li>
+                quelles zones te rendent encore indispensable aujourd’hui
+              </li>
+
+              <li>
+                ce qui bloque ta capacité à grandir sans augmenter ta charge
+              </li>
+
+            </ul>
+
+            <div class="promiseHighlight">
+              👉 L’objectif : voir si ton business peut continuer à avancer… même quand tu ralentis.
+            </div>
+
+          </div>
+
+          <div class="progress">
+            <div id="bar" class="bar"></div>
+          </div>
+
+          <div style="margin-top:18px;" class="leftTitle">
+            💡 Beaucoup découvrent que leur vrai problème n’est pas le manque de temps… mais le fait que tout finit toujours par revenir vers eux.
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- RIGHT -->
+
+      <div class="right">
+
+        <div class="chatHeader">
+
+          <div class="chatHeaderLeft">
+
+            <div class="chatHeaderAvatarWrap">
+              <img class="chatHeaderAvatar" src="/static/aura.png" alt="AURA">
+            </div>
+
+            <div class="chatHeaderText">
+
+              <div class="chatHeaderTitle">
+                Salut 👋 Je suis AURA.
+              </div>
+
+              <div class="chatHeaderSub">
+                Je vais t’aider à voir où ton business dépend encore trop de toi… puis te montrer ce que ça bloque vraiment dans ta croissance.
+              </div>
+
+            </div>
+
+          </div>
+
+          <div class="chatHeaderRight">
+            ~2 minutes
+          </div>
+
+        </div>
+
+        <div class="chat" id="chat"></div>
+
+        <div class="choices" id="choices"></div>
+
+        <div class="footer" id="footer">
+
+          <div class="cta">
+            Mot clé LinkedIn :
+            <code>diagnostic</code>
+          </div>
+
+          <button class="restart" id="restart">
+            Recommencer
+          </button>
+
+        </div>
+
+        <div class="copy" id="copyBox"></div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <script id="aura-data" type="application/json">
+{
+  "PROFILE_QUESTIONS": %PROFILE_QUESTIONS_JSON%,
+  "QUESTIONS": %QUESTIONS_JSON%,
+  "LINKEDIN_URL": %LINKEDIN_URL_JSON%,
+  "INSTAGRAM_URL": %INSTAGRAM_URL_JSON%
+}
+</script>
+
+<script>
+  window.AURA_CONFIG = JSON.parse(
+    document.getElementById("aura-data").textContent
+  );
+</script>
+
+  <script src="/static/app.js"></script>
+
+</body>
+
+</html>
