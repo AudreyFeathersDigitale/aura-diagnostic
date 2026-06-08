@@ -87,7 +87,7 @@ function addBotBubble(html, cls=""){
 }
 
 
-async function addBotMsgTyped(html, cls="", speed=14){
+async function addBotMsgTyped(html, cls="", speed=10){
 
   const row = addBotBubble("", cls);
   const bubble = row.querySelector(".bubble");
