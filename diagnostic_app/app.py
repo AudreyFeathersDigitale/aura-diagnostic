@@ -1,3 +1,36 @@
+# =========================================================
+# PAGE PRINCIPALE
+# =========================================================
+
+@app.get("/", response_class=HTMLResponse)
+async def home():
+
+    html_path = BASE_DIR / "static" / "index.html"
+
+    html_content = html_path.read_text(encoding="utf-8")
+
+    html_content = html_content.replace(
+        "%PROFILE_QUESTIONS_JSON%",
+        json.dumps(PROFILE_QUESTIONS, ensure_ascii=False)
+    )
+
+    html_content = html_content.replace(
+        "%QUESTIONS_JSON%",
+        json.dumps(QUESTIONS, ensure_ascii=False)
+    )
+
+    html_content = html_content.replace(
+        "%LINKEDIN_URL_JSON%",
+        json.dumps(LINKEDIN_URL)
+    )
+
+    html_content = html_content.replace(
+        "%INSTAGRAM_URL_JSON%",
+        json.dumps(INSTAGRAM_URL)
+    )
+
+    return HTMLResponse(html_content)
+
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
