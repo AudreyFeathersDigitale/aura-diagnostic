@@ -135,6 +135,15 @@ async function botAsk(){
 
   updateBar();
 
+  const total =
+    PROFILE_QUESTIONS.length +
+    QUESTIONS.length;
+
+  const current =
+    phase === "profile"
+      ? profileStep + 1
+      : PROFILE_QUESTIONS.length + step + 1;
+
   if(phase === "profile"){
 
     if(profileStep >= PROFILE_QUESTIONS.length){
@@ -148,7 +157,15 @@ async function botAsk(){
       PROFILE_QUESTIONS[profileStep];
 
     await addBotMsgTyped(
-      `<div class="questionTag">Question ${profileStep + 1}</div>${question}`,
+      `
+      <div class="questionPill">
+        ${current} / ${total}
+      </div>
+
+      <div class="questionText">
+        ${question}
+      </div>
+      `,
       "bubbleQuestion"
     );
 
@@ -166,7 +183,15 @@ async function botAsk(){
     QUESTIONS[step];
 
   await addBotMsgTyped(
-    `<div class="questionTag">Question ${step + 1}</div>${question}`,
+    `
+    <div class="questionPill">
+      ${current} / ${total}
+    </div>
+
+    <div class="questionText">
+      ${question}
+    </div>
+    `,
     "bubbleQuestion"
   );
 
