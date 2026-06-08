@@ -87,17 +87,59 @@ function addBotBubble(html, cls=""){
 }
 
 
-async function addBotMsgTyped(html, cls="", speed=10){
+async function addBotMsgTyped(html, cls="", speed=14){
 
   const row = addBotBubble("", cls);
-
   const bubble = row.querySelector(".bubble");
 
-  bubble.innerHTML = html;
+  const template = document.createElement("template");
+  template.innerHTML = html.trim();
+
+  bubble.innerHTML = "";
+
+  async function typeNode(node, parent){
+
+    if(node.nodeType === Node.TEXT_NODE){
+
+      const textNode = document.createTextNode("");
+      parent.appendChild(textNode);
+
+      const text = node.textContent || "";
+
+      for(let i = 0; i < text.length; i++){
+        textNode.textContent += text[i];
+
+        if(i % 3 === 0){
+          scrollBottom();
+        }
+
+        await sleep(speed);
+      }
+
+      return;
+    }
+
+    if(node.nodeType === Node.ELEMENT_NODE){
+
+      const el = document.createElement(node.tagName.toLowerCase());
+
+      for(const attr of node.attributes){
+        el.setAttribute(attr.name, attr.value);
+      }
+
+      parent.appendChild(el);
+
+      for(const child of node.childNodes){
+        await typeNode(child, el);
+      }
+    }
+  }
+
+  for(const node of template.content.childNodes){
+    await typeNode(node, bubble);
+  }
 
   scrollBottom();
-
-  await sleep(speed * 10);
 }
 
 
