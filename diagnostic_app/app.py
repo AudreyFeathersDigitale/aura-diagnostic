@@ -778,17 +778,15 @@ def update_lead_details(
             WHERE id = ?
             """,
             (
-                (
-    now,
-    activity,
-    repetitive_tasks,
-    tools,
-    1 if linkedin_clicked else 0,
-    email,
-    dm_text,
-    contact_channel,
-    lead_id,
-)
+                now,
+                activity,
+                repetitive_tasks,
+                tools,
+                1 if linkedin_clicked else 0,
+                email,
+                dm_text,
+                contact_channel,
+                lead_id,
             ),
         )
 
@@ -1986,16 +1984,17 @@ function choose(key, value, btn, isProfile=false){
 }
 
 function buildDmText(baseData){
+  const name = (document.getElementById("nameInput")?.value || "").trim();
+  const contact = (document.getElementById("contactInput")?.value || "").trim();
   const repetitive = (document.getElementById("repetitiveInput")?.value || "").trim();
 
-  let extra = "";
-  if(repetitive){
-    extra = `\n\nCe qui me fait perdre le plus de temps aujourd’hui : ${repetitive}`;
-  }
+  let introName = name ? `Je m’appelle ${name}.\n\n` : "";
+  let contactLine = contact ? `Mon meilleur contact : ${contact}\n\n` : "";
+  let extra = repetitive ? `\n\nCe qui me fait perdre le plus de temps aujourd’hui : ${repetitive}` : "";
 
   return `Hello Audrey,
 
-Je viens de faire le diagnostic AURA.
+${introName}Je viens de faire le diagnostic AURA.
 
 Résultat : mon business dépend encore de moi à ${baseData.dependency_pct}%.
 
@@ -2005,9 +2004,9 @@ Ce qui ressort surtout :
 - ${baseData.top3[2]}
 
 Aujourd’hui, je vois que mon business repose encore trop sur moi sur les zones critiques.
-Ça me coûte entre ${formatEuro(baseData.monthly_loss_min)}€ et ${formatEuro(baseData.monthly_loss_max)}€ par mois en temps, friction et croissance bloquée.${extra}
+Ça me coûte du temps, de la charge mentale et des opportunités que mon système n’absorbe pas encore.${extra}
 
-👉 Est-ce que c’est exactement le type de blocage que tu aides à restructurer ?`;
+${contactLine}👉 Est-ce que c’est exactement le type de blocage que tu aides à restructurer ?`;
 }
 
 function showCopyPreview(text, isSuccess=false){
@@ -2021,50 +2020,27 @@ function updateCopyBox(){
   showCopyPreview(buildDmText(finalData), false);
 }
 
-async function saveLeadDetails(contactChannel=null){
-
+async async function saveLeadDetails(contactChannel=null){
   if(!currentLeadId || !finalData) return;
 
-const name = (
-document.getElementById("nameInput")?.value || ""
-).trim();
-
-const contact = (
-document.getElementById("contactInput")?.value || ""
-).trim();
-
-const repetitive_tasks = (
-document.getElementById("repetitiveInput")?.value || ""
-).trim();
-
-  const firstname = (
-      document.getElementById("nameInput")?.value || ""
-  ).trim();
-
-  const email = (
-      document.getElementById("emailInput")?.value || ""
-  ).trim();
-
-  const instagram = (
-      document.getElementById("instaInput")?.value || ""
-  ).trim();
-
+  const name = (document.getElementById("nameInput")?.value || "").trim();
+  const contact = (document.getElementById("contactInput")?.value || "").trim();
+  const repetitive_tasks = (document.getElementById("repetitiveInput")?.value || "").trim();
   const dm_text = buildDmText(finalData);
 
   await fetch("/save-lead",{
-      method:"POST",
-      headers:{
-          "Content-Type":"application/json"
-      },
-      body: JSON.stringify({
-    lead_id: currentLeadId,
-    activity: name,
-    tools: contact,
-    repetitive_tasks,
-    linkedin_clicked: contactChannel === "linkedin",
-    dm_text,
-    contact_channel: contactChannel
-})
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({
+      lead_id: currentLeadId,
+      activity: name,
+      tools: contact,
+      email: contact,
+      repetitive_tasks,
+      linkedin_clicked: contactChannel === "linkedin",
+      dm_text,
+      contact_channel: contactChannel
+    })
   });
 }
 
@@ -2141,87 +2117,91 @@ function renderFinalCTA(baseData){
 
   card.innerHTML = `
     <div style="font-weight:900;font-size:20px;">
-      👉 Voilà ce qui pourrait changer dans ton business :
+      📩 Ton diagnostic principal est prêt
     </div>
 
     <div class="micro" style="margin-top:10px;">
-      • moins de tâches qui reviennent vers toi<br>
-      • moins de charge mentale<br>
-      • plus de capacité sans augmenter ton temps
+      Je peux maintenant t’envoyer l’analyse complète avec :
     </div>
 
-    <div style="margin-top:12px;font-weight:800;">
-      👉 Objectif : te libérer du temps ET débloquer ta croissance
-    </div>
-
-    <div style="margin-top:12px;font-weight:800;color:var(--blue2);">
-      👉 Si rien ne change, certaines opportunités continueront d’arriver… sans pouvoir être réellement exploitées
-    </div>
-
-    <div style="margin-top:14px;padding:12px;border-radius:14px;background:var(--aura-ink);color:var(--aura-lavender);font-size:13px;">
-      ⚠️ 💡 Si ton diagnostic montre un vrai levier d’amélioration, je te dirai exactement où agir en priorité.
+    <div style="margin-top:12px;font-weight:700;line-height:1.6;">
+      • les zones qui te font perdre le plus de temps<br>
+      • les tâches qui reviennent encore trop vers toi<br>
+      • les premiers leviers à prioriser<br>
+      • ce qui bloque ta capacité à grandir sereinement
     </div>
 
     <div class="leadForm">
+      <div>
+        <label for="nameInput">Ton prénom</label>
+        <input id="nameInput" class="leadInput" placeholder="Ex : Julie">
+      </div>
 
-    <div>
-        <label for="nameInput">
-            Ton prénom
-        </label>
+      <div>
+        <label for="contactInput">Ton meilleur moyen de contact</label>
+        <input id="contactInput" class="leadInput" placeholder="Email, Instagram ou LinkedIn">
+      </div>
 
-        <input
-            id="nameInput"
-            class="leadInput"
-            placeholder="Ex : Julien">
-    </div>
-
-
-    <div>
-        <label for="contactInput">
-            Ton meilleur moyen de contact
-        </label>
-
-        <input
-            id="contactInput"
-            class="leadInput"
-            placeholder="Email, Instagram ou LinkedIn">
-    </div>
-
-
-    <div>
+      <div>
         <label for="repetitiveInput">
-            Quelles tâches te donnent le plus l’impression de tourner en boucle aujourd’hui ?
+          Quelles tâches te donnent le plus l’impression de tourner en boucle aujourd’hui ?
         </label>
+        <textarea id="repetitiveInput" class="leadTextarea" placeholder="Ex : relances, onboarding, suivi client, DM, WhatsApp, contenu, organisation..."></textarea>
+      </div>
 
-        <textarea
-            id="repetitiveInput"
-            class="leadTextarea"
-            placeholder="Ex : relances, onboarding, suivi client, DM, WhatsApp, contenu, organisation..."
-        ></textarea>
+      <div style="font-size:12px;color:var(--muted);">
+        Plus tu es précis(e), plus l’analyse sera pertinente.
+      </div>
     </div>
 
-    <div style="font-size:12px;color:var(--muted);">
-        Plus tu es précis(e), plus l’analyse sera pertinente
+    <div style="margin-top:18px;padding:14px;border-radius:16px;background:#F8F1F5;border:1px solid rgba(142,59,101,.18);">
+      <div style="font-weight:900;color:var(--aura-mauve-alert);font-size:18px;">
+        ⚠️ Ce que cette dépendance te coûte réellement
+      </div>
+
+      <div style="margin-top:12px;font-weight:800;">
+        ⏱ Tu bloques actuellement entre <b>${baseData.estimated_min} et ${baseData.estimated_max} heures par semaine</b>
+      </div>
+
+      <div style="margin-top:12px;font-weight:800;">
+        📈 Cela peut représenter <b>${baseData.lost_clients_min} à ${baseData.lost_clients_max} opportunités supplémentaires par mois</b>
+      </div>
+
+      <div class="micro" style="margin-top:8px;">
+        prospects, clients potentiels ou demandes que ton système pourrait absorber plus sereinement.
+      </div>
     </div>
 
-</div>
+    <div style="margin-top:18px;line-height:1.45;">
+      ${baseData.projection_message}<br><br>
+      Aujourd’hui ton diagnostic montre surtout une chose :<br><br>
+      <b>ton business avance encore davantage grâce à ta présence que grâce à son système.</b>
+    </div>
 
-</div>
+    <div style="margin-top:18px;font-weight:800;">
+      👉 Objectif : te libérer du temps ET débloquer ta croissance.
+    </div>
 
-<div class="resultActions">
-  <button class="dmBtn" id="openChannelsBtn" type="button">
-      👉 Voir comment supprimer mes points de blocage
-  </button>
-</div>
+    <div style="margin-top:14px;padding:12px;border-radius:14px;background:var(--aura-ink);color:var(--aura-lavender);font-size:13px;">
+      💡 Si ton diagnostic montre un vrai levier d’amélioration, je te dirai exactement où agir en priorité.
+    </div>
 
-<div class="micro" style="margin-top:10px;">
-  ⏱️ Réponse personnalisée (pas automatisée)
-</div>
-`;
+    <div class="resultActions">
+      <button class="dmBtn" id="openChannelsBtn" type="button">
+        👉 Voir comment supprimer mes points de blocage
+      </button>
+    </div>
+
+    <div class="micro" style="margin-top:10px;">
+      ⏱️ Réponse personnalisée — pas automatisée.
+    </div>
+  `;
 
   chat.appendChild(card);
   chat.scrollTop = chat.scrollHeight;
 
+  const nameInput = document.getElementById("nameInput");
+  const contactInput = document.getElementById("contactInput");
   const repetitiveInput = document.getElementById("repetitiveInput");
   const openChannelsBtn = document.getElementById("openChannelsBtn");
 
@@ -2230,6 +2210,8 @@ function renderFinalCTA(baseData){
     await saveLeadDetails(null);
   };
 
+  nameInput.addEventListener("input", syncPreview);
+  contactInput.addEventListener("input", syncPreview);
   repetitiveInput.addEventListener("input", syncPreview);
 
   openChannelsBtn.onclick = async () => {
@@ -2242,6 +2224,7 @@ function renderFinalCTA(baseData){
       showCopyPreview(dmText, false);
     }
 
+    await saveLeadDetails(null);
     openChannelModal(baseData);
   };
 
@@ -2348,7 +2331,7 @@ function renderDimensions(dimensions){
   `;
 }
 
-async function finish(){
+async async function finish(){
   locked = true;
   choices.innerHTML = "";
   setProgress();
@@ -2403,75 +2386,53 @@ async function finish(){
     loadingMsg.bubble,
     `
     <div class="scoreHero">
-  <div style="font-weight:900;font-size:16px;">Ton business est actuellement limité par toi à :</div>
-  <div class="scorePercent ${getScoreClass(data.dependency_pct)}">${data.dependency_pct}%</div>
-  <div class="scoreSecondary">
-    👉 Concrètement : ton système ne prend pas encore le relais là où il devrait.
-  </div>
-  <div class="micro" style="margin-top:10px;">
-    <b>${data.level}</b> — ${data.subtitle}
-  </div>
-</div>
-`,
-14
-);
+      <div style="font-weight:900;font-size:16px;">
+        Ton business est actuellement limité par toi à :
+      </div>
 
-await sleep(250);
+      <div class="scorePercent ${getScoreClass(data.dependency_pct)}">
+        ${data.dependency_pct}%
+      </div>
 
-await addBotMsgTyped(
-  `
-  <div class="resultCard messageAppear" style="border:1px solid rgba(142,59,101,.22);background:#F8F1F5;">
-    <div style="font-weight:900;font-size:18px;color:var(--aura-mauve-alert);">
-      ⚠️ Ce que cette dépendance te coûte réellement
+      <div class="scoreSecondary">
+        👉 Ton système ne prend pas encore le relais là où il devrait.
+      </div>
+
+      <div class="micro" style="margin-top:10px;">
+        <b>${data.level}</b> — ${data.subtitle}
+      </div>
     </div>
+    `,
+    14
+  );
 
-    <div style="margin-top:12px;font-weight:800;">
-      ⏱ Tu bloques actuellement entre <b>${data.estimated_min} et ${data.estimated_max} heures par semaine</b>
-    </div>
+  await sleep(250);
 
-    <div style="margin-top:12px;font-weight:800;">
-      📈 Cela peut représenter <b>${data.lost_clients_min} à ${data.lost_clients_max} opportunités supplémentaires par mois</b>
-    </div>
+  await addBotMsgTyped(
+    `<b>👉 Tes principales zones de dépendance aujourd’hui :</b>
+     ${renderDimensions(data.dimension_scores)}
+     <br><br>
+     <b>Priorités détectées :</b><br><br>
+     1) ${data.top3[0]}<br>
+     2) ${data.top3[1]}<br>
+     3) ${data.top3[2]}`,
+    "",
+    14
+  );
 
-    <div class="micro" style="margin-top:6px;">
-      prospects, clients potentiels ou demandes que ton système pourrait absorber plus sereinement.
-    </div>
-  </div>
-  `,
-  "",
-  14
-);
+  await sleep(250);
 
-await sleep(250);
+  await addBotMsgTyped(
+    `Ton diagnostic principal est prêt.<br><br>
+     Pour recevoir l’analyse complète et me permettre de te répondre précisément, laisse-moi ton meilleur contact juste en dessous.`,
+    "",
+    14
+  );
 
-await addBotMsgTyped(
-  `<b>👉 Tes principales zones de dépendance aujourd’hui :</b>${renderDimensions(data.dimension_scores)}<br><br>
-   <b>Priorités :</b><br><br>
-   1) ${data.top3[0]}<br>
-   2) ${data.top3[1]}<br>
-   3) ${data.top3[2]}`,
-  "",
-  14
-);
+  await sleep(400);
+  renderFinalCTA(data);
 
-await sleep(250);
-
-await addBotMsgTyped(
-  `${data.projection_message}<br><br>
-   Aujourd’hui ton diagnostic montre une chose :<br><br>
-   ton business avance encore davantage grâce à ta présence que grâce à son système.<br><br>
-   Si rien ne change :<br><br>
-   • tu resteras le point de passage obligé<br>
-   • ta charge continuera d’augmenter<br>
-   • ta croissance restera liée à ton temps`,
-  "",
-  14
-);
-
-await sleep(400);
-renderFinalCTA(data);
-
-locked = false;
+  locked = false;
 }
 
 function reset(){
