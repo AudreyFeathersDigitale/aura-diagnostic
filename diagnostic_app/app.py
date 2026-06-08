@@ -1,36 +1,3 @@
-# =========================================================
-# PAGE PRINCIPALE
-# =========================================================
-
-@app.get("/", response_class=HTMLResponse)
-async def home():
-
-    html_path = BASE_DIR / "static" / "index.html"
-
-    html_content = html_path.read_text(encoding="utf-8")
-
-    html_content = html_content.replace(
-        "%PROFILE_QUESTIONS_JSON%",
-        json.dumps(PROFILE_QUESTIONS, ensure_ascii=False)
-    )
-
-    html_content = html_content.replace(
-        "%QUESTIONS_JSON%",
-        json.dumps(QUESTIONS, ensure_ascii=False)
-    )
-
-    html_content = html_content.replace(
-        "%LINKEDIN_URL_JSON%",
-        json.dumps(LINKEDIN_URL)
-    )
-
-    html_content = html_content.replace(
-        "%INSTAGRAM_URL_JSON%",
-        json.dumps(INSTAGRAM_URL)
-    )
-
-    return HTMLResponse(html_content)
-
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -316,6 +283,37 @@ def startup():
 
 
 # =========================================================
+# PAGE PRINCIPALE
+# =========================================================
+
+@app.get("/", response_class=HTMLResponse)
+async def home():
+    html_path = BASE_DIR / "static" / "index.html"
+    html_content = html_path.read_text(encoding="utf-8")
+
+    html_content = html_content.replace(
+        "%PROFILE_QUESTIONS_JSON%",
+        json.dumps(PROFILE_QUESTIONS, ensure_ascii=False)
+    )
+
+    html_content = html_content.replace(
+        "%QUESTIONS_JSON%",
+        json.dumps(QUESTIONS, ensure_ascii=False)
+    )
+
+    html_content = html_content.replace(
+        "%LINKEDIN_URL_JSON%",
+        json.dumps(LINKEDIN_URL)
+    )
+
+    html_content = html_content.replace(
+        "%INSTAGRAM_URL_JSON%",
+        json.dumps(INSTAGRAM_URL)
+    )
+
+    return HTMLResponse(html_content)
+
+# =========================================================
 # CALCULS
 # =========================================================
 
@@ -375,3 +373,174 @@ def compute_dimension_scores(answers: dict):
             )
 
     return final_scores
+
+def compute_dependency_pct(dimension_scores: dict, profile: dict) -> int:
+    score = (
+        dimension_scores["ACQ"] * 0.25 +
+        dimension_scores["ONB"] * 0.15 +
+        dimension_scores["DEL"] * 0.30 +
+        dimension_scores["STR"] * 0.30
+    )
+
+    return min(round(score), 100)
+
+
+def level_from_dependency_pct(dependency_pct: int):
+    if dependency_pct < 25:
+        return "Dépendance faible", "Ton business commence déjà à fonctionner avec une certaine autonomie."
+    if dependency_pct < 50:
+        return "Dépendance modérée", "Ton activité avance, mais elle te ramène encore régulièrement au centre."
+    if dependency_pct < 75:
+        return "Dépendance forte", "Tu restes encore le point de passage obligé sur plusieurs zones importantes."
+
+    return "Dépendance critique", "Aujourd’hui ton business avance encore à ton rythme."
+
+
+def dominant_profile(dimension_scores: dict):
+    ordered = sorted(dimension_scores.items(), key=lambda x: x[1], reverse=True)
+    top_dim = ordered[0][0]
+
+    profiles = {
+        "STR": (
+            "Ton principal frein vient de la structuration",
+            "Tes process, ton organisation et certaines décisions reposent encore trop sur toi."
+        ),
+        "DEL": (
+            "Ton principal frein vient de l’exécution",
+            "Trop de tâches répétitives, suivis et actions opérationnelles reviennent encore vers toi."
+        ),
+        "ONB": (
+            "Ton principal frein vient de l’onboarding",
+            "L’arrivée de nouveaux clients dépend encore trop de ton intervention."
+        ),
+        "ACQ": (
+            "Ton principal frein vient de l’acquisition",
+            "Le suivi des prospects, relances et conversions reste encore trop manuel."
+        ),
+    }
+
+    return profiles.get(top_dim, profiles["STR"])
+
+
+def priorities_from_dimensions(dimension_scores: dict):
+    labels = {
+        "STR": "Des process et une organisation qui reposent encore trop sur toi",
+        "DEL": "Des tâches répétitives et suivis qui reviennent encore vers toi",
+        "ONB": "Un onboarding client qui dépend encore trop de ton intervention",
+        "ACQ": "Le suivi des prospects et des relances reste encore trop manuel",
+    }
+
+    ordered = sorted(dimension_scores.items(), key=lambda x: x[1], reverse=True)
+    return [labels[dim] for dim, _ in ordered[:3]]
+
+
+def estimate_time_gain(dependency_pct: int):
+    if dependency_pct < 25:
+        return 2, 5
+    if dependency_pct < 50:
+        return 4, 8
+    if dependency_pct < 75:
+        return 7, 13
+
+    return 10, 18
+
+
+def estimate_lost_opportunities(dependency_pct: int):
+    if dependency_pct < 25:
+        return 1, 3
+
+    if dependency_pct < 50:
+        return 3, 6
+
+    if dependency_pct < 75:
+        return 5, 10
+
+    return 8, 15
+
+
+@app.post("/calculate")
+async def calculate(request: Request):
+    body = await request.json()
+
+    answers = body.get("answers", {}) or {}
+    profile = body.get("profile", {}) or {}
+
+    dimension_scores = compute_dimension_scores(answers)
+    dependency_pct = compute_dependency_pct(dimension_scores, profile)
+
+    level, subtitle = level_from_dependency_pct(dependency_pct)
+    profile_title, profile_text = dominant_profile(dimension_scores)
+    top3 = priorities_from_dimensions(dimension_scores)
+
+    estimated_min, estimated_max = estimate_time_gain(dependency_pct)
+    lost_clients_min, lost_clients_max = estimate_lost_opportunities(dependency_pct)
+
+    return JSONResponse({
+        "dependency_pct": dependency_pct,
+        "level": level,
+        "subtitle": subtitle,
+        "profile_title": profile_title,
+        "profile_text": profile_text,
+        "dimension_scores": dimension_scores,
+        "top3": top3,
+        "estimated_min": estimated_min,
+        "estimated_max": estimated_max,
+        "lost_clients_min": lost_clients_min,
+        "lost_clients_max": lost_clients_max
+    })
+
+
+@app.post("/save-lead")
+async def save_lead(request: Request):
+    body = await request.json()
+
+    email = body.get("email")
+    repetitive_tasks = body.get("repetitive_tasks")
+    result = body.get("result", {}) or {}
+
+    with get_conn() as conn:
+        conn.execute(
+            """
+            INSERT INTO leads (
+                created_at,
+                updated_at,
+                answers_json,
+                profile_json,
+                dependency_pct,
+                level,
+                subtitle,
+                profile_title,
+                profile_text,
+                dimension_scores_json,
+                top3_json,
+                estimated_min,
+                estimated_max,
+                email,
+                repetitive_tasks
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                utcnow_iso(),
+                utcnow_iso(),
+                json.dumps({}, ensure_ascii=False),
+                json.dumps({}, ensure_ascii=False),
+                result.get("dependency_pct", 0),
+                result.get("level", ""),
+                result.get("subtitle", ""),
+                result.get("profile_title", ""),
+                result.get("profile_text", ""),
+                json.dumps(result.get("dimension_scores", {}), ensure_ascii=False),
+                json.dumps(result.get("top3", []), ensure_ascii=False),
+                result.get("estimated_min", 0),
+                result.get("estimated_max", 0),
+                email,
+                repetitive_tasks,
+            )
+        )
+
+    return JSONResponse({"ok": True})
+
+
+if __name__ == "__main__":
+    uvicorn.run("app:app", host="127.0.0.1", port=8000, reload=True)
