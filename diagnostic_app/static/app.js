@@ -359,11 +359,12 @@ function renderLeadForm(){
         ></textarea>
 
         <button
-          class="dmBtn"
-          onclick="unlockResults()"
-        >
-          Voir mon diagnostic complet
-        </button>
+  id="unlockBtn"
+  class="dmBtn"
+  type="button"
+>
+  Voir mon diagnostic complet
+</button>
 
       </div>
 
@@ -400,13 +401,21 @@ async function finishDiagnostic(){
 
   choices.innerHTML = "";
 
-  await addBotMsgTyped(
-    renderLeadForm()
-  );
+ await addBotMsgTyped(
+  renderLeadForm()
+);
+
+const unlockBtn = document.getElementById("unlockBtn");
+
+if(unlockBtn){
+  unlockBtn.addEventListener("click", unlockResults);
+}
 }
 
 
 async function unlockResults(){
+
+  console.log("Bouton diagnostic cliqué");
 
   const email =
     document.getElementById("emailInput").value.trim();
