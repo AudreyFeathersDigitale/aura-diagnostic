@@ -8,6 +8,7 @@ from pathlib import Path
 from datetime import datetime, timezone
 import html
 import os
+import requests
 
 BASE_DIR = Path(__file__).resolve().parent
 DB_PATH = Path(os.getenv("DB_PATH", "/data/aura_leads.db"))
@@ -22,6 +23,7 @@ app.mount(
 
 LINKEDIN_URL = "https://www.linkedin.com/in/audrey-mouton-80b902217/?skipRedirect=true"
 INSTAGRAM_URL = "https://www.instagram.com/business.auto.feathersdigital/"
+SHEETS_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbz7DCX6pQYK7bdtBP8qVOqi7QK7fesVcYfUhFzr2XiOgmxhOTn03FT0UbYoH0pZaCbi/exec"
 
 
 # =========================================================
@@ -492,54 +494,63 @@ async def calculate(request: Request):
 
 @app.post("/save-lead")
 async def save_lead(request: Request):
+
     body = await request.json()
 
     email = body.get("email")
     repetitive_tasks = body.get("repetitive_tasks")
+
     result = body.get("result", {}) or {}
 
-    with get_conn() as conn:
-        conn.execute(
-            """
-            INSERT INTO leads (
-                created_at,
-                updated_at,
-                answers_json,
-                profile_json,
-                dependency_pct,
-                level,
-                subtitle,
-                profile_title,
-                profile_text,
-                dimension_scores_json,
-                top3_json,
-                estimated_min,
-                estimated_max,
-                email,
-                repetitive_tasks
-            )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            (
-                utcnow_iso(),
-                utcnow_iso(),
-                json.dumps({}, ensure_ascii=False),
-                json.dumps({}, ensure_ascii=False),
-                result.get("dependency_pct", 0),
-                result.get("level", ""),
-                result.get("subtitle", ""),
-                result.get("profile_title", ""),
-                result.get("profile_text", ""),
-                json.dumps(result.get("dimension_scores", {}), ensure_ascii=False),
-                json.dumps(result.get("top3", []), ensure_ascii=False),
-                result.get("estimated_min", 0),
-                result.get("estimated_max", 0),
-                email,
-                repetitive_tasks,
-            )
+    payload = {
+        "contact": email,
+
+        "score_dependency": result.get("dependency_pct", 0),
+
+        "level": result.get("level", ""),
+
+        "main_zone": result.get("profile_title", ""),
+
+        "time_lost": f'{result.get("estimated_min", 0)} à {result.get("estimated_max", 0)}h',
+
+        "lost_opportunities": f'{result.get("lost_clients_min", 0)} à {result.get("lost_clients_max", 0)}',
+
+        "pattern": result.get("profile_title", ""),
+
+        "top3": " | ".join(result.get("top3", [])),
+
+        "tasks": repetitive_tasks,
+
+        "revenue": "",
+
+        "team_size": "",
+
+        "score_acq": result.get("dimension_scores", {}).get("ACQ", 0),
+
+        "score_onb": result.get("dimension_scores", {}).get("ONB", 0),
+
+        "score_del": result.get("dimension_scores", {}).get("DEL", 0),
+
+        "score_str": result.get("dimension_scores", {}).get("STR", 0),
+
+        "summary": result.get("subtitle", ""),
+
+        "channel": "AURA"
+    }
+
+    try:
+        requests.post(
+            SHEETS_WEBHOOK_URL,
+            json=payload,
+            timeout=10
         )
 
-    return JSONResponse({"ok": True})
+    except Exception as e:
+        print("Erreur Google Sheets :", e)
+
+    return JSONResponse({
+        "ok": True
+    })
 
 @app.get("/admin/leads", response_class=HTMLResponse)
 async def admin_leads():
