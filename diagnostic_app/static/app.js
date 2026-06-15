@@ -348,10 +348,12 @@ async function unlockResults(){
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        email,
-        repetitive_tasks: tasks,
-        result: finalData
-      })
+      email,
+      repetitive_tasks: tasks,
+      answers,
+      profile: profileAnswers,
+      result: finalData
+})
     });
   }catch(error){
     console.log("Erreur save-lead :", error);

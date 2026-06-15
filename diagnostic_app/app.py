@@ -23,7 +23,7 @@ app.mount(
 
 LINKEDIN_URL = "https://www.linkedin.com/in/audrey-mouton-80b902217/?skipRedirect=true"
 INSTAGRAM_URL = "https://www.instagram.com/business.auto.feathersdigital/"
-SHEETS_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbz7DCX6pQYK7bdtBP8qVOqi7QK7fesVcYfUhFzr2XiOgmxhOTn03FT0UbYoH0pZaCbi/exec"
+SHEETS_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwrPDe6mLnMadj1JDnnzyW2z5trwa1AqlD7twG8hCVcMKR9IEJaG7jrhZjxxKAigdmI/exec"
 
 
 # =========================================================
@@ -500,42 +500,46 @@ async def save_lead(request: Request):
     email = body.get("email")
     repetitive_tasks = body.get("repetitive_tasks")
 
+    answers = body.get("answers", {}) or {}
+    profile = body.get("profile", {}) or {}
     result = body.get("result", {}) or {}
+
+    dimension_scores = result.get("dimension_scores", {}) or {}
 
     payload = {
         "contact": email,
-
         "score_dependency": result.get("dependency_pct", 0),
-
         "level": result.get("level", ""),
-
         "main_zone": result.get("profile_title", ""),
-
         "time_lost": f'{result.get("estimated_min", 0)} à {result.get("estimated_max", 0)}h',
-
         "lost_opportunities": f'{result.get("lost_clients_min", 0)} à {result.get("lost_clients_max", 0)}',
-
         "pattern": result.get("profile_title", ""),
-
         "top3": " | ".join(result.get("top3", [])),
-
         "tasks": repetitive_tasks,
 
-        "revenue": "",
+        "revenue": profile.get("revenue_band", ""),
+        "team_size": profile.get("team_size", ""),
 
-        "team_size": "",
-
-        "score_acq": result.get("dimension_scores", {}).get("ACQ", 0),
-
-        "score_onb": result.get("dimension_scores", {}).get("ONB", 0),
-
-        "score_del": result.get("dimension_scores", {}).get("DEL", 0),
-
-        "score_str": result.get("dimension_scores", {}).get("STR", 0),
+        "score_acq": dimension_scores.get("ACQ", 0),
+        "score_onb": dimension_scores.get("ONB", 0),
+        "score_del": dimension_scores.get("DEL", 0),
+        "score_str": dimension_scores.get("STR", 0),
 
         "summary": result.get("subtitle", ""),
+        "channel": "AURA",
 
-        "channel": "AURA"
+        "q_absence": answers.get("absence", ""),
+        "q_dependance": answers.get("dependance", ""),
+        "q_leads": answers.get("leads", ""),
+        "q_relances": answers.get("relances", ""),
+        "q_onboarding": answers.get("onboarding", ""),
+        "q_interruptions": answers.get("interruptions", ""),
+        "q_outils": answers.get("outils", ""),
+        "q_execution": answers.get("execution", ""),
+        "q_blocages": answers.get("blocages", ""),
+        "q_temps": answers.get("temps", ""),
+        "q_croissance": answers.get("croissance", ""),
+        "q_projection": answers.get("projection", ""),
     }
 
     try:
@@ -548,9 +552,7 @@ async def save_lead(request: Request):
     except Exception as e:
         print("Erreur Google Sheets :", e)
 
-    return JSONResponse({
-        "ok": True
-    })
+    return JSONResponse({"ok": True})
 
 if __name__ == "__main__":
     uvicorn.run("app:app", host="127.0.0.1", port=8000, reload=True)
