@@ -8,20 +8,15 @@
   <title>AURA — Diagnostic automatisation</title>
 
   <link rel="icon" type="image/png" href="/static/aura.png">
-
   <link rel="stylesheet" href="/static/styles.css">
 </head>
 
 <body>
 
   <div class="frame">
-
     <div class="grid">
 
-      <!-- LEFT -->
-
       <div class="left">
-
         <div class="leftInner">
 
           <div class="auraBig">
@@ -39,35 +34,20 @@
           </div>
 
           <div class="promiseBox">
-
             <div class="promiseTitle">
               En 2 minutes, AURA va identifier :
             </div>
 
             <ul class="promiseList">
-
-              <li>
-                pourquoi tu restes encore le point de passage obligé
-              </li>
-
-              <li>
-                où tu perds du temps sans vraiment le voir au quotidien
-              </li>
-
-              <li>
-                quelles zones te rendent encore indispensable aujourd’hui
-              </li>
-
-              <li>
-                ce qui bloque ta capacité à grandir sans augmenter ta charge
-              </li>
-
+              <li>pourquoi tu restes encore le point de passage obligé</li>
+              <li>où tu perds du temps sans vraiment le voir au quotidien</li>
+              <li>quelles zones te rendent encore indispensable aujourd’hui</li>
+              <li>ce qui bloque ta capacité à grandir sans augmenter ta charge</li>
             </ul>
 
             <div class="promiseHighlight">
               👉 L’objectif : voir si ton business peut continuer à avancer… même quand tu ralentis.
             </div>
-
           </div>
 
           <div class="progress">
@@ -79,33 +59,25 @@
           </div>
 
         </div>
-
       </div>
 
-      <!-- RIGHT -->
-
       <div class="right">
-
         <div class="chatHeader">
 
           <div class="chatHeaderLeft">
-
             <div class="chatHeaderAvatarWrap">
               <img class="chatHeaderAvatar" src="/static/aura.png" alt="AURA">
             </div>
 
             <div class="chatHeaderText">
-
               <div class="chatHeaderTitle">
                 Salut 👋 Je suis AURA.
               </div>
 
               <div class="chatHeaderSub">
-                Je vais d’abord te poser 3 questions rapides, puis je t’aiderai à voir où ton business dépend encore trop de toi.
+                Je vais d’abord te demander quelques infos rapides, puis on commence le diagnostic.
               </div>
-
             </div>
-
           </div>
 
           <div class="chatHeaderRight">
@@ -115,11 +87,9 @@
         </div>
 
         <div class="chat" id="chat"></div>
-
         <div class="choices" id="choices"></div>
 
         <div class="footer" id="footer">
-
           <div class="cta">
             Mot clé LinkedIn :
             <code>diagnostic</code>
@@ -128,15 +98,12 @@
           <button class="restart" id="restart">
             Recommencer
           </button>
-
         </div>
 
         <div class="copy" id="copyBox"></div>
-
       </div>
 
     </div>
-
   </div>
 
   <script id="aura-data" type="application/json">
@@ -144,17 +111,17 @@
   "PRE_QUESTIONS": [
     {
       "id": "name",
-      "label": "Avant de commencer, quel est ton prénom ?",
+      "label": "Afin de savoir où tu perds du temps et de personnaliser ta synthèse, j’ai besoin de quelques infos rapides. Quel est ton prénom ?",
       "type": "text"
     },
     {
       "id": "email",
-      "label": "À quelle adresse mail veux-tu recevoir ta synthèse complète ?",
+      "label": "À quelle adresse email veux-tu recevoir ta synthèse complète ?",
       "type": "email"
     },
     {
       "id": "main_time_pain",
-      "label": "Aujourd’hui, qu’est-ce qui te prend le plus de temps dans ton business ?",
+      "label": "Aujourd’hui, quelle tâche te prend le plus de temps dans ton business ?",
       "type": "textarea"
     }
   ],

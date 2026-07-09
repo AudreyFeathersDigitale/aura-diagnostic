@@ -10,29 +10,29 @@ const choices = document.getElementById("choices");
 const restartBtn = document.getElementById("restart");
 const bar = document.getElementById("bar");
 
-const FALLBACK_PRE_QUESTIONS = [
+const DEFAULT_PRE_QUESTIONS = [
   {
     id: "name",
-    label: "Quel est ton prénom ?",
+    label: "Afin de savoir où tu perds du temps et de personnaliser ta synthèse, j’ai besoin de quelques infos rapides. Quel est ton prénom ?",
     type: "text"
   },
   {
     id: "email",
-    label: "Quelle adresse mail dois-je utiliser pour t’envoyer ta synthèse complète ?",
+    label: "À quelle adresse email veux-tu recevoir ta synthèse complète ?",
     type: "email"
   },
   {
     id: "main_time_pain",
-    label: "Aujourd’hui, qu’est-ce qui te prend le plus de temps dans ton business ?",
+    label: "Aujourd’hui, quelle tâche te prend le plus de temps dans ton business ?",
     type: "textarea"
   }
 ];
 
 const preQuestions = Array.isArray(PRE_QUESTIONS) && PRE_QUESTIONS.length
   ? PRE_QUESTIONS
-  : FALLBACK_PRE_QUESTIONS;
+  : DEFAULT_PRE_QUESTIONS;
 
-let phase = "intro";
+let phase = "pre";
 let preStep = 0;
 let profileStep = 0;
 let step = 0;
@@ -45,14 +45,13 @@ let locked = false;
 let finalData = null;
 
 function sleep(ms){
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise(r => setTimeout(r, ms));
 }
 
 function updateBar(){
   const total = preQuestions.length + PROFILE_QUESTIONS.length + QUESTIONS.length;
   const done = preStep + profileStep + step;
   const pct = total > 0 ? Math.round((done / total) * 100) : 0;
-
   bar.style.width = `${pct}%`;
 }
 
@@ -133,26 +132,6 @@ async function addBotMsgTyped(html, cls="", speed=10){
   scrollBottom();
 }
 
-function getTotalQuestions(){
-  return preQuestions.length + PROFILE_QUESTIONS.length + QUESTIONS.length;
-}
-
-function getCurrentQuestionNumber(){
-  if(phase === "pre"){
-    return preStep + 1;
-  }
-
-  if(phase === "profile"){
-    return preQuestions.length + profileStep + 1;
-  }
-
-  if(phase === "questions"){
-    return preQuestions.length + PROFILE_QUESTIONS.length + step + 1;
-  }
-
-  return 0;
-}
-
 function renderChoices(options){
   choices.innerHTML = "";
 
@@ -182,14 +161,13 @@ function renderTextInput(question){
 
   choices.innerHTML = `
     <div class="leadForm">
-
       ${
         isTextarea
           ? `
             <textarea
               id="textInput"
               class="leadTextarea"
-              placeholder="Écris ta réponse ici..."
+              placeholder="Ta réponse..."
             ></textarea>
           `
           : `
@@ -197,7 +175,7 @@ function renderTextInput(question){
               id="textInput"
               class="leadInput"
               type="${question.type === "email" || question.id === "email" ? "email" : "text"}"
-              placeholder="Écris ta réponse ici..."
+              placeholder="Ta réponse..."
             >
           `
       }
@@ -209,7 +187,6 @@ function renderTextInput(question){
       >
         Continuer
       </button>
-
     </div>
   `;
 
@@ -227,72 +204,51 @@ function renderTextInput(question){
   }
 }
 
-async function showIntro(){
-  updateBar();
+function getTotal(){
+  return preQuestions.length + PROFILE_QUESTIONS.length + QUESTIONS.length;
+}
 
-  await addBotMsgTyped(
-    `
-    <div class="resultCard">
-      <div class="leftTitle">
-        Avant de commencer 👋
-      </div>
+function getCurrent(){
+  if(phase === "pre"){
+    return preStep + 1;
+  }
 
-      <div style="margin-top:12px;line-height:1.6;">
-        Afin de comprendre précisément où tu perds du temps aujourd’hui,
-        je vais d’abord te demander quelques infos rapides.
-        <br><br>
-        Elles me permettront de personnaliser ton diagnostic et de t’envoyer
-        ta synthèse complète par email une fois les questions terminées.
-      </div>
+  if(phase === "profile"){
+    return preQuestions.length + profileStep + 1;
+  }
 
-      <div style="margin-top:16px;font-weight:900;">
-        Ça prend moins de 20 secondes.
-      </div>
-    </div>
-    `
-  );
-
-  choices.innerHTML = `
-    <button
-      id="startPreBtn"
-      class="dmBtn"
-      type="button"
-    >
-      Commencer
-    </button>
-  `;
+  return preQuestions.length + PROFILE_QUESTIONS.length + step + 1;
 }
 
 async function botAsk(){
   updateBar();
 
-  if(phase === "intro"){
-    return showIntro();
-  }
-
-  const total = getTotalQuestions();
-  const current = getCurrentQuestionNumber();
+  const total = getTotal();
+  const current = getCurrent();
 
   if(phase === "pre"){
     if(preStep >= preQuestions.length){
       phase = "profile";
 
+      const firstName = preAnswers.name || preAnswers.nom || "";
+
       await addBotMsgTyped(
         `
         <div class="resultCard">
           <div class="leftTitle">
-            Parfait, merci ${preAnswers.name || ""}.
+            Merci ${firstName ? firstName : ""} 🙌
           </div>
 
           <div style="margin-top:12px;line-height:1.6;">
-            Maintenant, je vais te poser quelques questions pour identifier
-            où ton business dépend encore trop de toi.
+            J’ai tout ce qu’il me faut pour personnaliser ta synthèse.
+            <br><br>
+            Maintenant, on peut commencer le diagnostic pour identifier où ton business dépend encore trop de toi.
           </div>
         </div>
         `
       );
 
-      await sleep(500);
+      await sleep(700);
       return botAsk();
     }
 
@@ -360,20 +316,6 @@ async function botAsk(){
   );
 
   renderChoices(options);
-}
-
-async function startPreQuestions(){
-  if(locked) return;
-
-  locked = true;
-  choices.innerHTML = "";
-
-  await sleep(250);
-
-  phase = "pre";
-  locked = false;
-
-  botAsk();
 }
 
 async function submitTextAnswer(){
@@ -451,7 +393,7 @@ function renderDimensions(scores){
 
   let html = `<div class="dimensionGrid">`;
 
-  Object.entries(scores).forEach(([k, v]) => {
+  Object.entries(scores || {}).forEach(([k, v]) => {
     let cls = "good";
 
     if(v >= 70){
@@ -464,7 +406,7 @@ function renderDimensions(scores){
     html += `
       <div class="dimensionItem">
         <div class="dimensionLabel">
-          ${labels[k]}
+          ${labels[k] || k}
         </div>
 
         <div class="dimensionValue ${cls}">
@@ -472,7 +414,7 @@ function renderDimensions(scores){
         </div>
 
         <div class="dimensionHint">
-          ${hints[k]}
+          ${hints[k] || ""}
         </div>
       </div>
     `;
@@ -507,10 +449,6 @@ async function finishDiagnostic(){
   const data = await response.json();
   finalData = data;
 
-  await addBotMsgTyped(
-    `📩 Envoi de ta synthèse complète par email...`
-  );
-
   try{
     await fetch("/save-lead", {
       method: "POST",
@@ -531,7 +469,6 @@ async function finishDiagnostic(){
     console.log("Erreur save-lead :", error);
   }
 
-  await sleep(700);
   await showMiniSummary();
 }
 
@@ -571,9 +508,9 @@ async function showMiniSummary(){
       </div>
 
       <div style="margin-top:16px;color:var(--muted);font-weight:800;">
-        📩 Ta synthèse complète a été envoyée à :
+        📩 Ta synthèse complète est envoyée à :
         <br>
-        <b>${preAnswers.email || "ton adresse email"}</b>
+        <b>${preAnswers.email || "ton email"}</b>
       </div>
     </div>
     `
@@ -642,8 +579,7 @@ async function showMiniSummary(){
       </div>
 
       <div style="margin-top:18px;font-weight:900;">
-        L’objectif maintenant : réduire les tâches qui reviennent vers toi,
-        structurer les zones critiques et libérer de la capacité sans augmenter ta charge.
+        Objectif : réduire les tâches qui reviennent vers toi et libérer de la capacité sans augmenter ta charge.
       </div>
     </div>
     `
@@ -664,24 +600,16 @@ async function showMiniSummary(){
 }
 
 document.addEventListener("click", function(e){
-  const startBtn = e.target.closest("#startPreBtn");
+  const btn = e.target.closest("#textSubmitBtn");
 
-  if(startBtn){
-    e.preventDefault();
-    startPreQuestions();
-    return;
-  }
+  if(!btn) return;
 
-  const submitBtn = e.target.closest("#textSubmitBtn");
-
-  if(submitBtn){
-    e.preventDefault();
-    submitTextAnswer();
-  }
+  e.preventDefault();
+  submitTextAnswer();
 });
 
 function reset(){
-  phase = "intro";
+  phase = "pre";
   preStep = 0;
   profileStep = 0;
   step = 0;
