@@ -2,15 +2,37 @@ const {
   PRE_QUESTIONS,
   PROFILE_QUESTIONS,
   QUESTIONS,
-  LINKEDIN_URL,
-  } = window.AURA_CONFIG;
+  LINKEDIN_URL
+} = window.AURA_CONFIG;
 
 const chat = document.getElementById("chat");
 const choices = document.getElementById("choices");
 const restartBtn = document.getElementById("restart");
 const bar = document.getElementById("bar");
 
-let phase = "pre";
+const FALLBACK_PRE_QUESTIONS = [
+  {
+    id: "name",
+    label: "Quel est ton prénom ?",
+    type: "text"
+  },
+  {
+    id: "email",
+    label: "Quelle adresse mail dois-je utiliser pour t’envoyer ta synthèse complète ?",
+    type: "email"
+  },
+  {
+    id: "main_time_pain",
+    label: "Aujourd’hui, qu’est-ce qui te prend le plus de temps dans ton business ?",
+    type: "textarea"
+  }
+];
+
+const preQuestions = Array.isArray(PRE_QUESTIONS) && PRE_QUESTIONS.length
+  ? PRE_QUESTIONS
+  : FALLBACK_PRE_QUESTIONS;
+
+let phase = "intro";
 let preStep = 0;
 let profileStep = 0;
 let step = 0;
@@ -23,13 +45,14 @@ let locked = false;
 let finalData = null;
 
 function sleep(ms){
-  return new Promise(r => setTimeout(r, ms));
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 function updateBar(){
-  const total = PRE_QUESTIONS.length + PROFILE_QUESTIONS.length + QUESTIONS.length;
+  const total = preQuestions.length + PROFILE_QUESTIONS.length + QUESTIONS.length;
   const done = preStep + profileStep + step;
   const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+
   bar.style.width = `${pct}%`;
 }
 
@@ -110,6 +133,26 @@ async function addBotMsgTyped(html, cls="", speed=10){
   scrollBottom();
 }
 
+function getTotalQuestions(){
+  return preQuestions.length + PROFILE_QUESTIONS.length + QUESTIONS.length;
+}
+
+function getCurrentQuestionNumber(){
+  if(phase === "pre"){
+    return preStep + 1;
+  }
+
+  if(phase === "profile"){
+    return preQuestions.length + profileStep + 1;
+  }
+
+  if(phase === "questions"){
+    return preQuestions.length + PROFILE_QUESTIONS.length + step + 1;
+  }
+
+  return 0;
+}
+
 function renderChoices(options){
   choices.innerHTML = "";
 
@@ -134,27 +177,27 @@ function renderChoices(options){
   });
 }
 
-function renderTextInput(questionId){
-  const isLongText = questionId === "main_time_pain";
+function renderTextInput(question){
+  const isTextarea = question.type === "textarea" || question.id === "main_time_pain";
 
   choices.innerHTML = `
     <div class="leadForm">
 
       ${
-        isLongText
+        isTextarea
           ? `
             <textarea
               id="textInput"
               class="leadTextarea"
-              placeholder="Ta réponse..."
+              placeholder="Écris ta réponse ici..."
             ></textarea>
           `
           : `
             <input
               id="textInput"
               class="leadInput"
-              type="${questionId === "email" ? "email" : "text"}"
-              placeholder="Ta réponse..."
+              type="${question.type === "email" || question.id === "email" ? "email" : "text"}"
+              placeholder="Écris ta réponse ici..."
             >
           `
       }
@@ -176,7 +219,7 @@ function renderTextInput(questionId){
     input.focus();
 
     input.addEventListener("keydown", function(e){
-      if(e.key === "Enter" && !e.shiftKey && !isLongText){
+      if(e.key === "Enter" && !e.shiftKey && !isTextarea){
         e.preventDefault();
         submitTextAnswer();
       }
@@ -184,19 +227,76 @@ function renderTextInput(questionId){
   }
 }
 
+async function showIntro(){
+  updateBar();
+
+  await addBotMsgTyped(
+    `
+    <div class="resultCard">
+      <div class="leftTitle">
+        Avant de commencer 👋
+      </div>
+
+      <div style="margin-top:12px;line-height:1.6;">
+        Afin de comprendre précisément où tu perds du temps aujourd’hui,
+        je vais d’abord te demander quelques infos rapides.
+        <br><br>
+        Elles me permettront de personnaliser ton diagnostic et de t’envoyer
+        ta synthèse complète par email une fois les questions terminées.
+      </div>
+
+      <div style="margin-top:16px;font-weight:900;">
+        Ça prend moins de 20 secondes.
+      </div>
+    </div>
+    `
+  );
+
+  choices.innerHTML = `
+    <button
+      id="startPreBtn"
+      class="dmBtn"
+      type="button"
+    >
+      Commencer
+    </button>
+  `;
+}
+
 async function botAsk(){
   updateBar();
 
-  const total = PRE_QUESTIONS.length + PROFILE_QUESTIONS.length + QUESTIONS.length;
+  if(phase === "intro"){
+    return showIntro();
+  }
+
+  const total = getTotalQuestions();
+  const current = getCurrentQuestionNumber();
 
   if(phase === "pre"){
-    if(preStep >= PRE_QUESTIONS.length){
+    if(preStep >= preQuestions.length){
       phase = "profile";
+
+      await addBotMsgTyped(
+        `
+        <div class="resultCard">
+          <div class="leftTitle">
+            Parfait, merci ${preAnswers.name || ""}.
+          </div>
+
+          <div style="margin-top:12px;line-height:1.6;">
+            Maintenant, je vais te poser quelques questions pour identifier
+            où ton business dépend encore trop de toi.
+          </div>
+        </div>
+        `
+      );
+
+      await sleep(500);
       return botAsk();
     }
 
-    const q = PRE_QUESTIONS[preStep];
-    const current = preStep + 1;
+    const question = preQuestions[preStep];
 
     await addBotMsgTyped(
       `
@@ -205,20 +305,15 @@ async function botAsk(){
       </div>
 
       <div class="questionText">
-        ${q.label}
+        ${question.label}
       </div>
       `,
       "bubbleQuestion"
     );
 
-    renderTextInput(q.id);
+    renderTextInput(question);
     return;
   }
-
-  const current =
-    phase === "profile"
-      ? PRE_QUESTIONS.length + profileStep + 1
-      : PRE_QUESTIONS.length + PROFILE_QUESTIONS.length + step + 1;
 
   if(phase === "profile"){
     if(profileStep >= PROFILE_QUESTIONS.length){
@@ -267,6 +362,20 @@ async function botAsk(){
   renderChoices(options);
 }
 
+async function startPreQuestions(){
+  if(locked) return;
+
+  locked = true;
+  choices.innerHTML = "";
+
+  await sleep(250);
+
+  phase = "pre";
+  locked = false;
+
+  botAsk();
+}
+
 async function submitTextAnswer(){
   if(locked) return;
 
@@ -278,9 +387,9 @@ async function submitTextAnswer(){
     return;
   }
 
-  const q = PRE_QUESTIONS[preStep];
+  const question = preQuestions[preStep];
 
-  if(q.id === "email"){
+  if(question.id === "email" || question.type === "email"){
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if(!emailRegex.test(value)){
@@ -291,7 +400,7 @@ async function submitTextAnswer(){
 
   locked = true;
 
-  preAnswers[q.id] = value;
+  preAnswers[question.id] = value;
   preStep++;
 
   choices.innerHTML = "";
@@ -378,7 +487,7 @@ async function finishDiagnostic(){
   choices.innerHTML = "";
 
   await addBotMsgTyped(
-    `⏳ Préparation de ta synthèse...`
+    `⏳ Préparation de ta mini-synthèse...`
   );
 
   await sleep(1200);
@@ -396,8 +505,11 @@ async function finishDiagnostic(){
   });
 
   const data = await response.json();
-
   finalData = data;
+
+  await addBotMsgTyped(
+    `📩 Envoi de ta synthèse complète par email...`
+  );
 
   try{
     await fetch("/save-lead", {
@@ -419,10 +531,11 @@ async function finishDiagnostic(){
     console.log("Erreur save-lead :", error);
   }
 
-  await unlockResults();
+  await sleep(700);
+  await showMiniSummary();
 }
 
-async function unlockResults(){
+async function showMiniSummary(){
   chat.innerHTML = "";
   choices.innerHTML = "";
 
@@ -437,6 +550,10 @@ async function unlockResults(){
     `
     <div class="scoreHero">
       <div style="font-size:18px;font-weight:900;">
+        ${preAnswers.name ? `${preAnswers.name}, voici ta mini-synthèse :` : "Voici ta mini-synthèse :"}
+      </div>
+
+      <div style="margin-top:14px;font-weight:900;">
         Ton business est actuellement limité par toi à :
       </div>
 
@@ -451,6 +568,12 @@ async function unlockResults(){
       <div style="margin-top:10px;">
         <b>${finalData.level}</b> —
         ${finalData.profile_text}
+      </div>
+
+      <div style="margin-top:16px;color:var(--muted);font-weight:800;">
+        📩 Ta synthèse complète a été envoyée à :
+        <br>
+        <b>${preAnswers.email || "ton adresse email"}</b>
       </div>
     </div>
     `
@@ -505,40 +628,22 @@ async function unlockResults(){
 
   await addBotMsgTyped(
     `
-    👉 Si rien ne change :
-    <br><br>
-    • tu resteras le point de passage obligé<br>
-    • ta charge continuera d’augmenter<br>
-    • ta croissance restera liée à ton temps
-    `
-  );
-
-  await sleep(400);
-
-  await addBotMsgTyped(
-    `
     <div class="resultCard">
       <div class="leftTitle">
-        👉 Voilà ce qui pourrait changer dans ton business :
+        👉 Ce que ça veut dire concrètement
       </div>
 
       <div style="margin-top:12px;line-height:1.6;">
-        • moins de tâches qui reviennent vers toi<br>
-        • moins de charge mentale<br>
-        • plus de capacité sans augmenter ton temps
+        Si rien ne change :
+        <br><br>
+        • tu resteras le point de passage obligé<br>
+        • ta charge continuera d’augmenter<br>
+        • ta croissance restera liée à ton temps
       </div>
 
       <div style="margin-top:18px;font-weight:900;">
-        👉 Objectif : te libérer du temps ET débloquer ta croissance
-      </div>
-
-      <div style="margin-top:18px;color:#355CFF;font-weight:900;">
-        👉 Si rien ne change, certaines opportunités continueront d’arriver…
-        sans pouvoir être réellement exploitées
-      </div>
-
-      <div style="margin-top:18px;color:var(--muted);font-weight:800;">
-        📩 Ta synthèse complète vient de t’être envoyée par mail.
+        L’objectif maintenant : réduire les tâches qui reviennent vers toi,
+        structurer les zones critiques et libérer de la capacité sans augmenter ta charge.
       </div>
     </div>
     `
@@ -559,16 +664,24 @@ async function unlockResults(){
 }
 
 document.addEventListener("click", function(e){
-  const btn = e.target.closest("#textSubmitBtn");
+  const startBtn = e.target.closest("#startPreBtn");
 
-  if(!btn) return;
+  if(startBtn){
+    e.preventDefault();
+    startPreQuestions();
+    return;
+  }
 
-  e.preventDefault();
-  submitTextAnswer();
+  const submitBtn = e.target.closest("#textSubmitBtn");
+
+  if(submitBtn){
+    e.preventDefault();
+    submitTextAnswer();
+  }
 });
 
 function reset(){
-  phase = "pre";
+  phase = "intro";
   preStep = 0;
   profileStep = 0;
   step = 0;
