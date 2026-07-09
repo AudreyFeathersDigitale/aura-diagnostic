@@ -101,7 +101,7 @@
               </div>
 
               <div class="chatHeaderSub">
-                Je vais t’aider à voir où ton business dépend encore trop de toi… puis te montrer ce que ça bloque vraiment dans ta croissance.
+                Je vais d’abord te poser 3 questions rapides, puis je t’aiderai à voir où ton business dépend encore trop de toi.
               </div>
 
             </div>
@@ -141,10 +141,26 @@
 
   <script id="aura-data" type="application/json">
 {
+  "PRE_QUESTIONS": [
+    {
+      "id": "name",
+      "label": "Avant de commencer, quel est ton prénom ?",
+      "type": "text"
+    },
+    {
+      "id": "email",
+      "label": "À quelle adresse mail veux-tu recevoir ta synthèse complète ?",
+      "type": "email"
+    },
+    {
+      "id": "main_time_pain",
+      "label": "Aujourd’hui, qu’est-ce qui te prend le plus de temps dans ton business ?",
+      "type": "textarea"
+    }
+  ],
   "PROFILE_QUESTIONS": %PROFILE_QUESTIONS_JSON%,
   "QUESTIONS": %QUESTIONS_JSON%,
-  "LINKEDIN_URL": %LINKEDIN_URL_JSON%,
-  "INSTAGRAM_URL": %INSTAGRAM_URL_JSON%
+  "LINKEDIN_URL": %LINKEDIN_URL_JSON%
 }
 </script>
 

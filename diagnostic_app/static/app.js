@@ -1,20 +1,24 @@
 const {
+  PRE_QUESTIONS,
   PROFILE_QUESTIONS,
   QUESTIONS,
   LINKEDIN_URL,
-  INSTAGRAM_URL
-} = window.AURA_CONFIG;
+  } = window.AURA_CONFIG;
 
 const chat = document.getElementById("chat");
 const choices = document.getElementById("choices");
 const restartBtn = document.getElementById("restart");
 const bar = document.getElementById("bar");
 
-let phase = "profile";
+let phase = "pre";
+let preStep = 0;
 let profileStep = 0;
 let step = 0;
+
+let preAnswers = {};
 let profileAnswers = {};
 let answers = {};
+
 let locked = false;
 let finalData = null;
 
@@ -23,9 +27,9 @@ function sleep(ms){
 }
 
 function updateBar(){
-  const total = PROFILE_QUESTIONS.length + QUESTIONS.length;
-  const done = profileStep + step;
-  const pct = Math.round((done / total) * 100);
+  const total = PRE_QUESTIONS.length + PROFILE_QUESTIONS.length + QUESTIONS.length;
+  const done = preStep + profileStep + step;
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
   bar.style.width = `${pct}%`;
 }
 
@@ -130,15 +134,91 @@ function renderChoices(options){
   });
 }
 
+function renderTextInput(questionId){
+  const isLongText = questionId === "main_time_pain";
+
+  choices.innerHTML = `
+    <div class="leadForm">
+
+      ${
+        isLongText
+          ? `
+            <textarea
+              id="textInput"
+              class="leadTextarea"
+              placeholder="Ta réponse..."
+            ></textarea>
+          `
+          : `
+            <input
+              id="textInput"
+              class="leadInput"
+              type="${questionId === "email" ? "email" : "text"}"
+              placeholder="Ta réponse..."
+            >
+          `
+      }
+
+      <button
+        id="textSubmitBtn"
+        class="dmBtn"
+        type="button"
+      >
+        Continuer
+      </button>
+
+    </div>
+  `;
+
+  const input = document.getElementById("textInput");
+
+  if(input){
+    input.focus();
+
+    input.addEventListener("keydown", function(e){
+      if(e.key === "Enter" && !e.shiftKey && !isLongText){
+        e.preventDefault();
+        submitTextAnswer();
+      }
+    });
+  }
+}
+
 async function botAsk(){
   updateBar();
 
-  const total = PROFILE_QUESTIONS.length + QUESTIONS.length;
+  const total = PRE_QUESTIONS.length + PROFILE_QUESTIONS.length + QUESTIONS.length;
+
+  if(phase === "pre"){
+    if(preStep >= PRE_QUESTIONS.length){
+      phase = "profile";
+      return botAsk();
+    }
+
+    const q = PRE_QUESTIONS[preStep];
+    const current = preStep + 1;
+
+    await addBotMsgTyped(
+      `
+      <div class="questionPill">
+        ${current} / ${total}
+      </div>
+
+      <div class="questionText">
+        ${q.label}
+      </div>
+      `,
+      "bubbleQuestion"
+    );
+
+    renderTextInput(q.id);
+    return;
+  }
 
   const current =
     phase === "profile"
-      ? profileStep + 1
-      : PROFILE_QUESTIONS.length + step + 1;
+      ? PRE_QUESTIONS.length + profileStep + 1
+      : PRE_QUESTIONS.length + PROFILE_QUESTIONS.length + step + 1;
 
   if(phase === "profile"){
     if(profileStep >= PROFILE_QUESTIONS.length){
@@ -185,6 +265,41 @@ async function botAsk(){
   );
 
   renderChoices(options);
+}
+
+async function submitTextAnswer(){
+  if(locked) return;
+
+  const input = document.getElementById("textInput");
+  const value = input ? input.value.trim() : "";
+
+  if(!value){
+    alert("Merci de compléter ce champ.");
+    return;
+  }
+
+  const q = PRE_QUESTIONS[preStep];
+
+  if(q.id === "email"){
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if(!emailRegex.test(value)){
+      alert("Merci d’indiquer une adresse email valide.");
+      return;
+    }
+  }
+
+  locked = true;
+
+  preAnswers[q.id] = value;
+  preStep++;
+
+  choices.innerHTML = "";
+
+  await sleep(250);
+
+  locked = false;
+  botAsk();
 }
 
 async function selectChoice(value){
@@ -259,52 +374,11 @@ function renderDimensions(scores){
   return html;
 }
 
-function renderLeadForm(){
-  return `
-    <div class="resultCard">
-
-      <div class="leftTitle">
-        👉 Voir où agir en priorité
-      </div>
-
-      <div style="margin-top:8px;color:var(--muted);font-weight:600;">
-        Reçois ton analyse personnalisée + les priorités à débloquer.
-      </div>
-
-      <div class="leadForm">
-
-        <input
-          id="emailInput"
-          class="leadInput"
-          placeholder="Email, Instagram ou LinkedIn"
-          type="text"
-        >
-
-        <textarea
-          id="tasksInput"
-          class="leadTextarea"
-          placeholder="Quelles tâches te prennent le plus de temps aujourd’hui ?"
-        ></textarea>
-
-        <button
-          id="unlockBtn"
-          class="dmBtn"
-          type="button"
-        >
-          Voir mon diagnostic complet
-        </button>
-
-      </div>
-
-    </div>
-  `;
-}
-
 async function finishDiagnostic(){
   choices.innerHTML = "";
 
   await addBotMsgTyped(
-    `⏳ Préparation de ton résultat...`
+    `⏳ Préparation de ta synthèse...`
   );
 
   await sleep(1200);
@@ -316,30 +390,14 @@ async function finishDiagnostic(){
     },
     body: JSON.stringify({
       answers,
-      profile: profileAnswers
+      profile: profileAnswers,
+      lead: preAnswers
     })
   });
 
   const data = await response.json();
 
   finalData = data;
-
-  await addBotMsgTyped(
-    renderLeadForm()
-  );
-}
-
-async function unlockResults(){
-  const emailInput = document.getElementById("emailInput");
-  const tasksInput = document.getElementById("tasksInput");
-
-  const email = emailInput ? emailInput.value.trim() : "";
-  const tasks = tasksInput ? tasksInput.value.trim() : "";
-
-  if(!email){
-    alert("Laisse ton meilleur contact");
-    return;
-  }
 
   try{
     await fetch("/save-lead", {
@@ -348,17 +406,23 @@ async function unlockResults(){
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-      email,
-      repetitive_tasks: tasks,
-      answers,
-      profile: profileAnswers,
-      result: finalData
-})
+        name: preAnswers.name || preAnswers.nom || "",
+        email: preAnswers.email || "",
+        repetitive_tasks: preAnswers.main_time_pain || preAnswers.tasks || "",
+        answers,
+        profile: profileAnswers,
+        lead: preAnswers,
+        result: finalData
+      })
     });
   }catch(error){
     console.log("Erreur save-lead :", error);
   }
 
+  await unlockResults();
+}
+
+async function unlockResults(){
   chat.innerHTML = "";
   choices.innerHTML = "";
 
@@ -472,6 +536,10 @@ async function unlockResults(){
         👉 Si rien ne change, certaines opportunités continueront d’arriver…
         sans pouvoir être réellement exploitées
       </div>
+
+      <div style="margin-top:18px;color:var(--muted);font-weight:800;">
+        📩 Ta synthèse complète vient de t’être envoyée par mail.
+      </div>
     </div>
     `
   );
@@ -491,19 +559,21 @@ async function unlockResults(){
 }
 
 document.addEventListener("click", function(e){
-  const btn = e.target.closest("#unlockBtn");
+  const btn = e.target.closest("#textSubmitBtn");
 
   if(!btn) return;
 
   e.preventDefault();
-  unlockResults();
+  submitTextAnswer();
 });
 
 function reset(){
-  phase = "profile";
+  phase = "pre";
+  preStep = 0;
   profileStep = 0;
   step = 0;
 
+  preAnswers = {};
   profileAnswers = {};
   answers = {};
 

@@ -6,7 +6,6 @@ import json
 import sqlite3
 from pathlib import Path
 from datetime import datetime, timezone
-import html
 import os
 import requests
 
@@ -22,8 +21,30 @@ app.mount(
 )
 
 LINKEDIN_URL = "https://www.linkedin.com/in/audrey-mouton-80b902217/?skipRedirect=true"
-INSTAGRAM_URL = "https://www.instagram.com/business.auto.feathersdigital/"
 SHEETS_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwrPDe6mLnMadj1JDnnzyW2z5trwa1AqlD7twG8hCVcMKR9IEJaG7jrhZjxxKAigdmI/exec"
+
+
+# =========================================================
+# QUESTIONS AVANT DIAGNOSTIC
+# =========================================================
+
+PRE_QUESTIONS = [
+    {
+        "id": "name",
+        "label": "Avant de commencer, quel est ton prénom ?",
+        "type": "text",
+    },
+    {
+        "id": "email",
+        "label": "À quelle adresse mail veux-tu recevoir ta synthèse complète ?",
+        "type": "email",
+    },
+    {
+        "id": "main_time_pain",
+        "label": "Aujourd’hui, qu’est-ce qui te prend le plus de temps dans ton business ?",
+        "type": "textarea",
+    },
+]
 
 
 # =========================================================
@@ -58,7 +79,6 @@ PROFILE_QUESTIONS = [
 # =========================================================
 
 QUESTIONS = [
-
     (
         "absence",
         "Si tu levais complètement le pied pendant <b>7 jours</b>, qu’est-ce qui se passerait réellement ?",
@@ -69,7 +89,6 @@ QUESTIONS = [
             "D": "Une grosse partie dépendrait de mon retour.",
         },
     ),
-
     (
         "dependance",
         "Aujourd’hui, quand il y a une décision à prendre, une question client ou quelque chose à débloquer, ça finit généralement comment ?",
@@ -80,7 +99,6 @@ QUESTIONS = [
             "D": "Ça finit presque toujours par revenir vers moi.",
         },
     ),
-
     (
         "leads",
         "Quand des prospects arrivent aujourd’hui, leur suivi ressemble plutôt à :",
@@ -91,7 +109,6 @@ QUESTIONS = [
             "D": "J’ai peur que certains passent entre les mailles.",
         },
     ),
-
     (
         "relances",
         "Quand un prospect ne répond pas, les relances sont :",
@@ -102,7 +119,6 @@ QUESTIONS = [
             "D": "Très irrégulières.",
         },
     ),
-
     (
         "onboarding",
         "Quand un nouveau client rejoint ton accompagnement :",
@@ -113,7 +129,6 @@ QUESTIONS = [
             "D": "Sans moi, ça ne démarre pas vraiment.",
         },
     ),
-
     (
         "interruptions",
         "Dans une semaine classique, combien de fois tu te retrouves à refaire des choses qui reviennent sans arrêt ?",
@@ -124,7 +139,6 @@ QUESTIONS = [
             "D": "J’ai l’impression que ça arrive toute la journée.",
         },
     ),
-
     (
         "outils",
         "Aujourd’hui, certaines informations importantes sont-elles dispersées ?",
@@ -135,7 +149,6 @@ QUESTIONS = [
             "D": "J’ai parfois l’impression que tout est partout.",
         },
     ),
-
     (
         "execution",
         "Une grande partie des tâches répétitives aujourd’hui est :",
@@ -146,7 +159,6 @@ QUESTIONS = [
             "D": "Principalement gérée par moi.",
         },
     ),
-
     (
         "blocages",
         "Quand quelque chose ralentit dans ton business :",
@@ -157,7 +169,6 @@ QUESTIONS = [
             "D": "J’ai l’impression que tout revient vers moi.",
         },
     ),
-
     (
         "temps",
         "Quand tu regardes ta semaine, combien de temps est absorbé par des tâches qui n’apportent pas directement de valeur ?",
@@ -168,7 +179,6 @@ QUESTIONS = [
             "D": "Plus de 10h",
         },
     ),
-
     (
         "croissance",
         "Quand tu veux prendre plus de clients ou lancer quelque chose de nouveau :",
@@ -179,7 +189,6 @@ QUESTIONS = [
             "D": "J’ai l’impression que tout devient plus compliqué.",
         },
     ),
-
     (
         "projection",
         "Si ton business continuait d’avancer même quand tu lèves le pied, qu’est-ce qui aurait le plus d’impact pour toi ?",
@@ -245,18 +254,28 @@ def get_conn():
     return conn
 
 
+def ensure_column(conn, table_name: str, column_name: str, column_definition: str):
+    columns = conn.execute(f"PRAGMA table_info({table_name})").fetchall()
+    existing_columns = {column["name"] for column in columns}
+
+    if column_name not in existing_columns:
+        conn.execute(
+            f"ALTER TABLE {table_name} ADD COLUMN {column_name} {column_definition}"
+        )
+
+
 def init_db():
-
     with get_conn() as conn:
-
         conn.execute(
             """
             CREATE TABLE IF NOT EXISTS leads (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 created_at TEXT NOT NULL,
                 updated_at TEXT NOT NULL,
+                name TEXT,
                 answers_json TEXT NOT NULL,
                 profile_json TEXT,
+                lead_json TEXT,
                 revenue_band TEXT,
                 team_size TEXT,
                 dependency_pct INTEGER,
@@ -278,6 +297,9 @@ def init_db():
             """
         )
 
+        ensure_column(conn, "leads", "name", "TEXT")
+        ensure_column(conn, "leads", "lead_json", "TEXT")
+
 
 @app.on_event("startup")
 def startup():
@@ -294,6 +316,11 @@ async def home():
     html_content = html_path.read_text(encoding="utf-8")
 
     html_content = html_content.replace(
+        "%PRE_QUESTIONS_JSON%",
+        json.dumps(PRE_QUESTIONS, ensure_ascii=False)
+    )
+
+    html_content = html_content.replace(
         "%PROFILE_QUESTIONS_JSON%",
         json.dumps(PROFILE_QUESTIONS, ensure_ascii=False)
     )
@@ -308,19 +335,14 @@ async def home():
         json.dumps(LINKEDIN_URL)
     )
 
-    html_content = html_content.replace(
-        "%INSTAGRAM_URL_JSON%",
-        json.dumps(INSTAGRAM_URL)
-    )
-
     return HTMLResponse(html_content)
+
 
 # =========================================================
 # CALCULS
 # =========================================================
 
 def compute_dimension_scores(answers: dict):
-
     raw_scores = {
         "ACQ": 0,
         "ONB": 0,
@@ -336,14 +358,12 @@ def compute_dimension_scores(answers: dict):
     }
 
     for key, _, _ in QUESTIONS:
-
         answer = answers.get(key)
 
         if answer is None:
             continue
 
         score = ANSWER_SCORES.get(answer, 0)
-
         meta = QUESTION_DIMENSIONS[key]
 
         main_dim = meta["main"]
@@ -355,9 +375,7 @@ def compute_dimension_scores(answers: dict):
         secondary = meta["secondary"]
 
         if secondary:
-
             sec_dim, sec_ratio = secondary
-
             sec_weight = weight * sec_ratio
 
             raw_scores[sec_dim] += score * sec_weight
@@ -366,7 +384,6 @@ def compute_dimension_scores(answers: dict):
     final_scores = {}
 
     for dim in raw_scores:
-
         if raw_max[dim] <= 0:
             final_scores[dim] = 0
         else:
@@ -375,6 +392,7 @@ def compute_dimension_scores(answers: dict):
             )
 
     return final_scores
+
 
 def compute_dependency_pct(dimension_scores: dict, profile: dict) -> int:
     score = (
@@ -450,14 +468,54 @@ def estimate_time_gain(dependency_pct: int):
 def estimate_lost_opportunities(dependency_pct: int):
     if dependency_pct < 25:
         return 1, 3
-
     if dependency_pct < 50:
         return 3, 6
-
     if dependency_pct < 75:
         return 5, 10
 
     return 8, 15
+
+
+def build_full_email_summary(name: str, email: str, repetitive_tasks: str, profile: dict, result: dict) -> str:
+    top3 = result.get("top3", []) or []
+    dimension_scores = result.get("dimension_scores", {}) or {}
+
+    return f"""
+Bonjour {name or ""},
+
+Voici ta synthèse complète AURA.
+
+Score de dépendance : {result.get("dependency_pct", 0)}%
+Niveau : {result.get("level", "")}
+Diagnostic : {result.get("subtitle", "")}
+
+Zone principale :
+{result.get("profile_title", "")}
+{result.get("profile_text", "")}
+
+Ce qui te prend le plus de temps aujourd’hui :
+{repetitive_tasks or "Non renseigné"}
+
+Temps potentiellement bloqué chaque semaine :
+{result.get("estimated_min", 0)} à {result.get("estimated_max", 0)} heures
+
+Opportunités potentiellement perdues ou mal absorbées :
+{result.get("lost_clients_min", 0)} à {result.get("lost_clients_max", 0)}
+
+Répartition :
+- Acquisition : {dimension_scores.get("ACQ", 0)}%
+- Onboarding : {dimension_scores.get("ONB", 0)}%
+- Exécution : {dimension_scores.get("DEL", 0)}%
+- Structuration : {dimension_scores.get("STR", 0)}%
+
+Tes 3 priorités :
+1) {top3[0] if len(top3) > 0 else ""}
+2) {top3[1] if len(top3) > 1 else ""}
+3) {top3[2] if len(top3) > 2 else ""}
+
+Conclusion :
+L’objectif est de réduire les points de passage obligés, structurer ce qui revient trop souvent vers toi, et libérer de la capacité sans augmenter ta charge.
+""".strip()
 
 
 @app.post("/calculate")
@@ -494,21 +552,89 @@ async def calculate(request: Request):
 
 @app.post("/save-lead")
 async def save_lead(request: Request):
-
     body = await request.json()
 
-    email = body.get("email")
-    repetitive_tasks = body.get("repetitive_tasks")
+    name = body.get("name") or ""
+    email = body.get("email") or ""
+    repetitive_tasks = body.get("repetitive_tasks") or ""
 
     answers = body.get("answers", {}) or {}
     profile = body.get("profile", {}) or {}
+    lead = body.get("lead", {}) or {}
     result = body.get("result", {}) or {}
 
     dimension_scores = result.get("dimension_scores", {}) or {}
+    now = utcnow_iso()
+
+    full_email_summary = build_full_email_summary(
+        name=name,
+        email=email,
+        repetitive_tasks=repetitive_tasks,
+        profile=profile,
+        result=result
+    )
+
+    with get_conn() as conn:
+        conn.execute(
+            """
+            INSERT INTO leads (
+                created_at,
+                updated_at,
+                name,
+                answers_json,
+                profile_json,
+                lead_json,
+                revenue_band,
+                team_size,
+                dependency_pct,
+                autonomy_pct,
+                level,
+                subtitle,
+                profile_title,
+                profile_text,
+                dimension_scores_json,
+                top3_json,
+                estimated_min,
+                estimated_max,
+                email,
+                repetitive_tasks,
+                contact_channel,
+                dm_text
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                now,
+                now,
+                name,
+                json.dumps(answers, ensure_ascii=False),
+                json.dumps(profile, ensure_ascii=False),
+                json.dumps(lead, ensure_ascii=False),
+                profile.get("revenue_band", ""),
+                profile.get("team_size", ""),
+                result.get("dependency_pct", 0),
+                100 - int(result.get("dependency_pct", 0) or 0),
+                result.get("level", ""),
+                result.get("subtitle", ""),
+                result.get("profile_title", ""),
+                result.get("profile_text", ""),
+                json.dumps(dimension_scores, ensure_ascii=False),
+                json.dumps(result.get("top3", []), ensure_ascii=False),
+                result.get("estimated_min", 0),
+                result.get("estimated_max", 0),
+                email,
+                repetitive_tasks,
+                "AURA",
+                full_email_summary,
+            )
+        )
 
     payload = {
+        "name": name,
+        "email": email,
         "contact": email,
         "score_dependency": result.get("dependency_pct", 0),
+        "autonomy_pct": 100 - int(result.get("dependency_pct", 0) or 0),
         "level": result.get("level", ""),
         "main_zone": result.get("profile_title", ""),
         "time_lost": f'{result.get("estimated_min", 0)} à {result.get("estimated_max", 0)}h',
@@ -526,6 +652,7 @@ async def save_lead(request: Request):
         "score_str": dimension_scores.get("STR", 0),
 
         "summary": result.get("subtitle", ""),
+        "full_email_summary": full_email_summary,
         "channel": "AURA",
 
         "q_absence": answers.get("absence", ""),
@@ -553,6 +680,7 @@ async def save_lead(request: Request):
         print("Erreur Google Sheets :", e)
 
     return JSONResponse({"ok": True})
+
 
 if __name__ == "__main__":
     uvicorn.run("app:app", host="127.0.0.1", port=8000, reload=True)
