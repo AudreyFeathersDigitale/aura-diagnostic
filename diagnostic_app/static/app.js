@@ -13,24 +13,53 @@ const bar = document.getElementById("bar");
 const DEFAULT_PRE_QUESTIONS = [
   {
     id: "name",
-    label: "Afin de savoir où tu perds du temps et de personnaliser ta synthèse, j’ai besoin de quelques infos rapides. Quel est ton prénom ?",
+    label: "Commençons simplement : comment t’appelles-tu ? 😊",
     type: "text"
   },
   {
     id: "email",
-    label: "À quelle adresse email veux-tu recevoir ta synthèse complète ?",
+    label: "À quelle adresse email souhaites-tu recevoir ton analyse complète ?",
     type: "email"
   },
   {
     id: "main_time_pain",
-    label: "Aujourd’hui, quelle tâche te prend le plus de temps dans ton business ?",
+    label: "Dernière question avant de commencer : quelle tâche te prend le plus de temps dans ton business aujourd’hui ?",
     type: "textarea"
   }
 ];
 
-const preQuestions = Array.isArray(PRE_QUESTIONS) && PRE_QUESTIONS.length
+const sourcePreQuestions = Array.isArray(PRE_QUESTIONS) && PRE_QUESTIONS.length
   ? PRE_QUESTIONS
   : DEFAULT_PRE_QUESTIONS;
+
+// On force ici les formulations voulues, même si index.html contient encore l’ancien texte.
+const preQuestions = sourcePreQuestions.map((question) => {
+  if(question.id === "name"){
+    return {
+      ...question,
+      label: "Commençons simplement : comment t’appelles-tu ? 😊",
+      type: "text"
+    };
+  }
+
+  if(question.id === "email"){
+    return {
+      ...question,
+      label: "À quelle adresse email souhaites-tu recevoir ton analyse complète ?",
+      type: "email"
+    };
+  }
+
+  if(question.id === "main_time_pain"){
+    return {
+      ...question,
+      label: "Dernière question avant de commencer : quelle tâche te prend le plus de temps dans ton business aujourd’hui ?",
+      type: "textarea"
+    };
+  }
+
+  return question;
+});
 
 let phase = "pre";
 let preStep = 0;
@@ -43,6 +72,7 @@ let answers = {};
 
 let locked = false;
 let finalData = null;
+let introShown = false;
 
 function sleep(ms){
   return new Promise(r => setTimeout(r, ms));
@@ -227,6 +257,26 @@ async function botAsk(){
   const current = getCurrent();
 
   if(phase === "pre"){
+    if(preStep === 0 && !introShown){
+      introShown = true;
+
+      await addBotMsgTyped(
+        `
+        <div class="questionText">
+          Avant de commencer, j’ai besoin de quelques informations.
+          <br><br>
+          Elles vont me permettre de personnaliser ton diagnostic
+          et de t’envoyer ton analyse complète à la fin.
+          <br><br>
+          Ça ne prendra pas plus de 20 secondes. 😊
+        </div>
+        `,
+        "bubbleQuestion"
+      );
+
+      await sleep(500);
+    }
+
     if(preStep >= preQuestions.length){
       phase = "profile";
 
@@ -346,6 +396,18 @@ async function submitTextAnswer(){
   preStep++;
 
   choices.innerHTML = "";
+
+  if(question.id === "name"){
+    await addBotMsgTyped(
+      `
+      <div class="questionText">
+        Ravi de faire ta connaissance, <b>${value}</b> 😊
+      </div>
+      `
+    );
+
+    await sleep(400);
+  }
 
   await sleep(250);
 
@@ -620,6 +682,7 @@ function reset(){
 
   locked = false;
   finalData = null;
+  introShown = false;
 
   chat.innerHTML = "";
   choices.innerHTML = "";

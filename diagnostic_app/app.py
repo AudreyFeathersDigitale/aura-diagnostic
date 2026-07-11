@@ -31,17 +31,17 @@ SHEETS_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwrPDe6mLnMadj1JDn
 PRE_QUESTIONS = [
     {
         "id": "name",
-        "label": "Avant de commencer, quel est ton prénom ?",
+        "label": "Commençons simplement : comment t’appelles-tu ? 😊",
         "type": "text",
     },
     {
         "id": "email",
-        "label": "À quelle adresse mail veux-tu recevoir ta synthèse complète ?",
+        "label": "À quelle adresse email souhaites-tu recevoir ton analyse complète ?",
         "type": "email",
     },
     {
         "id": "main_time_pain",
-        "label": "Aujourd’hui, qu’est-ce qui te prend le plus de temps dans ton business ?",
+        "label": "Dernière question avant de commencer : quelle tâche te prend le plus de temps dans ton business aujourd’hui ?",
         "type": "textarea",
     },
 ]
