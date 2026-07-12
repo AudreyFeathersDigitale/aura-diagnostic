@@ -41,7 +41,7 @@ PRE_QUESTIONS = [
     },
     {
         "id": "main_time_pain",
-        "label": "Dernière question avant de commencer : quelle tâche te prend le plus de temps dans ton business aujourd’hui ?",
+        "label": "Aujourd'hui, quelle tâche te prend le plus de temps dans ton business ?",
         "type": "textarea",
     },
     {
