@@ -538,6 +538,9 @@ async function showMiniSummary(){
   chat.innerHTML = "";
   choices.innerHTML = "";
 
+  const firstName = preAnswers.name || preAnswers.nom || "";
+  const email = preAnswers.email || "ton adresse email";
+
   const scoreClass =
     finalData.dependency_pct >= 70
       ? "danger"
@@ -545,103 +548,87 @@ async function showMiniSummary(){
       ? "warning"
       : "good";
 
+  const lostMin = finalData.lost_clients_min ?? 0;
+  const lostMax = finalData.lost_clients_max ?? 0;
+
   await addBotMsgTyped(
     `
     <div class="scoreHero">
-      <div style="font-size:18px;font-weight:900;">
-        ${preAnswers.name ? `${preAnswers.name}, voici ta mini-synthèse :` : "Voici ta mini-synthèse :"}
+      <div style="font-size:20px;font-weight:900;">
+        ${firstName ? `${firstName}...` : "Ton diagnostic..."}
       </div>
 
-      <div style="margin-top:14px;font-weight:900;">
-        Ton business est actuellement limité par toi à :
+      <div style="margin-top:10px;font-size:18px;font-weight:900;">
+        Ton diagnostic est sans appel.
       </div>
 
       <div class="scorePercent ${scoreClass}">
-        ${finalData.dependency_pct}%
+        ${finalData.dependency_pct}% — ${finalData.level}
       </div>
 
-      <div style="margin-top:10px;font-weight:800;color:var(--muted);">
-        👉 ${finalData.subtitle}
-      </div>
-
-      <div style="margin-top:10px;">
-        <b>${finalData.level}</b> —
-        ${finalData.profile_text}
-      </div>
-
-      <div style="margin-top:16px;color:var(--muted);font-weight:800;">
-        📩 Ta synthèse complète est envoyée à :
-        <br>
-        <b>${preAnswers.email || "ton email"}</b>
+      <div style="margin-top:16px;line-height:1.65;">
+        Aujourd’hui, ton entreprise repose encore beaucoup trop sur toi.
+        <br><br>
+        Au fond... tu le savais probablement déjà.
+        <br><br>
+        <b>Sans toi, ton business ralentit.</b>
+        <br><br>
+        Tu n’es pas seulement à la tête de ton entreprise.
+        <b>Aujourd’hui, c’est encore toi qui la fais avancer.</b>
       </div>
     </div>
     `
   );
 
-  await sleep(400);
+  await sleep(500);
 
   await addBotMsgTyped(
     `
     <div class="resultCard">
       <div class="leftTitle">
-        ⚠️ Ce que cette dépendance te coûte réellement
+        ⚠️ Le vrai coût n’est pas celui que tu imagines.
       </div>
 
-      <div style="margin-top:14px;line-height:1.5;">
-        ⏱️ Tu bloques actuellement entre
-        <b>${finalData.estimated_min} et ${finalData.estimated_max} heures</b>
-        par semaine.
-
+      <div style="margin-top:14px;line-height:1.7;">
+        Ce ne sont pas seulement des heures de travail.
         <br><br>
-
-        📈 Cela peut représenter entre
-        <b>${finalData.lost_clients_min} et ${finalData.lost_clients_max} opportunités</b>
-        que ton système n’absorbe pas encore sereinement.
+        ❤️ <b>Ce sont des moments avec tes proches où tu es là... sans vraiment être là.</b>
+        <br><br>
+        ❤️ <b>Des soirées où ton ordinateur est fermé... mais ton business continue de tourner dans ta tête.</b>
+        <br><br>
+        📈 <b>Et pendant que ton temps est absorbé par le quotidien, entre ${lostMin} et ${lostMax} opportunités de développement passent probablement à côté de toi.</b>
       </div>
     </div>
     `
   );
 
-  await sleep(400);
-
-  await addBotMsgTyped(
-    `
-    <b>Répartition de la dépendance par zone :</b>
-    ${renderDimensions(finalData.dimension_scores)}
-    `
-  );
-
-  await sleep(400);
-
-  await addBotMsgTyped(
-    `
-    <b>👉 Tes 3 principaux points de dépendance :</b>
-    <br><br>
-    1) ${finalData.top3[0]}<br>
-    2) ${finalData.top3[1]}<br>
-    3) ${finalData.top3[2]}
-    `
-  );
-
-  await sleep(400);
+  await sleep(500);
 
   await addBotMsgTyped(
     `
     <div class="resultCard">
       <div class="leftTitle">
-        👉 Ce que ça veut dire concrètement
+        📩 Je viens de t’envoyer ton analyse complète par email.
       </div>
 
-      <div style="margin-top:12px;line-height:1.6;">
-        Si rien ne change :
+      <div style="margin-top:14px;line-height:1.7;">
+        Tu y découvriras :
         <br><br>
-        • tu resteras le point de passage obligé<br>
-        • ta charge continuera d’augmenter<br>
-        • ta croissance restera liée à ton temps
+        ✅ <b>Pourquoi ton business dépend encore autant de toi.</b>
+        <br><br>
+        ✅ <b>Les habitudes qui entretiennent cette dépendance au quotidien.</b>
+        <br><br>
+        ✅ <b>Les 3 premiers leviers pour retrouver du temps, sans freiner la croissance de ton activité.</b>
       </div>
 
-      <div style="margin-top:18px;font-weight:900;">
-        Objectif : réduire les tâches qui reviennent vers toi et libérer de la capacité sans augmenter ta charge.
+      <div style="margin-top:20px;padding-top:18px;border-top:1px solid rgba(0,0,0,.08);line-height:1.7;font-weight:900;">
+        Tu as réussi à construire un business qui te fait vivre.
+        <br><br>
+        Maintenant, il est temps de construire un business qui puisse aussi te laisser vivre.
+      </div>
+
+      <div style="margin-top:18px;color:var(--muted);font-weight:800;">
+        Analyse envoyée à : <b>${email}</b>
       </div>
     </div>
     `
@@ -651,6 +638,7 @@ async function showMiniSummary(){
     <a
       href="${LINKEDIN_URL}"
       target="_blank"
+      rel="noopener noreferrer"
       class="dmBtn"
       style="text-decoration:none;display:inline-flex;justify-content:center;align-items:center;"
     >
