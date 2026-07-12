@@ -44,6 +44,17 @@ PRE_QUESTIONS = [
         "label": "Dernière question avant de commencer : quelle tâche te prend le plus de temps dans ton business aujourd’hui ?",
         "type": "textarea",
     },
+    {
+        "id": "why_gain_time",
+        "label": "Si tu récupérais 3 heures par semaine... qu’est-ce qui changerait le plus pour toi ?",
+        "type": "choice",
+        "options": {
+            "family": "Passer plus de temps avec ma famille et mes proches",
+            "freedom": "Pouvoir enfin décrocher quand ma journée est terminée",
+            "growth": "Développer davantage mon activité",
+            "serenity": "Retrouver plus de sérénité au quotidien",
+        },
+    },
 ]
 
 
@@ -290,6 +301,7 @@ def init_db():
                 estimated_max INTEGER,
                 email TEXT,
                 repetitive_tasks TEXT,
+                why_gain_time TEXT,
                 linkedin_clicked INTEGER DEFAULT 0,
                 contact_channel TEXT,
                 dm_text TEXT
@@ -299,6 +311,7 @@ def init_db():
 
         ensure_column(conn, "leads", "name", "TEXT")
         ensure_column(conn, "leads", "lead_json", "TEXT")
+        ensure_column(conn, "leads", "why_gain_time", "TEXT")
 
 
 @app.on_event("startup")
@@ -476,7 +489,26 @@ def estimate_lost_opportunities(dependency_pct: int):
     return 8, 15
 
 
-def build_full_email_summary(name: str, email: str, repetitive_tasks: str, profile: dict, result: dict) -> str:
+
+def motivation_label(why_gain_time: str) -> str:
+    labels = {
+        "family": "Passer plus de temps avec ma famille et mes proches",
+        "freedom": "Pouvoir enfin décrocher quand ma journée est terminée",
+        "growth": "Développer davantage mon activité",
+        "serenity": "Retrouver plus de sérénité au quotidien",
+    }
+
+    return labels.get(why_gain_time, "Retrouver davantage de temps et de liberté")
+
+
+def build_full_email_summary(
+    name: str,
+    email: str,
+    repetitive_tasks: str,
+    why_gain_time: str,
+    profile: dict,
+    result: dict,
+) -> str:
     top3 = result.get("top3", []) or []
     dimension_scores = result.get("dimension_scores", {}) or {}
 
@@ -495,6 +527,9 @@ Zone principale :
 
 Ce qui te prend le plus de temps aujourd’hui :
 {repetitive_tasks or "Non renseigné"}
+
+Ce que tu souhaites faire du temps récupéré :
+{motivation_label(why_gain_time)}
 
 Temps potentiellement bloqué chaque semaine :
 {result.get("estimated_min", 0)} à {result.get("estimated_max", 0)} heures
@@ -563,6 +598,12 @@ async def save_lead(request: Request):
     lead = body.get("lead", {}) or {}
     result = body.get("result", {}) or {}
 
+    why_gain_time = (
+        body.get("why_gain_time")
+        or lead.get("why_gain_time")
+        or ""
+    )
+
     dimension_scores = result.get("dimension_scores", {}) or {}
     now = utcnow_iso()
 
@@ -570,6 +611,7 @@ async def save_lead(request: Request):
         name=name,
         email=email,
         repetitive_tasks=repetitive_tasks,
+        why_gain_time=why_gain_time,
         profile=profile,
         result=result
     )
@@ -598,10 +640,11 @@ async def save_lead(request: Request):
                 estimated_max,
                 email,
                 repetitive_tasks,
+                why_gain_time,
                 contact_channel,
                 dm_text
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 now,
@@ -624,6 +667,7 @@ async def save_lead(request: Request):
                 result.get("estimated_max", 0),
                 email,
                 repetitive_tasks,
+                why_gain_time,
                 "AURA",
                 full_email_summary,
             )
@@ -642,6 +686,8 @@ async def save_lead(request: Request):
         "pattern": result.get("profile_title", ""),
         "top3": " | ".join(result.get("top3", [])),
         "tasks": repetitive_tasks,
+        "why_gain_time": why_gain_time,
+        "why_gain_time_label": motivation_label(why_gain_time),
 
         "revenue": profile.get("revenue_band", ""),
         "team_size": profile.get("team_size", ""),
@@ -670,14 +716,15 @@ async def save_lead(request: Request):
     }
 
     try:
-        requests.post(
+        webhook_response = requests.post(
             SHEETS_WEBHOOK_URL,
             json=payload,
             timeout=10
         )
+        webhook_response.raise_for_status()
 
     except Exception as e:
-        print("Erreur Google Sheets :", e)
+        print("Erreur Google Sheets / envoi email :", e)
 
     return JSONResponse({"ok": True})
 

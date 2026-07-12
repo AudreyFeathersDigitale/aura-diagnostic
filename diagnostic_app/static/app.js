@@ -25,6 +25,17 @@ const DEFAULT_PRE_QUESTIONS = [
     id: "main_time_pain",
     label: "Dernière question avant de commencer : quelle tâche te prend le plus de temps dans ton business aujourd’hui ?",
     type: "textarea"
+  },
+  {
+    id: "why_gain_time",
+    label: "Si tu récupérais 3 heures par semaine... qu’est-ce qui changerait le plus pour toi ?",
+    type: "choice",
+    options: {
+      family: "Passer plus de temps avec ma famille et mes proches",
+      freedom: "Pouvoir enfin décrocher quand ma journée est terminée",
+      growth: "Développer davantage mon activité",
+      serenity: "Retrouver plus de sérénité au quotidien"
+    }
   }
 ];
 
@@ -58,8 +69,36 @@ const preQuestions = sourcePreQuestions.map((question) => {
     };
   }
 
+  if(question.id === "why_gain_time"){
+    return {
+      ...question,
+      label: "Si tu récupérais 3 heures par semaine... qu’est-ce qui changerait le plus pour toi ?",
+      type: "choice",
+      options: {
+        family: "Passer plus de temps avec ma famille et mes proches",
+        freedom: "Pouvoir enfin décrocher quand ma journée est terminée",
+        growth: "Développer davantage mon activité",
+        serenity: "Retrouver plus de sérénité au quotidien"
+      }
+    };
+  }
+
   return question;
 });
+
+if(!preQuestions.some((question) => question.id === "why_gain_time")){
+  preQuestions.push({
+    id: "why_gain_time",
+    label: "Si tu récupérais 3 heures par semaine... qu’est-ce qui changerait le plus pour toi ?",
+    type: "choice",
+    options: {
+      family: "Passer plus de temps avec ma famille et mes proches",
+      freedom: "Pouvoir enfin décrocher quand ma journée est terminée",
+      growth: "Développer davantage mon activité",
+      serenity: "Retrouver plus de sérénité au quotidien"
+    }
+  });
+}
 
 let phase = "pre";
 let preStep = 0;
@@ -317,7 +356,12 @@ async function botAsk(){
       "bubbleQuestion"
     );
 
-    renderTextInput(question);
+    if(question.type === "choice"){
+      renderChoices(question.options || {});
+    } else {
+      renderTextInput(question);
+    }
+
     return;
   }
 
@@ -420,6 +464,26 @@ async function selectChoice(value){
 
   locked = true;
 
+  if(phase === "pre"){
+    const question = preQuestions[preStep];
+
+    if(!question || question.type !== "choice"){
+      locked = false;
+      return;
+    }
+
+    preAnswers[question.id] = value;
+    preStep++;
+
+    choices.innerHTML = "";
+
+    await sleep(250);
+
+    locked = false;
+    botAsk();
+    return;
+  }
+
   if(phase === "profile"){
     const [key] = PROFILE_QUESTIONS[profileStep];
     profileAnswers[key] = value;
@@ -521,6 +585,7 @@ async function finishDiagnostic(){
         name: preAnswers.name || preAnswers.nom || "",
         email: preAnswers.email || "",
         repetitive_tasks: preAnswers.main_time_pain || preAnswers.tasks || "",
+        why_gain_time: preAnswers.why_gain_time || "",
         answers,
         profile: profileAnswers,
         lead: preAnswers,
