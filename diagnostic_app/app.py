@@ -10,7 +10,7 @@ import os
 import requests
 
 BASE_DIR = Path(__file__).resolve().parent
-DB_PATH = Path(os.getenv("DB_PATH", "/data/aura_leads.db"))
+DB_PATH = Path(os.getenv("DB_PATH", str(BASE_DIR / "aura_leads.db")))
 
 app = FastAPI()
 
@@ -95,7 +95,7 @@ QUESTIONS = [
         "Si tu levais complètement le pied pendant <b>7 jours</b>, qu’est-ce qui se passerait réellement ?",
         {
             "A": "Le business continuerait normalement.",
-            "B": "Quelques choses s’accumuleraient.",
+            "B": "Quelques tâches s’accumuleraient.",
             "C": "Plusieurs choses ralentiraient.",
             "D": "Une grosse partie dépendrait de mon retour.",
         },
@@ -589,20 +589,30 @@ async def calculate(request: Request):
 async def save_lead(request: Request):
     body = await request.json()
 
-    name = body.get("name") or ""
-    email = body.get("email") or ""
-    repetitive_tasks = body.get("repetitive_tasks") or ""
+    name = str(body.get("name") or "").strip()
+    email = str(body.get("email") or "").strip()
+    repetitive_tasks = str(body.get("repetitive_tasks") or "").strip()
 
     answers = body.get("answers", {}) or {}
     profile = body.get("profile", {}) or {}
     lead = body.get("lead", {}) or {}
     result = body.get("result", {}) or {}
 
-    why_gain_time = (
+    why_gain_time = str(
         body.get("why_gain_time")
         or lead.get("why_gain_time")
         or ""
-    )
+    ).strip()
+
+    if not email or "@" not in email:
+        return JSONResponse(
+            {
+                "ok": False,
+                "email_sent": False,
+                "error": "Adresse email absente ou invalide.",
+            },
+            status_code=400,
+        )
 
     dimension_scores = result.get("dimension_scores", {}) or {}
     now = utcnow_iso()
@@ -613,64 +623,75 @@ async def save_lead(request: Request):
         repetitive_tasks=repetitive_tasks,
         why_gain_time=why_gain_time,
         profile=profile,
-        result=result
+        result=result,
     )
 
-    with get_conn() as conn:
-        conn.execute(
-            """
-            INSERT INTO leads (
-                created_at,
-                updated_at,
-                name,
-                answers_json,
-                profile_json,
-                lead_json,
-                revenue_band,
-                team_size,
-                dependency_pct,
-                autonomy_pct,
-                level,
-                subtitle,
-                profile_title,
-                profile_text,
-                dimension_scores_json,
-                top3_json,
-                estimated_min,
-                estimated_max,
-                email,
-                repetitive_tasks,
-                why_gain_time,
-                contact_channel,
-                dm_text
+    try:
+        with get_conn() as conn:
+            conn.execute(
+                """
+                INSERT INTO leads (
+                    created_at,
+                    updated_at,
+                    name,
+                    answers_json,
+                    profile_json,
+                    lead_json,
+                    revenue_band,
+                    team_size,
+                    dependency_pct,
+                    autonomy_pct,
+                    level,
+                    subtitle,
+                    profile_title,
+                    profile_text,
+                    dimension_scores_json,
+                    top3_json,
+                    estimated_min,
+                    estimated_max,
+                    email,
+                    repetitive_tasks,
+                    why_gain_time,
+                    contact_channel,
+                    dm_text
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    now,
+                    now,
+                    name,
+                    json.dumps(answers, ensure_ascii=False),
+                    json.dumps(profile, ensure_ascii=False),
+                    json.dumps(lead, ensure_ascii=False),
+                    profile.get("revenue_band", ""),
+                    profile.get("team_size", ""),
+                    result.get("dependency_pct", 0),
+                    100 - int(result.get("dependency_pct", 0) or 0),
+                    result.get("level", ""),
+                    result.get("subtitle", ""),
+                    result.get("profile_title", ""),
+                    result.get("profile_text", ""),
+                    json.dumps(dimension_scores, ensure_ascii=False),
+                    json.dumps(result.get("top3", []), ensure_ascii=False),
+                    result.get("estimated_min", 0),
+                    result.get("estimated_max", 0),
+                    email,
+                    repetitive_tasks,
+                    why_gain_time,
+                    "AURA",
+                    full_email_summary,
+                ),
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            (
-                now,
-                now,
-                name,
-                json.dumps(answers, ensure_ascii=False),
-                json.dumps(profile, ensure_ascii=False),
-                json.dumps(lead, ensure_ascii=False),
-                profile.get("revenue_band", ""),
-                profile.get("team_size", ""),
-                result.get("dependency_pct", 0),
-                100 - int(result.get("dependency_pct", 0) or 0),
-                result.get("level", ""),
-                result.get("subtitle", ""),
-                result.get("profile_title", ""),
-                result.get("profile_text", ""),
-                json.dumps(dimension_scores, ensure_ascii=False),
-                json.dumps(result.get("top3", []), ensure_ascii=False),
-                result.get("estimated_min", 0),
-                result.get("estimated_max", 0),
-                email,
-                repetitive_tasks,
-                why_gain_time,
-                "AURA",
-                full_email_summary,
-            )
+    except Exception as exc:
+        print("Erreur SQLite :", exc)
+        return JSONResponse(
+            {
+                "ok": False,
+                "email_sent": False,
+                "error": f"Erreur de sauvegarde locale : {exc}",
+            },
+            status_code=500,
         )
 
     payload = {
@@ -681,8 +702,14 @@ async def save_lead(request: Request):
         "autonomy_pct": 100 - int(result.get("dependency_pct", 0) or 0),
         "level": result.get("level", ""),
         "main_zone": result.get("profile_title", ""),
-        "time_lost": f'{result.get("estimated_min", 0)} à {result.get("estimated_max", 0)}h',
-        "lost_opportunities": f'{result.get("lost_clients_min", 0)} à {result.get("lost_clients_max", 0)}',
+        "time_lost": (
+            f'{result.get("estimated_min", 0)} à '
+            f'{result.get("estimated_max", 0)}h'
+        ),
+        "lost_opportunities": (
+            f'{result.get("lost_clients_min", 0)} à '
+            f'{result.get("lost_clients_max", 0)}'
+        ),
         "pattern": result.get("profile_title", ""),
         "top3": " | ".join(result.get("top3", [])),
         "tasks": repetitive_tasks,
@@ -719,14 +746,48 @@ async def save_lead(request: Request):
         webhook_response = requests.post(
             SHEETS_WEBHOOK_URL,
             json=payload,
-            timeout=10
+            timeout=15,
         )
         webhook_response.raise_for_status()
 
-    except Exception as e:
-        print("Erreur Google Sheets / envoi email :", e)
+        try:
+            webhook_data = webhook_response.json()
+        except ValueError:
+            webhook_data = {
+                "success": False,
+                "email_sent": False,
+                "error": "Réponse non JSON du webhook.",
+                "raw_response": webhook_response.text[:500],
+            }
 
-    return JSONResponse({"ok": True})
+        webhook_success = bool(webhook_data.get("success"))
+        email_sent = bool(webhook_data.get("email_sent"))
+
+        if not webhook_success:
+            print("Webhook Apps Script en erreur :", webhook_data)
+
+        return JSONResponse(
+            {
+                "ok": webhook_success,
+                "saved": True,
+                "email_sent": email_sent,
+                "webhook": webhook_data,
+            },
+            status_code=200 if webhook_success else 502,
+        )
+
+    except requests.RequestException as exc:
+        print("Erreur Google Sheets / envoi email :", exc)
+
+        return JSONResponse(
+            {
+                "ok": False,
+                "saved": True,
+                "email_sent": False,
+                "error": str(exc),
+            },
+            status_code=502,
+        )
 
 
 if __name__ == "__main__":

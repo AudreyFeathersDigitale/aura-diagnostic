@@ -560,23 +560,52 @@ async function finishDiagnostic(){
 
   await sleep(1200);
 
-  const response = await fetch("/calculate", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      answers,
-      profile: profileAnswers,
-      lead: preAnswers
-    })
-  });
+  try{
+    const calculateResponse = await fetch("/calculate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        answers,
+        profile: profileAnswers,
+        lead: preAnswers
+      })
+    });
 
-  const data = await response.json();
-  finalData = data;
+    if(!calculateResponse.ok){
+      throw new Error(
+        `Erreur de calcul (${calculateResponse.status})`
+      );
+    }
+
+    finalData = await calculateResponse.json();
+  }catch(error){
+    console.error("Erreur /calculate :", error);
+
+    await addBotMsgTyped(
+      `
+      <div class="resultCard">
+        <div class="leftTitle">
+          Une erreur est survenue pendant le calcul.
+        </div>
+
+        <div style="margin-top:12px;line-height:1.6;">
+          Merci de recommencer le diagnostic.
+        </div>
+      </div>
+      `
+    );
+
+    locked = false;
+    return;
+  }
+
+  finalData.email_sent = false;
+  finalData.email_error = "";
 
   try{
-    await fetch("/save-lead", {
+    const saveResponse = await fetch("/save-lead", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -592,8 +621,35 @@ async function finishDiagnostic(){
         result: finalData
       })
     });
+
+    let saveData = {};
+
+    try{
+      saveData = await saveResponse.json();
+    }catch(parseError){
+      console.error("Réponse /save-lead non JSON :", parseError);
+    }
+
+    finalData.email_sent =
+      saveResponse.ok &&
+      saveData.ok === true &&
+      saveData.email_sent === true;
+
+    if(!finalData.email_sent){
+      finalData.email_error =
+        saveData.error ||
+        saveData.webhook?.error ||
+        "L’envoi du mail n’a pas pu être confirmé.";
+
+      console.error("Erreur /save-lead :", {
+        status: saveResponse.status,
+        data: saveData
+      });
+    }
   }catch(error){
-    console.log("Erreur save-lead :", error);
+    finalData.email_sent = false;
+    finalData.email_error = error.message;
+    console.error("Erreur réseau /save-lead :", error);
   }
 
   await showMiniSummary();
@@ -673,7 +729,11 @@ async function showMiniSummary(){
     `
     <div class="resultCard">
       <div class="leftTitle">
-        📩 Je viens de t’envoyer ton analyse complète par email.
+        ${
+          finalData.email_sent
+            ? "📩 Je viens de t’envoyer ton analyse complète par email."
+            : "📩 Ton analyse complète est prête."
+        }
       </div>
 
       <div style="margin-top:14px;line-height:1.7;">
@@ -693,7 +753,14 @@ async function showMiniSummary(){
       </div>
 
       <div style="margin-top:18px;color:var(--muted);font-weight:800;">
-        Analyse envoyée à : <b>${email}</b>
+        ${
+          finalData.email_sent
+            ? `Analyse envoyée à : <b>${email}</b>`
+            : `
+              L’envoi automatique n’a pas pu être confirmé.
+              Vérifie ton adresse ou réessaie dans quelques instants.
+            `
+        }
       </div>
     </div>
     `

@@ -1,3 +1,8 @@
+Bibliothèque
+/
+index_corrige.txt
+
+
 <!doctype html>
 <html lang="fr">
 
@@ -75,7 +80,7 @@
               </div>
 
               <div class="chatHeaderSub">
-                Je vais d’abord te demander quelques infos rapides, puis on commence le diagnostic.
+                Je vais d’abord te demander quelques informations rapides, puis nous commencerons le diagnostic.
               </div>
             </div>
           </div>
@@ -91,11 +96,11 @@
 
         <div class="footer" id="footer">
           <div class="cta">
-            Mot clé LinkedIn :
+            Mot-clé LinkedIn :
             <code>diagnostic</code>
           </div>
 
-          <button class="restart" id="restart">
+          <button class="restart" id="restart" type="button">
             Recommencer
           </button>
         </div>
@@ -108,36 +113,30 @@
 
   <script id="aura-data" type="application/json">
 {
-  "PRE_QUESTIONS": [
-    {
-      "id": "name",
-      "label": "Afin de savoir où tu perds du temps et de personnaliser ta synthèse, j’ai besoin de quelques infos rapides. Quel est ton prénom ?",
-      "type": "text"
-    },
-    {
-      "id": "email",
-      "label": "À quelle adresse email veux-tu recevoir ta synthèse complète ?",
-      "type": "email"
-    },
-    {
-      "id": "main_time_pain",
-      "label": "Aujourd’hui, quelle tâche te prend le plus de temps dans ton business ?",
-      "type": "textarea"
-    }
-  ],
+  "PRE_QUESTIONS": %PRE_QUESTIONS_JSON%,
   "PROFILE_QUESTIONS": %PROFILE_QUESTIONS_JSON%,
   "QUESTIONS": %QUESTIONS_JSON%,
   "LINKEDIN_URL": %LINKEDIN_URL_JSON%
 }
-</script>
+  </script>
 
-<script>
-  window.AURA_CONFIG = JSON.parse(
-    document.getElementById("aura-data").textContent
-  );
-</script>
+  <script>
+    try {
+      window.AURA_CONFIG = JSON.parse(
+        document.getElementById("aura-data").textContent
+      );
+    } catch (error) {
+      console.error("Impossible de charger la configuration AURA :", error);
+      window.AURA_CONFIG = {
+        PRE_QUESTIONS: [],
+        PROFILE_QUESTIONS: [],
+        QUESTIONS: [],
+        LINKEDIN_URL: "#"
+      };
+    }
+  </script>
 
-  <script src="/static/app.js"></script>
+  <script src="/static/app.js?v=20260713"></script>
 
 </body>
 
