@@ -21,7 +21,7 @@ app.mount(
 )
 
 LINKEDIN_URL = "https://www.linkedin.com/in/audrey-mouton-80b902217/?skipRedirect=true"
-SHEETS_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycby-C1sP75v7rOkqY0qUOFzIN3YGIk_Pw1FauSp6q0n5ORW_j63bTgDmFW3j1jnqmtXS/exec"
+SHEETS_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbymHdVG7FtabTmM24alKSITd-LQzbmpNDGALOSPs1tJaAQfSo8aYO05_8fU7EHwqq5p/exec"
 
 
 # =========================================================
