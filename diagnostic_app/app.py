@@ -21,7 +21,12 @@ app.mount(
 )
 
 LINKEDIN_URL = "https://www.linkedin.com/in/audrey-mouton-80b902217/?skipRedirect=true"
-SHEETS_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbymHdVG7FtabTmM24alKSITd-LQzbmpNDGALOSPs1tJaAQfSo8aYO05_8fU7EHwqq5p/exec"
+APP_BUILD = "2026-07-14-render-fix-v3"
+
+SHEETS_WEBHOOK_URL = os.getenv(
+    "SHEETS_WEBHOOK_URL",
+    "https://script.google.com/macros/s/AKfycby-C1sP75v7rOkqY0qUOFzIN3YGIk_Pw1FauSp6q0n5ORW_j63bTgDmFW3j1jnqmtXS/exec",
+).strip()
 
 
 # =========================================================
@@ -353,6 +358,16 @@ async def home():
     return HTMLResponse(html_content)
 
 
+@app.get("/health")
+async def health():
+    return JSONResponse({
+        "ok": True,
+        "build": APP_BUILD,
+        "webhook_configured": bool(SHEETS_WEBHOOK_URL),
+        "db_path": str(DB_PATH),
+    })
+
+
 # =========================================================
 # CALCULS
 # =========================================================
@@ -617,6 +632,8 @@ async def save_lead(request: Request):
         )
 
     dimension_scores = result.get("dimension_scores", {}) or {}
+    dependency_pct = int(result.get("dependency_pct") or 0)
+    autonomy_pct = max(0, 100 - dependency_pct)
     now = utcnow_iso()
 
     full_email_summary = build_full_email_summary(
@@ -627,6 +644,9 @@ async def save_lead(request: Request):
         profile=profile,
         result=result,
     )
+
+    sqlite_saved = False
+    sqlite_error = ""
 
     try:
         with get_conn() as conn:
@@ -669,9 +689,9 @@ async def save_lead(request: Request):
                     json.dumps(lead, ensure_ascii=False),
                     profile.get("revenue_band", ""),
                     profile.get("team_size", ""),
-                    result.get("dependency_pct", 0),
-                    result.get("dependency_pct", 0),
-                    100 - int(result.get("dependency_pct", 0) or 0),
+                    dependency_pct,
+                    dependency_pct,
+                    autonomy_pct,
                     result.get("level", ""),
                     result.get("subtitle", ""),
                     result.get("profile_title", ""),
@@ -687,23 +707,22 @@ async def save_lead(request: Request):
                     full_email_summary,
                 ),
             )
+
+        sqlite_saved = True
+
     except Exception as exc:
-        print("Erreur SQLite :", exc)
-        return JSONResponse(
-            {
-                "ok": False,
-                "email_sent": False,
-                "error": f"Erreur de sauvegarde locale : {exc}",
-            },
-            status_code=500,
-        )
+        # Une ancienne base SQLite Render ne doit jamais empêcher
+        # l'enregistrement Google Sheets ni l'envoi de l'email.
+        sqlite_error = str(exc)
+        print("AVERTISSEMENT SQLite — traitement poursuivi :", sqlite_error)
+
 
     payload = {
         "name": name,
         "email": email,
         "contact": email,
-        "score_dependency": result.get("dependency_pct", 0),
-        "autonomy_pct": 100 - int(result.get("dependency_pct", 0) or 0),
+        "score_dependency": dependency_pct,
+        "autonomy_pct": autonomy_pct,
         "level": result.get("level", ""),
         "main_zone": result.get("profile_title", ""),
         "time_lost": (
@@ -746,11 +765,29 @@ async def save_lead(request: Request):
         "q_projection": answers.get("projection", ""),
     }
 
+    if not SHEETS_WEBHOOK_URL:
+        return JSONResponse(
+            {
+                "ok": False,
+                "saved": sqlite_saved,
+                "sheet_saved": False,
+                "email_sent": False,
+                "sqlite_error": sqlite_error,
+                "error": "SHEETS_WEBHOOK_URL n'est pas configurée.",
+                "build": APP_BUILD,
+            },
+            status_code=500,
+        )
+
     try:
+        print("BUILD :", APP_BUILD)
+        print("WEBHOOK UTILISÉ :", SHEETS_WEBHOOK_URL)
+        print("EMAIL ENVOYÉ :", email)
+
         webhook_response = requests.post(
             SHEETS_WEBHOOK_URL,
             json=payload,
-            timeout=15,
+            timeout=20,
         )
         webhook_response.raise_for_status()
 
@@ -759,23 +796,29 @@ async def save_lead(request: Request):
         except ValueError:
             webhook_data = {
                 "success": False,
+                "sheet_saved": False,
                 "email_sent": False,
                 "error": "Réponse non JSON du webhook.",
                 "raw_response": webhook_response.text[:500],
             }
 
         webhook_success = bool(webhook_data.get("success"))
+        sheet_saved = bool(
+            webhook_data.get("sheet_saved", webhook_success)
+        )
         email_sent = bool(webhook_data.get("email_sent"))
 
-        if not webhook_success:
-            print("Webhook Apps Script en erreur :", webhook_data)
+        print("Réponse Apps Script :", webhook_data)
 
         return JSONResponse(
             {
                 "ok": webhook_success,
-                "saved": True,
+                "saved": sqlite_saved,
+                "sheet_saved": sheet_saved,
                 "email_sent": email_sent,
+                "sqlite_error": sqlite_error,
                 "webhook": webhook_data,
+                "build": APP_BUILD,
             },
             status_code=200 if webhook_success else 502,
         )
@@ -786,13 +829,22 @@ async def save_lead(request: Request):
         return JSONResponse(
             {
                 "ok": False,
-                "saved": True,
+                "saved": sqlite_saved,
+                "sheet_saved": False,
                 "email_sent": False,
+                "sqlite_error": sqlite_error,
                 "error": str(exc),
+                "build": APP_BUILD,
             },
             status_code=502,
         )
 
 
+
 if __name__ == "__main__":
-    uvicorn.run("app:app", host="127.0.0.1", port=8000, reload=True)
+    uvicorn.run(
+        app,
+        host="0.0.0.0",
+        port=int(os.getenv("PORT", "8000")),
+        reload=False,
+    )
